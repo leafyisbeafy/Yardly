@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun YardlyApp() {
     var selectedIconSection by remember { mutableStateOf("home") }
-    var selectedNavSection by remember { mutableStateOf("garage-sale") }
+    var selectedNavSection by remember { mutableStateOf("lease") }
     var searchText by remember { mutableStateOf("") }
     var selectedSectionOptions by remember { mutableStateOf<String?>(null) }
     val buttonCoordinates = remember { mutableStateMapOf<String, Float>() }
@@ -63,7 +63,8 @@ fun YardlyApp() {
 
     val sectionOptions = mapOf(
         "aqua-swap" to listOf("Freshwater Fish", "Saltwater Fish", "Coral", "Aquarium Plants"),
-        "garage-sale" to listOf("Furniture", "Appliances", "Clothing", "Toys")
+        "yard-sales" to listOf("Furniture", "Appliances", "Clothing", "Toys"),
+        "lease" to listOf("Sublease", "Apartment", "Furniture")
     )
 
     Box(
@@ -218,7 +219,8 @@ fun SectionNavigation(
 ) {
     val sections = listOf(
         "aqua-swap" to "Aqua Swap",
-        "garage-sale" to "Garage Sale",
+        "yard-sales" to "Yard Sales",
+        "lease" to "Lease",
     )
 
     androidx.compose.foundation.lazy.LazyRow(
@@ -361,7 +363,8 @@ fun ContentArea(
         "home" -> {
             val content = when (selectedNavSection) {
                 "aqua-swap" -> "Welcome to the Aqua Swap Section"
-                "garage-sale" -> "Welcome to the Garage Sale Section"
+                "yard-sales" -> "Welcome to the Yard Sales Section"
+                "lease" -> "Welcome to the Lease Section"
                 else -> "Welcome to your home dashboard"
             }
             Text(
