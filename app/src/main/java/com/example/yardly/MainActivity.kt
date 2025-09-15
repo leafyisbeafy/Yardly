@@ -18,11 +18,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector // Added for type checking
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource // Added for custom drawable
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -202,9 +200,7 @@ fun TopBar(
                 .background(MaterialTheme.colorScheme.surface, CircleShape) // Changed to theme surface
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.msg), // Changed to R.drawable.msg
                 contentDescription = "Messenger",
-                tint = MaterialTheme.colorScheme.onSurface, // Changed to theme onSurface
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -267,69 +263,21 @@ fun BottomIconNavigation(
     selectedSection: String,
     onSectionSelected: (String) -> Unit
 ) {
-    val iconSections = listOf(
-        Triple("home",
-            "Home",
-            R.drawable.home as Any),
-
-        Triple("marketplace",
-            "Marketplace",
-            R.drawable.marketplace as Any),
-
-        Triple(
-            "create",
-            "Create",
-            R.drawable.create as Any
-        ),
-        Triple("save",
-            "saved",
-            R.drawable.save as Any),
-
-        Triple("profile",
-            "Profile",
-            R.drawable.profile as Any)
     )
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                MaterialTheme.colorScheme.surfaceVariant, // Changed to theme surfaceVariant
                 RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
             .navigationBarsPadding()
-            .padding(vertical = 10.dp, horizontal = 4.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        iconSections.forEach { (key, label, iconAsset) ->
-            val isSelected = selectedSection == key
 
-            IconButton(
-                onClick = { onSectionSelected(key) },
                 modifier = Modifier
-                    .size(50.dp) // Added size
-                    .background(
-                        if (isSelected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
-                        CircleShape // Changed to CircleShape
-                    )
-                // Removed .padding(horizontal = 10.dp, vertical = 0.25.dp)
             ) {
-                val iconTint = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                when (iconAsset) {
-                    is ImageVector -> Icon(
-                        imageVector = iconAsset,
-                        contentDescription = label,
-                        tint = iconTint, // Changed to theme-aware tint
-                        modifier = Modifier.size(30.dp)
-                    )
-                    is Int -> Icon(
-                        painter = painterResource(id = iconAsset),
-                        contentDescription = label,
-                        tint = iconTint, // Changed to theme-aware tint
-                        modifier = Modifier.size(30.dp)
-                    )
-                }
+                )
             }
         }
     }
@@ -346,9 +294,7 @@ fun SectionOptions(options: List<String>, xOffset: Float) {
         options.forEach { name ->
             Button(
                 onClick = { /* Handle button click */ },
-                modifier = Modifier.padding(vertical = 4.dp)
             ) {
-                Text(text = name)
             }
         }
     }
