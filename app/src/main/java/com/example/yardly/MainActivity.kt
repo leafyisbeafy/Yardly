@@ -217,6 +217,7 @@ fun SectionNavigation(
         "aqua-swap" to "Aqua Swap",
         "yard-sales" to "Yard Sales",
         "lease" to "Lease",
+        "auction" to "Auction"
     )
 
     androidx.compose.foundation.lazy.LazyRow(
@@ -311,6 +312,7 @@ fun ContentArea(
                 "aqua-swap" -> "Welcome to the Aqua Swap Section"
                 "yard-sales" -> "Welcome to the Yard Sales Section"
                 "lease" -> "Welcome to the Lease Section"
+                "auction" -> "Welcome to the Auction Section"
                 else -> "Welcome to your home dashboard"
             }
             Text(
