@@ -8,11 +8,13 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -68,7 +70,7 @@ fun YardlyApp() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background) // Changed to theme background
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -132,6 +134,7 @@ fun YardlyApp() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
     searchText: String,
@@ -142,7 +145,7 @@ fun TopBar(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                MaterialTheme.colorScheme.surfaceVariant, // Changed to theme surfaceVariant
+                MaterialTheme.colorScheme.surfaceVariant,
                 RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
             )
             .statusBarsPadding()
@@ -155,7 +158,7 @@ fun TopBar(
             modifier = Modifier
                 .weight(1f)
                 .height(40.dp)
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp)) // Changed to theme surface
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
                 .padding(horizontal = 15.dp),
             contentAlignment = Alignment.CenterStart
         ) {
@@ -166,7 +169,7 @@ fun TopBar(
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Search",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant, // Changed to theme onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
 
@@ -175,14 +178,14 @@ fun TopBar(
                     onValueChange = onSearchTextChange,
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = androidx.compose.ui.text.TextStyle(
-                        color = MaterialTheme.colorScheme.onSurface, // Changed to theme onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 16.sp
                     ),
                     decorationBox = { innerTextField ->
                         if (searchText.isEmpty()) {
                             Text(
                                 text = "Search...",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant, // Changed to theme onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 16.sp
                             )
                         }
@@ -197,10 +200,12 @@ fun TopBar(
             onClick = onMessengerClick,
             modifier = Modifier
                 .size(40.dp)
-                .background(MaterialTheme.colorScheme.surface, CircleShape) // Changed to theme surface
+                .background(MaterialTheme.colorScheme.surface, CircleShape)
         ) {
             Icon(
+                imageVector = Icons.Default.Email,
                 contentDescription = "Messenger",
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -220,7 +225,7 @@ fun SectionNavigation(
         "auction" to "Auction"
     )
 
-    androidx.compose.foundation.lazy.LazyRow(
+    LazyRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 8.dp),
@@ -248,7 +253,6 @@ fun SectionNavigation(
             ) {
                 Text(
                     text = sectionName,
-                    // Text color is now handled by ButtonDefaults.buttonColors contentColor
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center,
@@ -264,20 +268,46 @@ fun BottomIconNavigation(
     selectedSection: String,
     onSectionSelected: (String) -> Unit
 ) {
+    val sections = listOf(
+        "home" to "Home",
+        "yardly" to "Yardly",
+        "save" to "Saved Items",
+        "profile" to "Profile"
     )
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(
+                MaterialTheme.colorScheme.surfaceVariant,
                 RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
             .navigationBarsPadding()
+            .padding(vertical = 10.dp, horizontal = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        sections.forEach { (sectionKey, sectionName) ->
+            val isSelected = selectedSection == sectionKey
 
+            Button(
+                onClick = { onSectionSelected(sectionKey) },
                 modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+                    contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
+                ),
+                shape = RoundedCornerShape(20.dp),
+                contentPadding = PaddingValues(horizontal = 4.dp)
             ) {
+                Text(
+                    text = sectionName,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1
                 )
             }
         }
@@ -289,13 +319,31 @@ fun SectionOptions(options: List<String>, xOffset: Float) {
     val density = LocalDensity.current
     val xOffsetDp = with(density) { xOffset.toDp() }
     Column(
-        modifier = Modifier.fillMaxWidth().padding(start = xOffsetDp, bottom = 16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = xOffsetDp, bottom = 16.dp),
         horizontalAlignment = Alignment.Start
     ) {
         options.forEach { name ->
             Button(
                 onClick = { /* Handle button click */ },
+                modifier = Modifier
+                    .width(110.dp)
+                    .height(44.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.primary
+                ),
+                shape = RoundedCornerShape(20.dp),
+                contentPadding = PaddingValues(12.dp)
             ) {
+                Text(
+                    text = name,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1
+                )
             }
         }
     }
@@ -323,8 +371,15 @@ fun ContentArea(
                 lineHeight = 24.sp
             )
         }
-        "create" -> Text(
-            text = "Create\n\nCreate new content, posts, or items here",
+        "yardly" -> Text(
+            text = "Welcome to Yardly!",
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = 18.sp,
+            textAlign = TextAlign.Center,
+            lineHeight = 24.sp
+        )
+        "save" -> Text(
+            text = "Saved Items section is under construction.",
             color = MaterialTheme.colorScheme.onBackground,
             fontSize = 18.sp,
             textAlign = TextAlign.Center,
@@ -338,14 +393,17 @@ fun ContentArea(
             lineHeight = 24.sp
         )
         "messenger" -> {
-            val content = buildString {
-                append("Messages\n\n")
-                append("Your conversations and messages will appear here\n\n")
-                append("John Doe\n")
-                append("Hey! Are you still interested in the pet adoption?\n\n")
-                append("Sarah Wilson\n")
-                append("Thanks for the lease swap info!")
-            }
+            val content = """
+                Messages
+
+                Your conversations and messages will appear here
+
+                John Doe
+                Hey! Are you still interested in the pet adoption?
+
+                Sarah Wilson
+                Thanks for the lease swap info!
+            """.trimIndent()
             Text(
                 text = content,
                 color = MaterialTheme.colorScheme.onBackground,
