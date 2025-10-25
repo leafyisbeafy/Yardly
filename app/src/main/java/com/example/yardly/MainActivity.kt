@@ -22,7 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,13 +60,14 @@ fun YardlyApp() {
     var selectedNavSection by remember { mutableStateOf("lease") }
     var selectedSectionOptions by remember { mutableStateOf<String?>(null) }
     val buttonCoordinates = remember { mutableStateMapOf<String, Float>() }
+    var isChatVisible by remember { mutableStateOf(false) }
 
     val showHeaderAndNav = selectedIconSection == "home"
 
     val sectionOptions = mapOf(
-        "aqua-swap" to listOf("Tank", "Substrate", "live plants", "live fish swap", "Equipment"),
+        "aqua-swap" to listOf("Equipment", "Coral", "Plants", "Substarte", "Tank"),
         "yard-sales" to listOf("Move Out", "Garage Sale"),
-        "lease" to listOf("Room", "Retail", "Car")
+        "lease" to listOf("Room", "Car", "Retail Store")
     )
 
     Box(
@@ -76,11 +80,7 @@ fun YardlyApp() {
         ) {
             // Top Bar (Header)
             if (showHeaderAndNav) {
-                TopBar(
-                    onMessengerClick = {
-                        selectedIconSection = "messenger"
-                    }
-                )
+                TopBar()
             }
 
             // Content Area
@@ -128,14 +128,37 @@ fun YardlyApp() {
                 }
             )
         }
+
+        // Floating Chat Head with restricted boundaries
+        val configuration = LocalConfiguration.current
+        val density = LocalDensity.current
+        val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
+        val topBarHeight = if (showHeaderAndNav) with(density) { 80.dp.toPx() } else 0f
+        val bottomNavHeight = with(density) { 64.dp.toPx() }
+        val sectionNavHeight = if (showHeaderAndNav && selectedSectionOptions != null) with(density) { 52.dp.toPx() } else 0f
+        val contentPadding = with(density) { 20.dp.toPx() }
+
+        DraggableChatHead(
+            onChatClick = {
+                isChatVisible = true
+            },
+            topBoundary = topBarHeight + contentPadding,
+            bottomBoundary = screenHeightPx - bottomNavHeight - sectionNavHeight - contentPadding
+        )
+
+        // Chat Overlay
+        ChatOverlay(
+            isVisible = isChatVisible,
+            onDismiss = {
+                isChatVisible = false
+            }
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(
-    onMessengerClick: () -> Unit
-) {
+fun TopBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -146,30 +169,16 @@ fun TopBar(
             .statusBarsPadding()
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.Center
     ) {
         // App Title
         Text(
-            text = "Yardly",
-            fontSize = 24.sp,
+            text = "MarketPlace",
+            fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Cursive,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-
-        // Messenger Button
-        IconButton(
-            onClick = onMessengerClick,
-            modifier = Modifier
-                .size(40.dp)
-                .background(MaterialTheme.colorScheme.surface, CircleShape)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Email,
-                contentDescription = "Messenger",
-                tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.size(20.dp)
-            )
-        }
     }
 }
 
