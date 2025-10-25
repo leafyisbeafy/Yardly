@@ -55,16 +55,15 @@ class MainActivity : ComponentActivity() {
 fun YardlyApp() {
     var selectedIconSection by remember { mutableStateOf("home") }
     var selectedNavSection by remember { mutableStateOf("lease") }
-    var searchText by remember { mutableStateOf("") }
     var selectedSectionOptions by remember { mutableStateOf<String?>(null) }
     val buttonCoordinates = remember { mutableStateMapOf<String, Float>() }
 
     val showHeaderAndNav = selectedIconSection == "home"
 
     val sectionOptions = mapOf(
-        "aqua-swap" to listOf("Freshwater Fish", "Saltwater Fish", "Coral", "Aquarium Plants"),
-        "yard-sales" to listOf("Furniture", "Appliances", "Clothing", "Toys"),
-        "lease" to listOf("Sublease", "Apartment", "Furniture")
+        "aqua-swap" to listOf("Tank", "Substrate", "live plants", "live fish swap", "Equipment"),
+        "yard-sales" to listOf("Move Out", "Garage Sale"),
+        "lease" to listOf("Room", "Retail", "Car")
     )
 
     Box(
@@ -78,8 +77,6 @@ fun YardlyApp() {
             // Top Bar (Header)
             if (showHeaderAndNav) {
                 TopBar(
-                    searchText = searchText,
-                    onSearchTextChange = { searchText = it },
                     onMessengerClick = {
                         selectedIconSection = "messenger"
                     }
@@ -137,8 +134,6 @@ fun YardlyApp() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
-    searchText: String,
-    onSearchTextChange: (String) -> Unit,
     onMessengerClick: () -> Unit
 ) {
     Row(
@@ -151,49 +146,15 @@ fun TopBar(
             .statusBarsPadding()
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Search Container
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .height(40.dp)
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
-                .padding(horizontal = 15.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(20.dp)
-                )
-
-                BasicTextField(
-                    value = searchText,
-                    onValueChange = onSearchTextChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    textStyle = androidx.compose.ui.text.TextStyle(
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 16.sp
-                    ),
-                    decorationBox = { innerTextField ->
-                        if (searchText.isEmpty()) {
-                            Text(
-                                text = "Search...",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 16.sp
-                            )
-                        }
-                        innerTextField()
-                    }
-                )
-            }
-        }
+        // App Title
+        Text(
+            text = "Yardly",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
         // Messenger Button
         IconButton(
