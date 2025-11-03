@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yardly.ui.components.AdCard
+import com.example.yardly.ui.components.AdLoginSheet
 import com.example.yardly.ui.theme.YardlyTheme
 
 class MainActivity : ComponentActivity() {
@@ -50,6 +51,7 @@ fun YardlyApp() {
     var selectedSectionOptions by remember { mutableStateOf<String?>(null) }
     val buttonCoordinates = remember { mutableStateMapOf<String, Float>() }
     var showRehomeInAquaSwap by remember { mutableStateOf(false) }
+    var showAdLoginModal by remember { mutableStateOf(false) }
 
     val showHeaderAndNav = selectedIconSection == "home"
 
@@ -89,7 +91,8 @@ fun YardlyApp() {
             ) {
                 ContentArea(
                     selectedIconSection = selectedIconSection,
-                    selectedNavSection = selectedNavSection
+                    selectedNavSection = selectedNavSection,
+                    onAdClick = { showAdLoginModal = true }
                 )
             }
 
@@ -135,6 +138,12 @@ fun YardlyApp() {
                 }
             )
         }
+
+        // Ad Login Modal
+        AdLoginSheet(
+            showModal = showAdLoginModal,
+            onDismiss = { showAdLoginModal = false }
+        )
     }
 }
 
@@ -358,7 +367,8 @@ fun SectionOptions(options: List<String>, xOffset: Float) {
 @Composable
 fun ContentArea(
     selectedIconSection: String,
-    selectedNavSection: String
+    selectedNavSection: String,
+    onAdClick: () -> Unit = {}
 ) {
     when (selectedIconSection) {
         "home" -> {
@@ -371,7 +381,8 @@ fun ContentArea(
                 items(10) { index ->
                     AdCard(
                         advertisementName = "Advertisement ${index + 1}",
-                        userName = "User ${index + 1}"
+                        userName = "User ${index + 1}",
+                        onAdClick = onAdClick
                     )
                 }
             }

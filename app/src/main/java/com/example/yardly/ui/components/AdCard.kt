@@ -26,12 +26,14 @@ fun AdCard(
     advertisementName: String = "Name of the advertisement",
     userName: String = "First Last",
     onSaveClick: () -> Unit = {},
+    onAdClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .width(350.dp)
             .wrapContentHeight(),
+        onClick = onAdClick,
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
