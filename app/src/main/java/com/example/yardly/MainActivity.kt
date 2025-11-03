@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.components.AdCard
 import com.example.yardly.ui.theme.YardlyTheme
 
 class MainActivity : ComponentActivity() {
@@ -83,8 +85,7 @@ fun YardlyApp() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(20.dp),
-                contentAlignment = Alignment.Center
+                    .padding(20.dp)
             ) {
                 ContentArea(
                     selectedIconSection = selectedIconSection,
@@ -361,20 +362,19 @@ fun ContentArea(
 ) {
     when (selectedIconSection) {
         "home" -> {
-            val content = when (selectedNavSection) {
-                "aqua-swap" -> "Welcome to the Aqua Swap Section"
-                "yard-sales" -> "Welcome to the Yard Sales Section"
-                "lease" -> "Welcome to the Lease Section"
-                "auction" -> "Welcome to the Auction Section"
-                else -> "Welcome to your home dashboard"
+            // Show scrollable list of AdCards
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(10) { index ->
+                    AdCard(
+                        advertisementName = "Advertisement ${index + 1}",
+                        userName = "User ${index + 1}"
+                    )
+                }
             }
-            Text(
-                text = content,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp,
-                textAlign = TextAlign.Center,
-                lineHeight = 24.sp
-            )
         }
         "yardly" -> Text(
             text = "Welcome to Yardly!",
