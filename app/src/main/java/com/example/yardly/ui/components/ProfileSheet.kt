@@ -89,13 +89,13 @@ private fun ProfileContent(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "University of Pennsylvania",
+                        text = "Peyton Venzeee",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        text = "uofpenn",
+                        text = "peyton",
                         fontSize = 16.sp,
                         color = Color(0xFF666666)
                     )
@@ -114,7 +114,7 @@ private fun ProfileContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "PENN",
+                            text = "Peyton",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -138,7 +138,7 @@ private fun ProfileContent(
 
             // Bio
             Text(
-                text = "The University of Pennsylvania is a private Ivy League research university in Philadelphia, Pennsylvania. Founded in 1740, it is one of the oldest institutions of higher education in the United States and among the most prestigious universities in the world.",
+                text = "just another broke college student trying to make some extra cash by selling off my old books, clothes I totally don’t wear anymore, and a few electronics that are just collecting dust. Honestly, it’s wild how much stuff we accumulate over time!",
                 fontSize = 15.sp,
                 color = MaterialTheme.colorScheme.onBackground,
                 lineHeight = 20.sp
@@ -146,90 +146,19 @@ private fun ProfileContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Tag/Pill
             Surface(
-                modifier = Modifier
-                    .border(
-                        width = 1.dp,
-                        color = Color(0xFFE0E0E0),
-                        shape = RoundedCornerShape(16.dp)
-                    ),
+                modifier = Modifier.border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(16.dp)),
                 shape = RoundedCornerShape(16.dp),
                 color = Color.Transparent
             ) {
-                Text(
-                    text = "PennGrad",
-                    fontSize = 14.sp,
-                    color = Color(0xFF666666),
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Followers and link
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "70.5K followers",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Text(
-                    text = " • ",
-                    fontSize = 14.sp,
-                    color = Color(0xFF666666)
-                )
-                Text(
-                    text = "upenn.edu",
-                    fontSize = 14.sp,
-                    color = Color(0xFF0066CC),
-                    fontWeight = FontWeight.Medium
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Action Buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Button(
-                    onClick = { /* Following action */ },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(40.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFE0E0E0),
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(8.dp)
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Following",
+                        text = "Channel: Peyton Used Stuff",
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-
-                OutlinedButton(
-                    onClick = { /* Message action */ },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(40.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = Color.Black
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = "Message",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
