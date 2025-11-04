@@ -23,34 +23,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ProfileSheet(
-    showModal: Boolean,
-    onDismiss: () -> Unit,
-    onBackClick: () -> Unit = {},
-    onEditClick: () -> Unit = {},
-    onMenuClick: () -> Unit = {}
-) {
-    if (showModal) {
-        ModalBottomSheet(
-            onDismissRequest = onDismiss,
-            sheetState = rememberModalBottomSheetState(),
-            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-            containerColor = Color.White,
-            dragHandle = null
-        ) {
-            ProfileContent(
-                onBackClick = onBackClick,
-                onEditClick = onEditClick,
-                onMenuClick = onMenuClick
-            )
-        }
-    }
-}
+// The ModalBottomSheet logic has been moved to ProfilePopup.kt
 
 @Composable
-private fun ProfileContent(
+fun ProfileContent(
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
     onMenuClick: () -> Unit
@@ -60,7 +36,7 @@ private fun ProfileContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.95f)
+            .fillMaxHeight(0.95f) // This allows the sheet to be expandable
     ) {
         // Top Bar
         TopProfileBar(
@@ -167,7 +143,7 @@ private fun ProfileContent(
 }
 
 @Composable
-private fun TopProfileBar(
+fun TopProfileBar(
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
     onMenuClick: () -> Unit,
@@ -195,8 +171,8 @@ private fun TopProfileBar(
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = "Edit",
-                    tint = if (isEditMode) MaterialTheme.colorScheme.primary 
-                          else MaterialTheme.colorScheme.onBackground
+                    tint = if (isEditMode) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onBackground
                 )
             }
             IconButton(onClick = onMenuClick) {

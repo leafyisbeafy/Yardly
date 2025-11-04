@@ -30,8 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yardly.ui.components.AdCard
 import com.example.yardly.ui.components.AdLoginSheet
-import com.example.yardly.ui.components.ProfileSheet
-import com.example.yardly.ui.theme.YardlyTheme
+import com.example.yardly.ui.components.ProfileContent
+import com.example.yardly.ui.components.ProfilePopup
+import com.example.yardly.ui.theme.YardlyTheme // <-- THIS IS THE FIX
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +54,7 @@ fun YardlyApp() {
     val buttonCoordinates = remember { mutableStateMapOf<String, Float>() }
     var showRehomeInAquaSwap by remember { mutableStateOf(false) }
     var showAdLoginModal by remember { mutableStateOf(false) }
-    var showProfileSheet by remember { mutableStateOf(false) }
+    var showProfileSheet by remember { mutableStateOf(false) } // This state now controls the popup
 
     val showHeaderAndNav = selectedIconSection == "home"
 
@@ -84,25 +85,40 @@ fun YardlyApp() {
                 TopBar()
             }
 
-            // Content Area
+            // Content Area and Section Options Overlap
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(20.dp)
             ) {
-                ContentArea(
-                    selectedIconSection = selectedIconSection,
-                    selectedNavSection = selectedNavSection,
-                    onAdClick = { showAdLoginModal = true }
-                )
-            }
+                // Content Area (LazyColumn or Profile Page)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .then(
+                            if (selectedIconSection != "profile") Modifier.padding(20.dp)
+                            else Modifier
+                        )
+                ) {
+                    ContentArea(
+                        selectedIconSection = selectedIconSection,
+                        selectedNavSection = selectedNavSection,
+                        onAdClick = { showAdLoginModal = true },
+                        onProfileBackClick = { selectedIconSection = "home" },
+                        onUserClick = { showProfileSheet = true } // This now shows the popup
+                    )
+                }
 
-            // Section Options
-            selectedSectionOptions?.let { section ->
-                sectionOptions[section]?.let { options ->
-                    val xOffset = buttonCoordinates[section] ?: 0f
-                    SectionOptions(options = options, xOffset = xOffset)
+                // Section Options (Overlaid on top)
+                selectedSectionOptions?.let { section ->
+                    sectionOptions[section]?.let { options ->
+                        val xOffset = buttonCoordinates[section] ?: 0f
+                        SectionOptions(
+                            options = options,
+                            xOffset = xOffset,
+                            modifier = Modifier.align(Alignment.BottomStart)
+                        )
+                    }
                 }
             }
 
@@ -137,10 +153,6 @@ fun YardlyApp() {
                 onSectionSelected = { section ->
                     selectedIconSection = section
                     selectedSectionOptions = null
-                    // Show ProfileSheet when profile section is selected
-                    if (section == "profile") {
-                        showProfileSheet = true
-                    }
                 }
             )
         }
@@ -151,18 +163,11 @@ fun YardlyApp() {
             onDismiss = { showAdLoginModal = false }
         )
 
-        // Profile Sheet
-        ProfileSheet(
+        // Profile Sheet (POPUP VERSION)
+        ProfilePopup(
             showModal = showProfileSheet,
-            onDismiss = { 
-                showProfileSheet = false
-                // Reset to home section when profile sheet is dismissed
-                selectedIconSection = "home"
-            },
-            onBackClick = { 
-                showProfileSheet = false
-                selectedIconSection = "home"
-            }
+            onDismiss = { showProfileSheet = false },
+            onBackClick = { showProfileSheet = false }
         )
     }
 }
@@ -240,9 +245,9 @@ fun SectionNavigation(
                             shape = RoundedCornerShape(20.dp)
                         )
                         .combinedClickable(
-                            onClick = { 
+                            onClick = {
                                 onRehomeStateChange(false)
-                                onSectionSelected(sectionKey) 
+                                onSectionSelected(sectionKey)
                             },
                             onLongClick = {
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -342,18 +347,23 @@ fun BottomIconNavigation(
 }
 
 @Composable
-fun SectionOptions(options: List<String>, xOffset: Float) {
+fun SectionOptions(
+    options: List<String>,
+    xOffset: Float,
+    modifier: Modifier = Modifier
+) {
     val density = LocalDensity.current
     val xOffsetDp = with(density) { xOffset.toDp() }
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(start = xOffsetDp, bottom = 16.dp),
-        horizontalAlignment = Alignment.Start
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         options.forEach { name ->
             Button(
-                onClick = { 
+                onClick = {
                     if (name == "Rehome") {
                         // Handle rehome action
                         println("Rehome option selected")
@@ -366,8 +376,10 @@ fun SectionOptions(options: List<String>, xOffset: Float) {
                     .width(110.dp)
                     .height(44.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (name == "Rehome") MaterialTheme.colorScheme.primary else Color.Transparent,
-                    contentColor = if (name == "Rehome") Color.White else MaterialTheme.colorScheme.primary
+                    containerColor = if (name == "Rehome") MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = if (name == "Rehome") Color.White
+                    else MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 shape = RoundedCornerShape(20.dp),
                 contentPadding = PaddingValues(12.dp)
@@ -388,7 +400,9 @@ fun SectionOptions(options: List<String>, xOffset: Float) {
 fun ContentArea(
     selectedIconSection: String,
     selectedNavSection: String,
-    onAdClick: () -> Unit = {}
+    onAdClick: () -> Unit = {},
+    onProfileBackClick: () -> Unit = {},
+    onUserClick: () -> Unit = {}
 ) {
     when (selectedIconSection) {
         "home" -> {
@@ -402,7 +416,8 @@ fun ContentArea(
                     AdCard(
                         advertisementName = "Advertisement ${index + 1}",
                         userName = "User ${index + 1}",
-                        onAdClick = onAdClick
+                        onAdClick = onAdClick,
+                        onUserClick = onUserClick
                     )
                 }
             }
@@ -421,13 +436,13 @@ fun ContentArea(
             textAlign = TextAlign.Center,
             lineHeight = 24.sp
         )
-        "profile" -> Text(
-            text = "Profile section - tap to open profile sheet",
-            color = MaterialTheme.colorScheme.onBackground,
-            fontSize = 18.sp,
-            textAlign = TextAlign.Center,
-            lineHeight = 24.sp
-        )
+        "profile" -> {
+            ProfileContent(
+                onBackClick = onProfileBackClick,
+                onEditClick = { /* Handle Edit */ },
+                onMenuClick = { /* Handle Menu */ }
+            )
+        }
         "messenger" -> {
             val content = """
                 Messages
@@ -438,7 +453,7 @@ fun ContentArea(
                 Hey! Are you still interested in the pet adoption?
 
                 Sarah Wilson
-                Thanks for the lease swap info!
+                Thanks for the lease swap.
             """.trimIndent()
             Text(
                 text = content,

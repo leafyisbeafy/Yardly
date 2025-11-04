@@ -1,7 +1,7 @@
 package com.example.yardly.ui.theme
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Typography
+// import androidx.compose.material3.Typography // This import isn't needed
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -32,7 +32,7 @@ fun YardlyTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography(),
+        typography = Typography, // <-- THIS IS THE FIX (Removed parentheses)
         content = content
     )
 }

@@ -1,6 +1,7 @@
 package com.example.yardly.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable // Make sure this is imported
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,13 +28,14 @@ fun AdCard(
     userName: String = "First Last",
     onSaveClick: () -> Unit = {},
     onAdClick: () -> Unit = {},
+    onUserClick: () -> Unit = {}, // <-- THIS IS THE PARAMETER
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .width(350.dp)
             .wrapContentHeight(),
-        onClick = onAdClick,
+        // onClick = onAdClick, // (Removed from here)
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
@@ -44,6 +46,7 @@ fun AdCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp)
+                .clickable(onClick = onAdClick) // (This handles the ad click)
         ) {
             // Top section - Advertisement name
             Text(
@@ -85,26 +88,35 @@ fun AdCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Left - Circular avatar placeholder
-                Box(
+                // NEW: Wrap Avatar and Name in a clickable Row
+                Row(
                     modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            color = Color(0xFFE0E0E0),
-                            shape = CircleShape
-                        )
-                )
+                        .weight(1f) // Takes up available space
+                        .clickable(onClick = onUserClick), // <-- THIS TRIGGERS IT
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Left - Circular avatar placeholder
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(
+                                color = Color(0xFFE0E0E0),
+                                shape = CircleShape
+                            )
+                    )
 
-                // Center - User full name
-                Text(
-                    text = userName,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = Color(0xFF666666),
-                    modifier = Modifier.weight(1f)
-                )
+                    Spacer(modifier = Modifier.width(8.dp)) // Added spacer
 
-                // Right - Save icon
+                    // Center - User full name
+                    Text(
+                        text = userName,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color(0xFF666666)
+                    )
+                }
+
+                // Right - Save icon (now separate from the user click)
                 IconButton(
                     onClick = onSaveClick,
                     modifier = Modifier
