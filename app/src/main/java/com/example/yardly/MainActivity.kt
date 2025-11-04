@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yardly.ui.components.AdCard
 import com.example.yardly.ui.components.AdLoginSheet
+import com.example.yardly.ui.components.ProfileSheet
 import com.example.yardly.ui.theme.YardlyTheme
 
 class MainActivity : ComponentActivity() {
@@ -52,11 +53,12 @@ fun YardlyApp() {
     val buttonCoordinates = remember { mutableStateMapOf<String, Float>() }
     var showRehomeInAquaSwap by remember { mutableStateOf(false) }
     var showAdLoginModal by remember { mutableStateOf(false) }
+    var showProfileSheet by remember { mutableStateOf(false) }
 
     val showHeaderAndNav = selectedIconSection == "home"
 
     val baseSectionOptions = mapOf(
-        "aqua-swap" to listOf("Equipment", "Coral", "Plants", "Substarte", "Tank"),
+        "aqua-swap" to listOf("Equipment", "Coral", "Plants", "Substrate", "Tank"),
         "yard-sales" to listOf("Move Out", "Garage Sale"),
         "lease" to listOf("Room", "Car", "Retail Store")
     )
@@ -132,9 +134,13 @@ fun YardlyApp() {
             // Bottom Icon Navigation
             BottomIconNavigation(
                 selectedSection = selectedIconSection,
-                onSectionSelected = {
-                    selectedIconSection = it
+                onSectionSelected = { section ->
+                    selectedIconSection = section
                     selectedSectionOptions = null
+                    // Show ProfileSheet when profile section is selected
+                    if (section == "profile") {
+                        showProfileSheet = true
+                    }
                 }
             )
         }
@@ -143,6 +149,20 @@ fun YardlyApp() {
         AdLoginSheet(
             showModal = showAdLoginModal,
             onDismiss = { showAdLoginModal = false }
+        )
+
+        // Profile Sheet
+        ProfileSheet(
+            showModal = showProfileSheet,
+            onDismiss = { 
+                showProfileSheet = false
+                // Reset to home section when profile sheet is dismissed
+                selectedIconSection = "home"
+            },
+            onBackClick = { 
+                showProfileSheet = false
+                selectedIconSection = "home"
+            }
         )
     }
 }
@@ -402,7 +422,7 @@ fun ContentArea(
             lineHeight = 24.sp
         )
         "profile" -> Text(
-            text = "Profile section is under construction.",
+            text = "Profile section - tap to open profile sheet",
             color = MaterialTheme.colorScheme.onBackground,
             fontSize = 18.sp,
             textAlign = TextAlign.Center,
