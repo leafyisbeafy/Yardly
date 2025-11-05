@@ -42,7 +42,7 @@ import com.example.yardly.ui.components.FindNear
 import com.example.yardly.ui.components.ProfileContent
 import com.example.yardly.ui.components.ProfilePopup
 import com.example.yardly.ui.components.ChooseCornerSheet
-import com.example.yardly.ui.components.WatchlistScreen // <-- ADDED IMPORT
+import com.example.yardly.ui.components.WatchlistScreen // Make sure this is imported
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 
@@ -132,7 +132,9 @@ fun YardlyApp() {
                     modifier = Modifier
                         .fillMaxSize()
                         .then(
-                            if (selectedIconSection != "profile") Modifier.padding(20.dp)
+                            // Add padding unless it's the profile or watchlist page
+                            if (selectedIconSection != "profile" && selectedIconSection != "watchlist")
+                                Modifier.padding(20.dp)
                             else Modifier
                         )
                 ) {
@@ -356,11 +358,10 @@ fun BottomIconNavigation(
     selectedSection: String,
     onSectionSelected: (String) -> Unit
 ) {
-    // *** RENAMED "save" to "watchlist" ***
     val sections = listOf(
         "home" to "Home",
         "yardly" to "Yardly",
-        "watchlist" to "Watchlist", // <-- RENAMED
+        "watchlist" to "Watchlist", // RENAMED
         "profile" to "Profile"
     )
 
@@ -493,7 +494,7 @@ fun ContentArea(
         )
         // *** REPLACED "save" with "watchlist" ***
         "watchlist" -> {
-            WatchlistScreen()
+            WatchlistScreen(onBackClick = onProfileBackClick) // <-- PASSED BACK CLICK
         }
         "profile" -> {
             ProfileContent(

@@ -1,34 +1,110 @@
 package com.example.yardly.ui.components
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp // <-- THIS IS THE FIX
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.theme.YardlyTheme
+
+// Dummy data class for the grid
+private data class WatchlistItem(val id: Int, val name: String, val price: String)
+
+private val dummyItems = listOf(
+    WatchlistItem(1, "Mac Mini", "$291.28"),
+    WatchlistItem(2, "Mac Mini", "$299.99"),
+    WatchlistItem(3, "Mac Mini", "$300.00"),
+    WatchlistItem(4, "Mac Mini", "$300.00"),
+    WatchlistItem(5, "Laptop", "$100.00"),
+    WatchlistItem(6, "Laptop", "$222.00"),
+    WatchlistItem(7, "Laptop", "$190.00"),
+    WatchlistItem(8, "Monitor", "$200.00"),
+)
 
 @Composable
-fun WatchlistScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "Watchlist screen is under construction.",
-            color = MaterialTheme.colorScheme.onBackground,
-            fontSize = 18.sp,
-            textAlign = TextAlign.Center,
-            lineHeight = 24.sp
-        )
+fun WatchlistScreen(
+    onBackClick: () -> Unit // <-- ADDED PARAMETER
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        // 1. New Top Bar
+        WatchlistTopBar(onBackClick = onBackClick)
+
+        // 2. Two-Column Grid
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(dummyItems) { item ->
+                WatchlistCard(
+                    itemName = item.name,
+                    price = item.price
+                )
+            }
+        }
     }
 }
 
 @Preview
 @Composable
 fun WatchlistScreenPreview() {
-    WatchlistScreen()
+    YardlyTheme {
+        WatchlistScreen(
+            onBackClick = {}
+        )
+    }
+}
+
+@Composable
+private fun WatchlistTopBar(
+    onBackClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        // Back Arrow
+        IconButton(onClick = onBackClick) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back",
+                tint = MaterialTheme.colorScheme.onBackground
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // Title
+        Text(
+            text = "Watchlist",
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun WatchlistTopBarPreview() {
+    YardlyTheme {
+        WatchlistTopBar(
+            onBackClick = {}
+        )
+    }
 }

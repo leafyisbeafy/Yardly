@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun FindNear(
@@ -37,4 +38,10 @@ fun FindNear(
             Icon(Icons.Filled.Add, contentDescription = "Find Near")
         }
     }
+}
+
+@Preview
+@Composable
+fun FindNearPreview() {
+    FindNear(isVisible = true, onClick = {})
 }
