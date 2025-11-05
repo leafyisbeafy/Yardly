@@ -4,13 +4,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,8 +38,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yardly.ui.components.AdCard
 import com.example.yardly.ui.components.AdLoginSheet
+import com.example.yardly.ui.components.FindNear
 import com.example.yardly.ui.components.ProfileContent
 import com.example.yardly.ui.components.ProfilePopup
+import com.example.yardly.ui.components.ChooseCornerSheet
+import com.example.yardly.ui.components.WatchlistScreen // <-- ADDED IMPORT
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 
@@ -56,8 +67,32 @@ fun YardlyApp() {
     var showRehomeInAquaSwap by remember { mutableStateOf(false) }
     var showAdLoginModal by remember { mutableStateOf(false) }
     var showProfileSheet by remember { mutableStateOf(false) }
+    var showChooseCornerSheet by remember { mutableStateOf(false) }
 
     val showHeaderAndNav = selectedIconSection == "home"
+
+    // Scroll state detection
+    val listState = rememberLazyListState()
+    var previousIndex by remember { mutableStateOf(listState.firstVisibleItemIndex) }
+    var previousOffset by remember { mutableStateOf(listState.firstVisibleItemScrollOffset) }
+
+    val isFabVisible by remember {
+        derivedStateOf {
+            val currentIndex = listState.firstVisibleItemIndex
+            val currentOffset = listState.firstVisibleItemScrollOffset
+
+            val isScrollingUp = if (currentIndex != previousIndex) {
+                currentIndex < previousIndex
+            } else {
+                currentOffset < previousOffset
+            }
+
+            previousIndex = currentIndex
+            previousOffset = currentOffset
+
+            isScrollingUp || currentIndex == 0
+        }
+    }
 
     val baseSectionOptions = mapOf(
         "aqua-swap" to listOf("Equipment", "Coral", "Plants", "Substrate", "Tank"),
@@ -102,6 +137,7 @@ fun YardlyApp() {
                         )
                 ) {
                     ContentArea(
+                        listState = listState,
                         selectedIconSection = selectedIconSection,
                         selectedNavSection = selectedNavSection,
                         onAdClick = { showAdLoginModal = true },
@@ -110,7 +146,7 @@ fun YardlyApp() {
                     )
                 }
 
-                // Section Options (Overlaid on top)
+                // Section Options (Overlaid on top, bottom-start)
                 selectedSectionOptions?.let { section ->
                     sectionOptions[section]?.let { options ->
                         val xOffset = buttonCoordinates[section] ?: 0f
@@ -120,6 +156,15 @@ fun YardlyApp() {
                             modifier = Modifier.align(Alignment.BottomStart)
                         )
                     }
+                }
+
+                // Only show the FindNear button if we are on the "home" screen
+                if (selectedIconSection == "home") {
+                    FindNear(
+                        isVisible = isFabVisible,
+                        onClick = { showChooseCornerSheet = true },
+                        modifier = Modifier.align(Alignment.BottomEnd)
+                    )
                 }
             }
 
@@ -169,6 +214,12 @@ fun YardlyApp() {
             showModal = showProfileSheet,
             onDismiss = { showProfileSheet = false },
             onBackClick = { showProfileSheet = false }
+        )
+
+        // NEW: Call to ChooseCornerSheet
+        ChooseCornerSheet(
+            showModal = showChooseCornerSheet,
+            onDismiss = { showChooseCornerSheet = false }
         )
     }
 }
@@ -305,10 +356,11 @@ fun BottomIconNavigation(
     selectedSection: String,
     onSectionSelected: (String) -> Unit
 ) {
+    // *** RENAMED "save" to "watchlist" ***
     val sections = listOf(
         "home" to "Home",
         "yardly" to "Yardly",
-        "save" to "Saved Items",
+        "watchlist" to "Watchlist", // <-- RENAMED
         "profile" to "Profile"
     )
 
@@ -383,7 +435,6 @@ fun SectionOptions(
                     .width(110.dp)
                     .height(44.dp),
                 colors = ButtonDefaults.buttonColors(
-                    // *** THIS IS THE CHANGE ***
                     // STYLE: "Rehome" = black, others = light gray
                     containerColor = if (name == "Rehome") MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.surfaceVariant,
@@ -408,6 +459,7 @@ fun SectionOptions(
 
 @Composable
 fun ContentArea(
+    listState: LazyListState,
     selectedIconSection: String,
     selectedNavSection: String,
     onAdClick: () -> Unit = {},
@@ -417,6 +469,7 @@ fun ContentArea(
     when (selectedIconSection) {
         "home" -> {
             LazyColumn(
+                state = listState,
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -438,13 +491,10 @@ fun ContentArea(
             textAlign = TextAlign.Center,
             lineHeight = 24.sp
         )
-        "save" -> Text(
-            text = "Saved Items section is under construction.",
-            color = MaterialTheme.colorScheme.onBackground,
-            fontSize = 18.sp,
-            textAlign = TextAlign.Center,
-            lineHeight = 24.sp
-        )
+        // *** REPLACED "save" with "watchlist" ***
+        "watchlist" -> {
+            WatchlistScreen()
+        }
         "profile" -> {
             ProfileContent(
                 onBackClick = onProfileBackClick,
