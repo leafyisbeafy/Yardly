@@ -2,9 +2,20 @@ package com.example.yardly.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Define the new monochromatic palette
+// Light Theme (unchanged)
 val AppBlack = Color(0xFF000000)
 val AppWhite = Color(0xFFFFFFFF)
-val AppGray = Color(0xFFF5F5F5) // Very light gray for backgrounds
-val AppMediumGray = Color(0xFFCCCCCC) // For placeholders
-val AppDarkGray = Color(0xFF888888) // For secondary text
+val AppGray = Color(0xFFF5F5F5)
+val AppMediumGray = Color(0xFFCCCCCC)
+val AppDarkGray = Color(0xFF888888)
+
+// *** NEW: Dark Theme Colors ***
+val DarkBackground = Color(0xFF0F1116)
+val DarkMainText = Color(0xFFFAFAFA)
+val DarkSecondaryText = Color(0xFF9CA3AF)
+val DarkAccent = Color(0xFF4A90E2)
+val DarkDivider = Color(0xFF606060)
+
+// *** NEW: Special Effect Colors ***
+val PriceDropRed1 = Color(0xFFEF4444)
+val PriceDropRed2 = Color(0xFFDC2626)

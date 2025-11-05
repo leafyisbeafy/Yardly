@@ -1,6 +1,7 @@
 package com.example.yardly
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -36,11 +37,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.yardly.ui.components.AccessibilityScreen // <-- ADDED IMPORT
+import com.example.yardly.ui.components.AccessibilityScreen
 import com.example.yardly.ui.components.AdCard
 import com.example.yardly.ui.components.AdLoginSheet
 import com.example.yardly.ui.components.ChooseCornerSheet
-import com.example.yardly.ui.components.DarkModeScreen // <-- ADDED IMPORT
+import com.example.yardly.ui.components.DarkModeScreen
 import com.example.yardly.ui.components.FindNear
 import com.example.yardly.ui.components.ListingScreen
 import com.example.yardly.ui.components.ProfileContent
@@ -50,7 +51,6 @@ import com.example.yardly.ui.components.WatchlistScreen
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 
-// *** NEW: State definition for profile tab navigation ***
 sealed class ProfileScreenState {
     object Profile : ProfileScreenState()
     object Settings : ProfileScreenState()
@@ -63,15 +63,31 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            YardlyTheme(darkTheme = false, dynamicColor = false) {
-                YardlyApp()
+            var isDarkMode by remember { mutableStateOf(false) }
+
+            val onDarkModeToggle: (Boolean) -> Unit = { enabled ->
+                isDarkMode = enabled
+                Log.d("DarkModeToggle", "dark_mode_enabled: $enabled")
+            }
+
+            YardlyTheme(
+                isDarkMode = isDarkMode,
+                dynamicColor = false
+            ) {
+                YardlyApp(
+                    isDarkMode = isDarkMode,
+                    onDarkModeToggle = onDarkModeToggle
+                )
             }
         }
     }
 }
 
 @Composable
-fun YardlyApp() {
+fun YardlyApp(
+    isDarkMode: Boolean,
+    onDarkModeToggle: (Boolean) -> Unit
+) {
     var selectedIconSection by remember { mutableStateOf("home") }
     var selectedNavSection by remember { mutableStateOf("lease") }
     var selectedSectionOptions by remember { mutableStateOf<String?>(null) }
@@ -81,8 +97,11 @@ fun YardlyApp() {
     var showProfileSheet by remember { mutableStateOf(false) }
     var showChooseCornerSheet by remember { mutableStateOf(false) }
 
-    // *** REPLACED boolean with new state class ***
     var profileScreenState by remember { mutableStateOf<ProfileScreenState>(ProfileScreenState.Profile) }
+
+    // *** NEW: State keyed by AD NAME (String) ***
+    val saveCounts = remember { mutableStateMapOf<String, Int>() }
+    val savedItems = remember { mutableStateMapOf<String, Boolean>() }
 
     val showHeaderAndNav = selectedIconSection == "home"
 
@@ -109,11 +128,19 @@ fun YardlyApp() {
         }
     }
 
-    // *** UPDATED: Navigation logic for settings ***
     val navigateToSettings = {
         showProfileSheet = false
         selectedIconSection = "profile"
         profileScreenState = ProfileScreenState.Settings
+    }
+
+    // *** NEW: Single function to handle all save toggles ***
+    val onToggleSave: (String) -> Unit = { adName ->
+        val isCurrentlySaved = savedItems.getOrDefault(adName, false)
+        val currentCount = saveCounts.getOrDefault(adName, 0)
+
+        savedItems[adName] = !isCurrentlySaved
+        saveCounts[adName] = if (isCurrentlySaved) currentCount - 1 else currentCount + 1
     }
 
     val baseSectionOptions = mapOf(
@@ -154,7 +181,6 @@ fun YardlyApp() {
                     modifier = Modifier
                         .fillMaxSize()
                         .then(
-                            // Add padding unless it's a full-screen page
                             if (selectedIconSection == "home" || selectedIconSection == "yardly")
                                 Modifier.padding(20.dp)
                             else Modifier
@@ -164,20 +190,25 @@ fun YardlyApp() {
                         listState = listState,
                         selectedIconSection = selectedIconSection,
                         selectedNavSection = selectedNavSection,
-                        profileScreenState = profileScreenState, // <-- PASS STATE
+                        profileScreenState = profileScreenState,
+                        isDarkMode = isDarkMode,
+                        saveCounts = saveCounts,
+                        savedItems = savedItems,
                         onAdClick = { showAdLoginModal = true },
-                        onBackClick = { selectedIconSection = "home" }, // For Watchlist
-                        onSettingsBackClick = { profileScreenState = ProfileScreenState.Profile }, // Settings -> Profile
-                        onAccessibilityBackClick = { profileScreenState = ProfileScreenState.Settings }, // Access -> Settings
-                        onDarkModeBackClick = { profileScreenState = ProfileScreenState.Accessibility }, // DarkMode -> Access
+                        onBackClick = { selectedIconSection = "home" },
+                        onSettingsBackClick = { profileScreenState = ProfileScreenState.Profile },
+                        onAccessibilityBackClick = { profileScreenState = ProfileScreenState.Settings },
+                        onDarkModeBackClick = { profileScreenState = ProfileScreenState.Accessibility },
                         onUserClick = { showProfileSheet = true },
-                        onMenuClick = navigateToSettings, // For Profile -> Settings
-                        onAccessibilityClick = { profileScreenState = ProfileScreenState.Accessibility }, // Settings -> Access
-                        onDarkModeClick = { profileScreenState = ProfileScreenState.DarkMode } // Access -> DarkMode
+                        onMenuClick = navigateToSettings,
+                        onAccessibilityClick = { profileScreenState = ProfileScreenState.Accessibility },
+                        onDarkModeClick = { profileScreenState = ProfileScreenState.DarkMode },
+                        onDarkModeToggle = onDarkModeToggle,
+                        onSaveClick = onToggleSave // <-- PASS ACTION
                     )
                 }
 
-                // Section Options (Overlaid on top, bottom-start)
+                // Section Options
                 selectedSectionOptions?.let { section ->
                     sectionOptions[section]?.let { options ->
                         val xOffset = buttonCoordinates[section] ?: 0f
@@ -189,7 +220,7 @@ fun YardlyApp() {
                     }
                 }
 
-                // Only show the FindNear button if we are on the "home" screen
+                // FindNear Button
                 if (selectedIconSection == "home") {
                     FindNear(
                         isVisible = isFabVisible,
@@ -199,7 +230,7 @@ fun YardlyApp() {
                 }
             }
 
-            // Section Navigation (only show when home is selected)
+            // Section Navigation
             if (showHeaderAndNav) {
                 SectionNavigation(
                     selectedSection = selectedNavSection,
@@ -230,26 +261,22 @@ fun YardlyApp() {
                 onSectionSelected = { section ->
                     selectedIconSection = section
                     selectedSectionOptions = null
-                    profileScreenState = ProfileScreenState.Profile // <-- Reset on tab change
+                    profileScreenState = ProfileScreenState.Profile
                 }
             )
         }
 
-        // Ad Login Modal
+        // Modals
         AdLoginSheet(
             showModal = showAdLoginModal,
             onDismiss = { showAdLoginModal = false }
         )
-
-        // Profile Sheet (POPUP VERSION)
         ProfilePopup(
             showModal = showProfileSheet,
             onDismiss = { showProfileSheet = false },
             onBackClick = { showProfileSheet = false },
-            onMenuClick = navigateToSettings // <-- Pass action
+            onMenuClick = navigateToSettings
         )
-
-        // NEW: Call to ChooseCornerSheet
         ChooseCornerSheet(
             showModal = showChooseCornerSheet,
             onDismiss = { showChooseCornerSheet = false }
@@ -260,34 +287,30 @@ fun YardlyApp() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar() {
+    // ... (This function is unchanged)
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        // Transparent status bar area
         Spacer(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
         )
-
-        // Content area with background
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    MaterialTheme.colorScheme.surfaceVariant, // Light Gray
+                    MaterialTheme.colorScheme.surfaceVariant,
                     RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
                 )
                 .padding(horizontal = 20.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
-            // Right Side: Icon Buttons
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                // Notification Button
                 Button(
                     onClick = { /* TODO: Handle notifications */ },
                     colors = ButtonDefaults.buttonColors(
@@ -302,7 +325,6 @@ fun TopBar() {
                         fontSize = 12.sp
                     )
                 }
-                // Messenger Button
                 Button(
                     onClick = { /* TODO: Handle messenger */ },
                     colors = ButtonDefaults.buttonColors(
@@ -331,15 +353,14 @@ fun SectionNavigation(
     showRehomeInAquaSwap: Boolean,
     onRehomeStateChange: (Boolean) -> Unit
 ) {
+    // ... (This function is unchanged)
     val sections = listOf(
         "aqua-swap" to "Aqua Swap",
         "yard-sales" to "Yard Sales",
         "lease" to "Lease",
         "auction" to "Auction"
     )
-
     val hapticFeedback = LocalHapticFeedback.current
-
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -350,7 +371,6 @@ fun SectionNavigation(
         items(sections.size) { index ->
             val (sectionKey, sectionName) = sections[index]
             val isSelected = selectedSection == sectionKey
-
             if (sectionKey == "aqua-swap") {
                 Box(
                     modifier = Modifier
@@ -360,7 +380,6 @@ fun SectionNavigation(
                             onButtonPositioned(sectionKey, it.positionInParent().x)
                         }
                         .background(
-                            // STYLE: Selected = light gray, Unselected = transparent
                             color = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
                             shape = RoundedCornerShape(20.dp)
                         )
@@ -383,7 +402,6 @@ fun SectionNavigation(
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
-                        // STYLE: Both selected and unselected text is black
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 }
@@ -397,9 +415,7 @@ fun SectionNavigation(
                             onButtonPositioned(sectionKey, it.positionInParent().x)
                         },
                     colors = ButtonDefaults.buttonColors(
-                        // STYLE: Selected = light gray, Unselected = transparent
                         containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                        // STYLE: Both selected and unselected text is black
                         contentColor = MaterialTheme.colorScheme.onBackground
                     ),
                     shape = RoundedCornerShape(20.dp),
@@ -423,18 +439,18 @@ fun BottomIconNavigation(
     selectedSection: String,
     onSectionSelected: (String) -> Unit
 ) {
+    // ... (This function is unchanged)
     val sections = listOf(
         "home" to "Home",
         "yardly" to "Yardly",
         "watchlist" to "Watchlist",
         "profile" to "Profile"
     )
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                MaterialTheme.colorScheme.background, // White
+                MaterialTheme.colorScheme.background,
                 RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
             .navigationBarsPadding()
@@ -444,16 +460,13 @@ fun BottomIconNavigation(
     ) {
         sections.forEach { (sectionKey, sectionName) ->
             val isSelected = selectedSection == sectionKey
-
             Button(
                 onClick = { onSectionSelected(sectionKey) },
                 modifier = Modifier
                     .weight(1f)
                     .height(44.dp),
                 colors = ButtonDefaults.buttonColors(
-                    // STYLE: Selected = light gray, Unselected = transparent
                     containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                    // STYLE: Both selected and unselected text is black
                     contentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 shape = RoundedCornerShape(20.dp),
@@ -477,6 +490,7 @@ fun SectionOptions(
     xOffset: Float,
     modifier: Modifier = Modifier
 ) {
+    // ... (This function is unchanged)
     val density = LocalDensity.current
     val xOffsetDp = with(density) { xOffset.toDp() }
     Column(
@@ -490,10 +504,8 @@ fun SectionOptions(
             Button(
                 onClick = {
                     if (name == "Rehome") {
-                        // Handle rehome action
                         println("Rehome option selected")
                     } else {
-                        // Handle other button clicks
                         println("$name option selected")
                     }
                 },
@@ -501,10 +513,8 @@ fun SectionOptions(
                     .width(110.dp)
                     .height(44.dp),
                 colors = ButtonDefaults.buttonColors(
-                    // STYLE: "Rehome" = black, others = light gray
                     containerColor = if (name == "Rehome") MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.surfaceVariant,
-                    // STYLE: "Rehome" = white, others = black
                     contentColor = if (name == "Rehome") MaterialTheme.colorScheme.onPrimary
                     else MaterialTheme.colorScheme.onBackground
                 ),
@@ -528,19 +538,33 @@ fun ContentArea(
     listState: LazyListState,
     selectedIconSection: String,
     selectedNavSection: String,
-    profileScreenState: ProfileScreenState, // <-- CHANGED
+    profileScreenState: ProfileScreenState,
+    isDarkMode: Boolean,
+    saveCounts: Map<String, Int>, // <-- CHANGED
+    savedItems: Map<String, Boolean>,
     onAdClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onSettingsBackClick: () -> Unit = {},
-    onAccessibilityBackClick: () -> Unit = {}, // <-- NEW
-    onDarkModeBackClick: () -> Unit = {}, // <-- NEW
+    onAccessibilityBackClick: () -> Unit = {},
+    onDarkModeBackClick: () -> Unit = {},
     onUserClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
-    onAccessibilityClick: () -> Unit = {}, // <-- NEW
-    onDarkModeClick: () -> Unit = {} // <-- NEW
+    onAccessibilityClick: () -> Unit = {},
+    onDarkModeClick: () -> Unit = {},
+    onDarkModeToggle: (Boolean) -> Unit,
+    onSaveClick: (String) -> Unit // <-- CHANGED
 ) {
     when (selectedIconSection) {
         "home" -> {
+            val adNames = listOf(
+                "Air Force 1",
+                "iPhone 13",
+                "PlayStation 4",
+                "Macbook Air 13",
+                "Denim Jacket",
+                "Razer Gaming Chair"
+            )
+
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
@@ -548,11 +572,26 @@ fun ContentArea(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(10) { index ->
+                    val adName = if (index < adNames.size) {
+                        adNames[index]
+                    } else {
+                        "Advertisement ${index + 1}"
+                    }
+
+                    val userName = "User ${index + 1}"
+
+                    // *** Get count and state by AD NAME ***
+                    val saveCount = saveCounts.getOrDefault(adName, 0)
+                    val isSaved = savedItems.getOrDefault(adName, false)
+
                     AdCard(
-                        advertisementName = "Advertisement ${index + 1}",
-                        userName = "User ${index + 1}",
+                        advertisementName = adName,
+                        userName = userName,
+                        saveCount = saveCount,
+                        isSaved = isSaved,
                         onAdClick = onAdClick,
-                        onUserClick = onUserClick
+                        onUserClick = onUserClick,
+                        onSaveClick = { onSaveClick(adName) } // <-- Pass name
                     )
                 }
             }
@@ -561,10 +600,14 @@ fun ContentArea(
             ListingScreen()
         }
         "watchlist" -> {
-            WatchlistScreen(onBackClick = onBackClick)
+            WatchlistScreen(
+                onBackClick = onBackClick,
+                savedItems = savedItems,
+                saveCounts = saveCounts, // <-- PASS COUNTS
+                onSaveClick = onSaveClick // <-- PASS ACTION
+            )
         }
         "profile" -> {
-            // *** NEW: Navigation logic for profile tab ***
             when (profileScreenState) {
                 ProfileScreenState.Profile -> ProfileContent(
                     onBackClick = onBackClick,
@@ -580,7 +623,9 @@ fun ContentArea(
                     onDarkModeClick = onDarkModeClick
                 )
                 ProfileScreenState.DarkMode -> DarkModeScreen(
-                    onBackClick = onDarkModeBackClick
+                    onBackClick = onDarkModeBackClick,
+                    isDarkMode = isDarkMode,
+                    onToggle = onDarkModeToggle
                 )
             }
         }
@@ -617,5 +662,15 @@ fun ContentArea(
 @Preview(showBackground = true)
 @Composable
 fun YardlyAppPreview() {
-    YardlyApp()
+    YardlyTheme(isDarkMode = false) {
+        YardlyApp(isDarkMode = false, onDarkModeToggle = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun YardlyAppPreviewDark() {
+    YardlyTheme(isDarkMode = true) {
+        YardlyApp(isDarkMode = true, onDarkModeToggle = {})
+    }
 }

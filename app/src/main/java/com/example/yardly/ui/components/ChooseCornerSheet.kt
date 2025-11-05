@@ -32,14 +32,16 @@ fun ChooseCornerSheet(
             onDismissRequest = onDismiss,
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-            containerColor = MaterialTheme.colorScheme.surface, // White
+            containerColor = MaterialTheme.colorScheme.surface,
+            scrimColor = Color.Black.copy(alpha = 0.4f), // <-- ADDED
             dragHandle = null,
-            modifier = Modifier.fillMaxHeight(0.95f) // Make it almost full screen
+            modifier = Modifier.fillMaxHeight(0.95f)
         ) {
+            // ... (Rest of the file is unchanged)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface) // White background
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
                 // 1. Top Bar
                 Row(
@@ -49,7 +51,6 @@ fun ChooseCornerSheet(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // 'X' (Close) Button
                     IconButton(onClick = onDismiss) {
                         Icon(
                             imageVector = Icons.Default.Close,
@@ -57,16 +58,12 @@ fun ChooseCornerSheet(
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
-
-                    // Title
                     Text(
                         text = "Choose corner",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
-
-                    // Search Button
                     IconButton(onClick = { /* TODO: Handle search */ }) {
                         Icon(
                             imageVector = Icons.Default.Search,
@@ -85,7 +82,7 @@ fun ChooseCornerSheet(
                         .height(250.dp)
                         .padding(horizontal = 20.dp)
                         .background(
-                            MaterialTheme.colorScheme.surfaceVariant, // Light gray
+                            MaterialTheme.colorScheme.surfaceVariant,
                             RoundedCornerShape(12.dp)
                         ),
                     contentAlignment = Alignment.Center
@@ -113,7 +110,7 @@ fun ChooseCornerSheet(
                     Text(
                         text = "Suggested radius",
                         fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant // Gray text
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -156,7 +153,7 @@ fun ChooseCornerSheet(
 @Preview
 @Composable
 fun ChooseCornerSheetPreview() {
-    YardlyTheme(darkTheme = false, dynamicColor = false) {
+    YardlyTheme(isDarkMode = true) {
         ChooseCornerSheet(showModal = true, onDismiss = {})
     }
 }

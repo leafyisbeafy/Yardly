@@ -10,30 +10,33 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yardly.ui.theme.YardlyTheme
+import com.example.yardly.ui.components.WatchlistCard
 
 // Dummy data class for the grid
 private data class WatchlistItem(val id: Int, val name: String, val price: String)
 
 private val dummyItems = listOf(
-    WatchlistItem(1, "Mac Mini", "$291.28"),
-    WatchlistItem(2, "Mac Mini", "$299.99"),
-    WatchlistItem(3, "Mac Mini", "$300.00"),
-    WatchlistItem(4, "Mac Mini", "$300.00"),
-    WatchlistItem(5, "Laptop", "$100.00"),
-    WatchlistItem(6, "Laptop", "$222.00"),
+    WatchlistItem(1, "Air Force 1", "$291.28"),
+    WatchlistItem(2, "iPhone 13", "$299.99"),
+    WatchlistItem(3, "PlayStation 4", "$300.00"),
+    WatchlistItem(4, "Macbook Air 13", "$300.00"),
+    WatchlistItem(5, "Denim Jacket", "$100.00"),
+    WatchlistItem(6, "Razer Gaming Chair", "$222.00"),
     WatchlistItem(7, "Laptop", "$190.00"),
     WatchlistItem(8, "Monitor", "$200.00"),
 )
 
 @Composable
 fun WatchlistScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    savedItems: Map<String, Boolean>,
+    saveCounts: Map<String, Int>, // <-- ADDED
+    onSaveClick: (String) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         // 1. New Top Bar
@@ -48,28 +51,18 @@ fun WatchlistScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(dummyItems) { item ->
+                val isSaved = savedItems.getOrDefault(item.name, false)
+                val saveCount = saveCounts.getOrDefault(item.name, 0) // <-- GET COUNT
+
                 WatchlistCard(
                     itemName = item.name,
-                    price = item.price
+                    price = item.price,
+                    isSaved = isSaved,
+                    saveCount = saveCount, // <-- PASS COUNT
+                    onSaveClick = { onSaveClick(item.name) }
                 )
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun WatchlistScreenPreview() {
-    YardlyTheme {
-        WatchlistScreen(onBackClick = {})
-    }
-}
-
-@Preview
-@Composable
-private fun WatchlistTopBarPreview() {
-    YardlyTheme {
-        WatchlistTopBar(onBackClick = {})
     }
 }
 
@@ -77,19 +70,14 @@ private fun WatchlistTopBarPreview() {
 private fun WatchlistTopBar(
     onBackClick: () -> Unit
 ) {
-    // *** THIS IS THE FIX ***
-    // Wrap the Row in a Column to add status bar padding
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // Add a spacer that has the height of the status bar
         Spacer(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
         )
-
-        // Your Top Bar content
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -97,7 +85,6 @@ private fun WatchlistTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            // Back Arrow
             IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
@@ -105,10 +92,7 @@ private fun WatchlistTopBar(
                     tint = MaterialTheme.colorScheme.onBackground
                 )
             }
-
             Spacer(modifier = Modifier.width(16.dp))
-
-            // Title
             Text(
                 text = "Watchlist",
                 fontSize = 22.sp,
@@ -116,5 +100,18 @@ private fun WatchlistTopBar(
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun WatchlistScreenPreview() {
+    YardlyTheme(isDarkMode = false) {
+        WatchlistScreen(
+            onBackClick = {},
+            savedItems = mapOf("Air Force 1" to true),
+            saveCounts = mapOf("Air Force 1" to 3), // <-- ADDED
+            onSaveClick = {}
+        )
     }
 }

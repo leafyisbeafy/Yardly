@@ -23,10 +23,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.yardly.ui.theme.YardlyTheme // <-- ADDED IMPORT
+import com.example.yardly.ui.theme.YardlyTheme
 
 @Composable
 fun DarkModeScreen(
+    isDarkMode: Boolean, // <-- ADDED
+    onToggle: (Boolean) -> Unit, // <-- ADDED
     onBackClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -38,27 +40,18 @@ fun DarkModeScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             item {
-                // Uses the public SettingsRow
                 SettingsRow(
                     name = "On",
-                    onClick = { /* TODO */ }
+                    onClick = { onToggle(true) }, // <-- ADDED ACTION
+                    isSelected = isDarkMode     // <-- ADDED STATE
                 )
-                // Uses the public SettingsRow
                 SettingsRow(
                     name = "Off",
-                    onClick = { /* TODO */ }
+                    onClick = { onToggle(false) }, // <-- ADDED ACTION
+                    isSelected = !isDarkMode    // <-- ADDED STATE
                 )
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun DarkModeScreenPreview() {
-    // *** THIS IS THE FIX ***
-    YardlyTheme(darkTheme = false, dynamicColor = false) {
-        DarkModeScreen(onBackClick = {})
     }
 }
 
@@ -81,7 +74,6 @@ private fun DarkModeTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            // Back Arrow
             IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
@@ -89,10 +81,7 @@ private fun DarkModeTopBar(
                     tint = MaterialTheme.colorScheme.onBackground
                 )
             }
-
             Spacer(modifier = Modifier.width(16.dp))
-
-            // Title
             Text(
                 text = "Dark Mode",
                 fontSize = 22.sp,
@@ -105,11 +94,12 @@ private fun DarkModeTopBar(
 
 @Preview
 @Composable
-fun DarkModeTopBarPreview() {
-    // *** THIS IS THE FIX ***
-    YardlyTheme(darkTheme = false, dynamicColor = false) {
-        DarkModeTopBar(onBackClick = {})
+fun DarkModeScreenPreview() {
+    YardlyTheme(isDarkMode = false) {
+        DarkModeScreen(
+            isDarkMode = true,
+            onToggle = {},
+            onBackClick = {}
+        )
     }
 }
-
-// *** The private SettingsRow composable defined on line 102 was REMOVED ***

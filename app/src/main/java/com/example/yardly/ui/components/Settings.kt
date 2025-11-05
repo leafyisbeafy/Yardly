@@ -1,5 +1,6 @@
 package com.example.yardly.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -110,7 +111,9 @@ private fun SettingsTopBar(
 @Preview
 @Composable
 fun SettingsScreenPreview() {
-    YardlyTheme(darkTheme = false, dynamicColor = false) {
+    // *** THIS IS THE FIX ***
+    // Replaced darkTheme/dynamicColor with isDarkMode
+    YardlyTheme(isDarkMode = false) {
         SettingsScreen(
             onBackClick = {},
             onAccessibilityClick = {}

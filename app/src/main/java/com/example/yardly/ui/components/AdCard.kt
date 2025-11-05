@@ -1,20 +1,21 @@
 package com.example.yardly.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable // Make sure this is imported
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark // <-- ADDED IMPORT
 import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,18 +27,19 @@ import com.example.yardly.ui.theme.YardlyTheme
 fun AdCard(
     advertisementName: String = "Name of the advertisement",
     userName: String = "First Last",
+    saveCount: Int,
+    isSaved: Boolean, // <-- ADDED PARAMETER
     onSaveClick: () -> Unit = {},
     onAdClick: () -> Unit = {},
-    onUserClick: () -> Unit = {}, // <-- THIS IS THE PARAMETER
+    onUserClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .width(350.dp)
             .wrapContentHeight(),
-        // onClick = onAdClick, // (Removed from here)
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(0.dp)
@@ -46,14 +48,14 @@ fun AdCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp)
-                .clickable(onClick = onAdClick) // (This handles the ad click)
+                .clickable(onClick = onAdClick)
         ) {
             // Top section - Advertisement name
             Text(
                 text = advertisementName,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -66,16 +68,15 @@ fun AdCard(
                     .fillMaxWidth()
                     .height(200.dp)
                     .background(
-                        color = Color(0xFFF5F5F5),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(12.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                // Placeholder for advertisement image
                 Icon(
                     imageVector = Icons.Filled.ImageNotSupported,
                     contentDescription = "Advertisement Image Placeholder",
-                    tint = Color(0xFFCCCCCC),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(48.dp)
                 )
             }
@@ -88,47 +89,66 @@ fun AdCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // NEW: Wrap Avatar and Name in a clickable Row
+                // User Info
                 Row(
                     modifier = Modifier
-                        .weight(1f) // Takes up available space
-                        .clickable(onClick = onUserClick), // <-- THIS TRIGGERS IT
+                        .weight(1f)
+                        .clickable(onClick = onUserClick),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Left - Circular avatar placeholder
                     Box(
                         modifier = Modifier
                             .size(40.dp)
                             .background(
-                                color = Color(0xFFE0E0E0),
+                                color = MaterialTheme.colorScheme.surfaceVariant,
                                 shape = CircleShape
                             )
                     )
-
-                    Spacer(modifier = Modifier.width(8.dp)) // Added spacer
-
-                    // Center - User full name
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = userName,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
-                        color = Color(0xFF666666)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
-                // Right - Save icon (now separate from the user click)
-                IconButton(
-                    onClick = onSaveClick,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .padding(end = 0.dp)
+                // Save Count and Button
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Outlined.BookmarkAdd,
-                        contentDescription = "Save Advertisement",
-                        tint = Color(0xFF888888),
-                        modifier = Modifier.size(20.dp)
-                    )
+                    // Animated Save Count
+                    AnimatedVisibility(
+                        visible = saveCount > 0,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        Text(
+                            text = saveCount.toString(),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    // *** THIS IS THE CHANGE ***
+                    // Save icon
+                    IconButton(
+                        onClick = onSaveClick,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .padding(end = 0.dp)
+                    ) {
+                        Icon(
+                            // Show filled icon if saved, outline if not
+                            imageVector = if (isSaved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkAdd,
+                            contentDescription = "Save Advertisement",
+                            // Change color to accent if saved
+                            tint = if (isSaved) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
         }
@@ -138,7 +158,10 @@ fun AdCard(
 @Preview(showBackground = true)
 @Composable
 fun AdCardPreview() {
-    YardlyTheme {
-        AdCard()
+    YardlyTheme(isDarkMode = false) {
+        Column {
+            AdCard(saveCount = 1, isSaved = true) // Preview saved
+            AdCard(saveCount = 0, isSaved = false) // Preview not saved
+        }
     }
 }

@@ -2,6 +2,7 @@ package com.example.yardly.ui.components
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -22,10 +23,10 @@ fun ProfilePopup(
             onDismissRequest = onDismiss,
             sheetState = rememberModalBottomSheetState(),
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.surface,
+            scrimColor = Color.Black.copy(alpha = 0.4f), // <-- ADDED
             dragHandle = null
         ) {
-            // This calls the shared UI from ProfileSheet.kt
             ProfileContent(
                 onBackClick = onBackClick,
                 onEditClick = onEditClick,

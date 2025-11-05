@@ -52,7 +52,9 @@ fun AccessibilityScreen(
 @Preview
 @Composable
 fun AccessibilityScreenPreview() {
-    YardlyTheme(darkTheme = false, dynamicColor = false) {
+    // *** THIS IS THE FIX ***
+    // Replaced darkTheme/dynamicColor with isDarkMode
+    YardlyTheme(isDarkMode = false) {
         AccessibilityScreen(
             onBackClick = {},
             onDarkModeClick = {}
@@ -70,7 +72,7 @@ private fun AccessibilityTopBar(
         Spacer(
             modifier = Modifier
                 .fillMaxWidth()
-                .statusBarsPadding() // <-- THIS WAS THE FIX
+                .statusBarsPadding()
         )
         Row(
             modifier = Modifier
@@ -104,7 +106,9 @@ private fun AccessibilityTopBar(
 @Preview
 @Composable
 private fun AccessibilityTopBarPreview() {
-    YardlyTheme(darkTheme = false, dynamicColor = false) {
+    // *** THIS IS THE FIX ***
+    // Replaced darkTheme/dynamicColor with isDarkMode
+    YardlyTheme(isDarkMode = false) {
         AccessibilityTopBar(
             onBackClick = {}
         )
