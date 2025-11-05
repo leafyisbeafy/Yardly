@@ -33,7 +33,7 @@ private val dummyItems = listOf(
 
 @Composable
 fun WatchlistScreen(
-    onBackClick: () -> Unit // <-- ADDED PARAMETER
+    onBackClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         // 1. New Top Bar
@@ -61,41 +61,7 @@ fun WatchlistScreen(
 @Composable
 fun WatchlistScreenPreview() {
     YardlyTheme {
-        WatchlistScreen(
-            onBackClick = {}
-        )
-    }
-}
-
-@Composable
-private fun WatchlistTopBar(
-    onBackClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        // Back Arrow
-        IconButton(onClick = onBackClick) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
-                tint = MaterialTheme.colorScheme.onBackground
-            )
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        // Title
-        Text(
-            text = "Watchlist",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+        WatchlistScreen(onBackClick = {})
     }
 }
 
@@ -103,8 +69,52 @@ private fun WatchlistTopBar(
 @Composable
 private fun WatchlistTopBarPreview() {
     YardlyTheme {
-        WatchlistTopBar(
-            onBackClick = {}
+        WatchlistTopBar(onBackClick = {})
+    }
+}
+
+@Composable
+private fun WatchlistTopBar(
+    onBackClick: () -> Unit
+) {
+    // *** THIS IS THE FIX ***
+    // Wrap the Row in a Column to add status bar padding
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // Add a spacer that has the height of the status bar
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
         )
+
+        // Your Top Bar content
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            // Back Arrow
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Title
+            Text(
+                text = "Watchlist",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
     }
 }

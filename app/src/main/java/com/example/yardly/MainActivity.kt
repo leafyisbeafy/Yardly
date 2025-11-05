@@ -42,7 +42,8 @@ import com.example.yardly.ui.components.FindNear
 import com.example.yardly.ui.components.ProfileContent
 import com.example.yardly.ui.components.ProfilePopup
 import com.example.yardly.ui.components.ChooseCornerSheet
-import com.example.yardly.ui.components.WatchlistScreen // Make sure this is imported
+import com.example.yardly.ui.components.ListingScreen
+import com.example.yardly.ui.components.WatchlistScreen
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 
@@ -240,6 +241,7 @@ fun TopBar() {
                 .statusBarsPadding()
         )
 
+        // *** THIS IS THE CHANGE ***
         // Content area with background
         Row(
             modifier = Modifier
@@ -248,11 +250,47 @@ fun TopBar() {
                     MaterialTheme.colorScheme.surfaceVariant, // Light Gray
                     RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
                 )
-                .padding(horizontal = 10.dp, vertical = 32.dp),
+                .padding(horizontal = 20.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.End // <-- Pushes items to the right
         ) {
-            // Title removed
+            // Left Side: Logo Button (REMOVED)
+
+            // Right Side: Icon Buttons
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                // Notification Button
+                Button(
+                    onClick = { /* TODO: Handle notifications */ },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant, // Light gray
+                        contentColor = MaterialTheme.colorScheme.onBackground // Black
+                    ),
+                    shape = RoundedCornerShape(20.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp) // Smaller padding
+                ) {
+                    Text(
+                        text = "Notification",
+                        fontSize = 12.sp // Small text
+                    )
+                }
+                // Messenger Button
+                Button(
+                    onClick = { /* TODO: Handle messenger */ },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant, // Light gray
+                        contentColor = MaterialTheme.colorScheme.onBackground // Black
+                    ),
+                    shape = RoundedCornerShape(20.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp) // Smaller padding
+                ) {
+                    Text(
+                        text = "Messenger",
+                        fontSize = 12.sp // Small text
+                    )
+                }
+            }
         }
     }
 }
@@ -361,7 +399,7 @@ fun BottomIconNavigation(
     val sections = listOf(
         "home" to "Home",
         "yardly" to "Yardly",
-        "watchlist" to "Watchlist", // RENAMED
+        "watchlist" to "Watchlist",
         "profile" to "Profile"
     )
 
@@ -485,16 +523,11 @@ fun ContentArea(
                 }
             }
         }
-        "yardly" -> Text(
-            text = "Welcome to Yardly!",
-            color = MaterialTheme.colorScheme.onBackground,
-            fontSize = 18.sp,
-            textAlign = TextAlign.Center,
-            lineHeight = 24.sp
-        )
-        // *** REPLACED "save" with "watchlist" ***
+        "yardly" -> {
+            ListingScreen()
+        }
         "watchlist" -> {
-            WatchlistScreen(onBackClick = onProfileBackClick) // <-- PASSED BACK CLICK
+            WatchlistScreen(onBackClick = onProfileBackClick)
         }
         "profile" -> {
             ProfileContent(
