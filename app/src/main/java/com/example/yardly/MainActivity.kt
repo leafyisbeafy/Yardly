@@ -32,7 +32,8 @@ import com.example.yardly.ui.components.AdCard
 import com.example.yardly.ui.components.AdLoginSheet
 import com.example.yardly.ui.components.ProfileContent
 import com.example.yardly.ui.components.ProfilePopup
-import com.example.yardly.ui.theme.YardlyTheme // <-- THIS IS THE FIX
+import com.example.yardly.ui.theme.YardlyTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +55,7 @@ fun YardlyApp() {
     val buttonCoordinates = remember { mutableStateMapOf<String, Float>() }
     var showRehomeInAquaSwap by remember { mutableStateOf(false) }
     var showAdLoginModal by remember { mutableStateOf(false) }
-    var showProfileSheet by remember { mutableStateOf(false) } // This state now controls the popup
+    var showProfileSheet by remember { mutableStateOf(false) }
 
     val showHeaderAndNav = selectedIconSection == "home"
 
@@ -105,7 +106,7 @@ fun YardlyApp() {
                         selectedNavSection = selectedNavSection,
                         onAdClick = { showAdLoginModal = true },
                         onProfileBackClick = { selectedIconSection = "home" },
-                        onUserClick = { showProfileSheet = true } // This now shows the popup
+                        onUserClick = { showProfileSheet = true }
                     )
                 }
 
@@ -191,14 +192,14 @@ fun TopBar() {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    MaterialTheme.colorScheme.surfaceVariant,
+                    MaterialTheme.colorScheme.surfaceVariant, // Light Gray
                     RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
                 )
                 .padding(horizontal = 10.dp, vertical = 32.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            // Title removed - keeping TopBar structure for future modifications
+            // Title removed
         }
     }
 }
@@ -241,7 +242,8 @@ fun SectionNavigation(
                             onButtonPositioned(sectionKey, it.positionInParent().x)
                         }
                         .background(
-                            color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+                            // STYLE: Selected = light gray, Unselected = transparent
+                            color = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
                             shape = RoundedCornerShape(20.dp)
                         )
                         .combinedClickable(
@@ -263,7 +265,8 @@ fun SectionNavigation(
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
-                        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
+                        // STYLE: Both selected and unselected text is black
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             } else {
@@ -276,8 +279,10 @@ fun SectionNavigation(
                             onButtonPositioned(sectionKey, it.positionInParent().x)
                         },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-                        contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
+                        // STYLE: Selected = light gray, Unselected = transparent
+                        containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                        // STYLE: Both selected and unselected text is black
+                        contentColor = MaterialTheme.colorScheme.onBackground
                     ),
                     shape = RoundedCornerShape(20.dp),
                     contentPadding = PaddingValues(12.dp)
@@ -311,7 +316,7 @@ fun BottomIconNavigation(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                MaterialTheme.colorScheme.surfaceVariant,
+                MaterialTheme.colorScheme.background, // White
                 RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
             .navigationBarsPadding()
@@ -328,8 +333,10 @@ fun BottomIconNavigation(
                     .weight(1f)
                     .height(44.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-                    contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.primary
+                    // STYLE: Selected = light gray, Unselected = transparent
+                    containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                    // STYLE: Both selected and unselected text is black
+                    contentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 shape = RoundedCornerShape(20.dp),
                 contentPadding = PaddingValues(horizontal = 4.dp)
@@ -376,10 +383,13 @@ fun SectionOptions(
                     .width(110.dp)
                     .height(44.dp),
                 colors = ButtonDefaults.buttonColors(
+                    // *** THIS IS THE CHANGE ***
+                    // STYLE: "Rehome" = black, others = light gray
                     containerColor = if (name == "Rehome") MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = if (name == "Rehome") Color.White
-                    else MaterialTheme.colorScheme.onPrimaryContainer
+                    else MaterialTheme.colorScheme.surfaceVariant,
+                    // STYLE: "Rehome" = white, others = black
+                    contentColor = if (name == "Rehome") MaterialTheme.colorScheme.onPrimary
+                    else MaterialTheme.colorScheme.onBackground
                 ),
                 shape = RoundedCornerShape(20.dp),
                 contentPadding = PaddingValues(12.dp)
@@ -406,7 +416,6 @@ fun ContentArea(
 ) {
     when (selectedIconSection) {
         "home" -> {
-            // Show scrollable list of AdCards
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -476,7 +485,7 @@ fun ContentArea(
 @Preview(showBackground = true)
 @Composable
 fun YardlyAppPreview() {
-    YardlyTheme(darkTheme = false, dynamicColor = false) { // Forced light theme
+    YardlyTheme(darkTheme = false, dynamicColor = false) {
         YardlyApp()
     }
 }
