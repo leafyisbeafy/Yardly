@@ -36,16 +36,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.components.AccessibilityScreen // <-- ADDED IMPORT
 import com.example.yardly.ui.components.AdCard
 import com.example.yardly.ui.components.AdLoginSheet
+import com.example.yardly.ui.components.ChooseCornerSheet
+import com.example.yardly.ui.components.DarkModeScreen // <-- ADDED IMPORT
 import com.example.yardly.ui.components.FindNear
+import com.example.yardly.ui.components.ListingScreen
 import com.example.yardly.ui.components.ProfileContent
 import com.example.yardly.ui.components.ProfilePopup
-import com.example.yardly.ui.components.ChooseCornerSheet
-import com.example.yardly.ui.components.ListingScreen
+import com.example.yardly.ui.components.SettingsScreen
 import com.example.yardly.ui.components.WatchlistScreen
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
+
+// *** NEW: State definition for profile tab navigation ***
+sealed class ProfileScreenState {
+    object Profile : ProfileScreenState()
+    object Settings : ProfileScreenState()
+    object Accessibility : ProfileScreenState()
+    object DarkMode : ProfileScreenState()
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,6 +81,9 @@ fun YardlyApp() {
     var showProfileSheet by remember { mutableStateOf(false) }
     var showChooseCornerSheet by remember { mutableStateOf(false) }
 
+    // *** REPLACED boolean with new state class ***
+    var profileScreenState by remember { mutableStateOf<ProfileScreenState>(ProfileScreenState.Profile) }
+
     val showHeaderAndNav = selectedIconSection == "home"
 
     // Scroll state detection
@@ -93,6 +107,13 @@ fun YardlyApp() {
 
             isScrollingUp || currentIndex == 0
         }
+    }
+
+    // *** UPDATED: Navigation logic for settings ***
+    val navigateToSettings = {
+        showProfileSheet = false
+        selectedIconSection = "profile"
+        profileScreenState = ProfileScreenState.Settings
     }
 
     val baseSectionOptions = mapOf(
@@ -133,8 +154,8 @@ fun YardlyApp() {
                     modifier = Modifier
                         .fillMaxSize()
                         .then(
-                            // Add padding unless it's the profile or watchlist page
-                            if (selectedIconSection != "profile" && selectedIconSection != "watchlist")
+                            // Add padding unless it's a full-screen page
+                            if (selectedIconSection == "home" || selectedIconSection == "yardly")
                                 Modifier.padding(20.dp)
                             else Modifier
                         )
@@ -143,9 +164,16 @@ fun YardlyApp() {
                         listState = listState,
                         selectedIconSection = selectedIconSection,
                         selectedNavSection = selectedNavSection,
+                        profileScreenState = profileScreenState, // <-- PASS STATE
                         onAdClick = { showAdLoginModal = true },
-                        onProfileBackClick = { selectedIconSection = "home" },
-                        onUserClick = { showProfileSheet = true }
+                        onBackClick = { selectedIconSection = "home" }, // For Watchlist
+                        onSettingsBackClick = { profileScreenState = ProfileScreenState.Profile }, // Settings -> Profile
+                        onAccessibilityBackClick = { profileScreenState = ProfileScreenState.Settings }, // Access -> Settings
+                        onDarkModeBackClick = { profileScreenState = ProfileScreenState.Accessibility }, // DarkMode -> Access
+                        onUserClick = { showProfileSheet = true },
+                        onMenuClick = navigateToSettings, // For Profile -> Settings
+                        onAccessibilityClick = { profileScreenState = ProfileScreenState.Accessibility }, // Settings -> Access
+                        onDarkModeClick = { profileScreenState = ProfileScreenState.DarkMode } // Access -> DarkMode
                     )
                 }
 
@@ -202,6 +230,7 @@ fun YardlyApp() {
                 onSectionSelected = { section ->
                     selectedIconSection = section
                     selectedSectionOptions = null
+                    profileScreenState = ProfileScreenState.Profile // <-- Reset on tab change
                 }
             )
         }
@@ -216,7 +245,8 @@ fun YardlyApp() {
         ProfilePopup(
             showModal = showProfileSheet,
             onDismiss = { showProfileSheet = false },
-            onBackClick = { showProfileSheet = false }
+            onBackClick = { showProfileSheet = false },
+            onMenuClick = navigateToSettings // <-- Pass action
         )
 
         // NEW: Call to ChooseCornerSheet
@@ -241,7 +271,6 @@ fun TopBar() {
                 .statusBarsPadding()
         )
 
-        // *** THIS IS THE CHANGE ***
         // Content area with background
         Row(
             modifier = Modifier
@@ -252,10 +281,8 @@ fun TopBar() {
                 )
                 .padding(horizontal = 20.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End // <-- Pushes items to the right
+            horizontalArrangement = Arrangement.End
         ) {
-            // Left Side: Logo Button (REMOVED)
-
             // Right Side: Icon Buttons
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -264,30 +291,30 @@ fun TopBar() {
                 Button(
                     onClick = { /* TODO: Handle notifications */ },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant, // Light gray
-                        contentColor = MaterialTheme.colorScheme.onBackground // Black
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onBackground
                     ),
                     shape = RoundedCornerShape(20.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp) // Smaller padding
+                    contentPadding = PaddingValues(horizontal = 12.dp)
                 ) {
                     Text(
                         text = "Notification",
-                        fontSize = 12.sp // Small text
+                        fontSize = 12.sp
                     )
                 }
                 // Messenger Button
                 Button(
                     onClick = { /* TODO: Handle messenger */ },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant, // Light gray
-                        contentColor = MaterialTheme.colorScheme.onBackground // Black
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onBackground
                     ),
                     shape = RoundedCornerShape(20.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp) // Smaller padding
+                    contentPadding = PaddingValues(horizontal = 12.dp)
                 ) {
                     Text(
                         text = "Messenger",
-                        fontSize = 12.sp // Small text
+                        fontSize = 12.sp
                     )
                 }
             }
@@ -501,9 +528,16 @@ fun ContentArea(
     listState: LazyListState,
     selectedIconSection: String,
     selectedNavSection: String,
+    profileScreenState: ProfileScreenState, // <-- CHANGED
     onAdClick: () -> Unit = {},
-    onProfileBackClick: () -> Unit = {},
-    onUserClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onSettingsBackClick: () -> Unit = {},
+    onAccessibilityBackClick: () -> Unit = {}, // <-- NEW
+    onDarkModeBackClick: () -> Unit = {}, // <-- NEW
+    onUserClick: () -> Unit = {},
+    onMenuClick: () -> Unit = {},
+    onAccessibilityClick: () -> Unit = {}, // <-- NEW
+    onDarkModeClick: () -> Unit = {} // <-- NEW
 ) {
     when (selectedIconSection) {
         "home" -> {
@@ -527,14 +561,28 @@ fun ContentArea(
             ListingScreen()
         }
         "watchlist" -> {
-            WatchlistScreen(onBackClick = onProfileBackClick)
+            WatchlistScreen(onBackClick = onBackClick)
         }
         "profile" -> {
-            ProfileContent(
-                onBackClick = onProfileBackClick,
-                onEditClick = { /* Handle Edit */ },
-                onMenuClick = { /* Handle Menu */ }
-            )
+            // *** NEW: Navigation logic for profile tab ***
+            when (profileScreenState) {
+                ProfileScreenState.Profile -> ProfileContent(
+                    onBackClick = onBackClick,
+                    onEditClick = { /* Handle Edit */ },
+                    onMenuClick = onMenuClick
+                )
+                ProfileScreenState.Settings -> SettingsScreen(
+                    onBackClick = onSettingsBackClick,
+                    onAccessibilityClick = onAccessibilityClick
+                )
+                ProfileScreenState.Accessibility -> AccessibilityScreen(
+                    onBackClick = onAccessibilityBackClick,
+                    onDarkModeClick = onDarkModeClick
+                )
+                ProfileScreenState.DarkMode -> DarkModeScreen(
+                    onBackClick = onDarkModeBackClick
+                )
+            }
         }
         "messenger" -> {
             val content = """
@@ -569,7 +617,5 @@ fun ContentArea(
 @Preview(showBackground = true)
 @Composable
 fun YardlyAppPreview() {
-    YardlyTheme(darkTheme = false, dynamicColor = false) {
-        YardlyApp()
-    }
+    YardlyApp()
 }
