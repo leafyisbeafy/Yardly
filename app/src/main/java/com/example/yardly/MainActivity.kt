@@ -12,9 +12,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyListState // <-- This is okay for ContentArea param
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells // <-- ADDED IMPORT
+import androidx.compose.foundation.lazy.grid.LazyGridState // <-- ADDED IMPORT
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid // <-- ADDED IMPORT
+import androidx.compose.foundation.lazy.grid.itemsIndexed // <-- ADDED IMPORT
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState // <-- CHANGED IMPORT
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,7 +47,6 @@ import com.example.yardly.ui.components.AdLoginSheet
 import com.example.yardly.ui.components.ChooseCornerSheet
 import com.example.yardly.ui.components.DarkModeScreen
 import com.example.yardly.ui.components.FindNear
-// import com.example.yardly.ui.components.ImageScrollType // <-- REMOVED
 import com.example.yardly.ui.components.ListingScreen
 import com.example.yardly.ui.components.ProfileContent
 import com.example.yardly.ui.components.ProfilePopup
@@ -105,15 +108,16 @@ fun YardlyApp(
 
     val showHeaderAndNav = selectedIconSection == "home"
 
-    // Scroll state detection
-    val listState = rememberLazyListState()
-    var previousIndex by remember { mutableStateOf(listState.firstVisibleItemIndex) }
-    var previousOffset by remember { mutableStateOf(listState.firstVisibleItemScrollOffset) }
+    // *** THIS IS THE FIX for fab23e.png ***
+    // Changed from rememberLazyListState() to rememberLazyGridState()
+    val gridState = rememberLazyGridState()
+    var previousIndex by remember(gridState) { mutableStateOf(gridState.firstVisibleItemIndex) }
+    var previousOffset by remember(gridState) { mutableStateOf(gridState.firstVisibleItemScrollOffset) }
 
     val isFabVisible by remember {
         derivedStateOf {
-            val currentIndex = listState.firstVisibleItemIndex
-            val currentOffset = listState.firstVisibleItemScrollOffset
+            val currentIndex = gridState.firstVisibleItemIndex
+            val currentOffset = gridState.firstVisibleItemScrollOffset
 
             val isScrollingUp = if (currentIndex != previousIndex) {
                 currentIndex < previousIndex
@@ -173,37 +177,27 @@ fun YardlyApp(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                // Content Area (LazyColumn or Profile Page)
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .then(
-                            if (selectedIconSection == "home" || selectedIconSection == "yardly")
-                                Modifier.padding(20.dp)
-                            else Modifier
-                        )
-                ) {
-                    ContentArea(
-                        listState = listState,
-                        selectedIconSection = selectedIconSection,
-                        selectedNavSection = selectedNavSection,
-                        profileScreenState = profileScreenState,
-                        isDarkMode = isDarkMode,
-                        saveCounts = saveCounts,
-                        savedItems = savedItems,
-                        onAdClick = { showAdLoginModal = true },
-                        onBackClick = { selectedIconSection = "home" },
-                        onSettingsBackClick = { profileScreenState = ProfileScreenState.Profile },
-                        onAccessibilityBackClick = { profileScreenState = ProfileScreenState.Settings },
-                        onDarkModeBackClick = { profileScreenState = ProfileScreenState.Accessibility },
-                        onUserClick = { showProfileSheet = true },
-                        onMenuClick = navigateToSettings,
-                        onAccessibilityClick = { profileScreenState = ProfileScreenState.Accessibility },
-                        onDarkModeClick = { profileScreenState = ProfileScreenState.DarkMode },
-                        onDarkModeToggle = onDarkModeToggle,
-                        onSaveClick = onToggleSave
-                    )
-                }
+                // *** THIS IS THE FIX (Removed padding) ***
+                ContentArea(
+                    gridState = gridState, // <-- PASSING NEW STATE
+                    selectedIconSection = selectedIconSection,
+                    selectedNavSection = selectedNavSection,
+                    profileScreenState = profileScreenState,
+                    isDarkMode = isDarkMode,
+                    saveCounts = saveCounts,
+                    savedItems = savedItems,
+                    onAdClick = { showAdLoginModal = true },
+                    onBackClick = { selectedIconSection = "home" },
+                    onSettingsBackClick = { profileScreenState = ProfileScreenState.Profile },
+                    onAccessibilityBackClick = { profileScreenState = ProfileScreenState.Settings },
+                    onDarkModeBackClick = { profileScreenState = ProfileScreenState.Accessibility },
+                    onUserClick = { showProfileSheet = true },
+                    onMenuClick = navigateToSettings,
+                    onAccessibilityClick = { profileScreenState = ProfileScreenState.Accessibility },
+                    onDarkModeClick = { profileScreenState = ProfileScreenState.DarkMode },
+                    onDarkModeToggle = onDarkModeToggle,
+                    onSaveClick = onToggleSave
+                )
 
                 // Section Options
                 selectedSectionOptions?.let { section ->
@@ -532,7 +526,7 @@ fun SectionOptions(
 
 @Composable
 fun ContentArea(
-    listState: LazyListState,
+    gridState: LazyGridState, // <-- CHANGED
     selectedIconSection: String,
     selectedNavSection: String,
     profileScreenState: ProfileScreenState,
@@ -562,25 +556,22 @@ fun ContentArea(
                 "Razer Gaming Chair"
             )
 
-            LazyColumn(
-                state = listState,
+            // *** THIS IS THE FIX (LazyVerticalGrid) ***
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2), // 2 columns
+                state = gridState, // <-- PASS THE CORRECT STATE
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 20.dp) // No more ugly gutters
             ) {
-                items(10) { index ->
-                    val adName = if (index < adNames.size) {
-                        adNames[index]
-                    } else {
-                        "Advertisement ${index + 1}"
-                    }
-
+                itemsIndexed(adNames) { index, adName ->
                     val userName = "User ${index + 1}"
                     val saveCount = saveCounts.getOrDefault(adName, 0)
                     val isSaved = savedItems.getOrDefault(adName, false)
 
-                    // *** THIS IS THE CHANGE ***
-                    // Removed all scrolling logic. All cards are now default.
+                    // *** THIS IS THE FIX (fb0b7e.png) ***
+                    // We are calling the card you like, without 'price'
                     AdCard(
                         advertisementName = adName,
                         userName = userName,

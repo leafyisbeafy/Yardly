@@ -35,11 +35,11 @@ fun AdCard(
     onAdClick: () -> Unit = {},
     onUserClick: () -> Unit = {},
     modifier: Modifier = Modifier
-    // Removed isScrollable and scrollableImages parameters
 ) {
     Card(
         modifier = modifier
-            .width(350.dp)
+            // .width(350.dp) // <-- REMOVED this fixed width
+            .fillMaxWidth() // <-- ADDED this to fill the grid cell
             .wrapContentHeight(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface // Card is white
@@ -65,12 +65,12 @@ fun AdCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // *** THIS IS THE CHANGE ***
-            // Reverted to one single placeholder for ALL ads
+            // Middle section - Image placeholder
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    // Aspect ratio keeps it a consistent shape in the grid
+                    .aspectRatio(1f) // <-- CHANGED from fixed height to 1:1 ratio
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(12.dp)
@@ -84,7 +84,6 @@ fun AdCard(
                     modifier = Modifier.size(48.dp)
                 )
             }
-            // *** END OF CHANGE ***
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -99,17 +98,17 @@ fun AdCard(
                     modifier = Modifier
                         .weight(1f)
                         .clickable(onClick = onUserClick),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp) // Space avatar and name
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(32.dp) // <-- Made avatar smaller
                             .background(
                                 color = MaterialTheme.colorScheme.surfaceVariant,
                                 shape = CircleShape
                             )
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = userName,
                         fontSize = 14.sp,
