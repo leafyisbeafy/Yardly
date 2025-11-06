@@ -17,7 +17,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -58,6 +58,43 @@ import com.example.yardly.ui.components.WatchlistScreen
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 
+// --- NEW DATA CLASS ---
+data class Ad(val name: String, val user: String)
+
+// --- MOCK DATA FOR THE FILTERS (We can move this later) ---
+private val defaultAds = listOf(
+    Ad("Air Force 1", "User 1"),
+    Ad("iPhone 13", "User 2"),
+    Ad("PlayStation 4", "User 3"),
+    Ad("Macbook Air 13", "User 4"),
+    Ad("Denim Jacket", "User 5"),
+    Ad("Razer Gaming Chair", "User 6")
+)
+
+private val allLeaseAds = mapOf(
+    "Room" to listOf(Ad("Sublet: 1-Bed Room", "User A"), Ad("Shared Room Downtown", "User B")),
+    "Car" to listOf(Ad("Toyota Camry 2018", "User C"), Ad("Honda Civic Lease", "User D")),
+    "Retail Store" to listOf(Ad("Pop-up Shop Space", "User E"), Ad("Small Retail Front", "User F"))
+)
+
+private val allYardSaleAds = mapOf(
+    "Move Out" to listOf(Ad("Moving Sale: Everything Must Go", "User G"), Ad("Couch for Sale", "User H")),
+    "Garage Sale" to listOf(Ad("Neighborhood Garage Sale", "User I"), Ad("Antique Sale", "User J"))
+)
+
+private val allAquaSwapAds = mapOf(
+    "Equipment" to listOf(Ad("Used 50g Filter", "User K"), Ad("Heater", "User L")),
+    "Coral" to listOf(Ad("Zoanthid Frag", "User M"), Ad("Hammer Coral", "User N")),
+    "Tank" to listOf(Ad("40 Gallon Tank", "User O"), Ad("10g Betta Tank", "User P")),
+    "Rehome" to listOf(Ad("Goldfish needs home", "User Q"), Ad("Betta Fish (Free)", "User R"))
+)
+
+private val allAuctionAds = listOf(Ad("Rare Coin Auction", "User S"), Ad("Vintage Watch", "User T"))
+
+
+// --- END MOCK DATA ---
+
+
 sealed class ProfileScreenState {
     object Profile : ProfileScreenState()
     object Settings : ProfileScreenState()
@@ -95,8 +132,13 @@ fun YardlyApp(
     onDarkModeToggle: (Boolean) -> Unit
 ) {
     var selectedIconSection by remember { mutableStateOf("home") }
-    var selectedNavSection by remember { mutableStateOf("lease") }
+
+    // --- FIX #1: Default to "home-default" ---
+    var selectedNavSection by remember { mutableStateOf("home-default") }
+
     var selectedSectionOptions by remember { mutableStateOf<String?>(null) }
+    var selectedSubOption by remember { mutableStateOf<String?>(null) }
+
     val buttonCoordinates = remember { mutableStateMapOf<String, Float>() }
     var showRehomeInAquaSwap by remember { mutableStateOf(false) }
     var showAdLoginModal by remember { mutableStateOf(false) }
@@ -135,7 +177,6 @@ fun YardlyApp(
         profileScreenState = ProfileScreenState.Settings
     }
 
-    // *** THIS IS THE FIX: Create onSaveClick ***
     val onSaveClick: (String) -> Unit = { adName ->
         val currentCount = saveCounts.getOrDefault(adName, 0)
         saveCounts[adName] = currentCount + 1
@@ -155,6 +196,41 @@ fun YardlyApp(
             options
         }
     }
+
+    val dynamicAdList = remember(selectedNavSection, selectedSubOption, showRehomeInAquaSwap) {
+        when (selectedNavSection) {
+            // --- FIX #2: Add case for "home-default" ---
+            "home-default" -> {
+                defaultAds
+            }
+            "lease" -> {
+                selectedSubOption?.let {
+                    allLeaseAds[it]
+                } ?: allLeaseAds.values.flatten()
+            }
+            "yard-sales" -> {
+                selectedSubOption?.let {
+                    allYardSaleAds[it]
+                } ?: allYardSaleAds.values.flatten()
+            }
+            "aqua-swap" -> {
+                if (showRehomeInAquaSwap) {
+                    allAquaSwapAds["Rehome"] ?: emptyList()
+                } else {
+                    selectedSubOption?.let {
+                        allAquaSwapAds[it]
+                    } ?: allAquaSwapAds.values.flatten().filterNot { allAquaSwapAds["Rehome"]?.contains(it) ?: false }
+                }
+            }
+            "auction" -> {
+                allAuctionAds
+            }
+            else -> {
+                defaultAds
+            }
+        }
+    } ?: defaultAds
+
 
     Box(
         modifier = Modifier
@@ -176,6 +252,7 @@ fun YardlyApp(
                     .weight(1f)
             ) {
                 ContentArea(
+                    ads = dynamicAdList,
                     gridState = gridState,
                     selectedIconSection = selectedIconSection,
                     selectedNavSection = selectedNavSection,
@@ -193,7 +270,7 @@ fun YardlyApp(
                     onAccessibilityClick = { profileScreenState = ProfileScreenState.Accessibility },
                     onDarkModeClick = { profileScreenState = ProfileScreenState.DarkMode },
                     onDarkModeToggle = onDarkModeToggle,
-                    onSaveClick = onSaveClick // <-- Pass it here
+                    onSaveClick = onSaveClick
                 )
 
                 // Section Options
@@ -203,18 +280,22 @@ fun YardlyApp(
                         SectionOptions(
                             options = options,
                             xOffset = xOffset,
-                            modifier = Modifier.align(Alignment.BottomStart)
+                            modifier = Modifier.align(Alignment.BottomStart),
+                            onOptionClick = { optionName ->
+                                selectedSubOption = optionName
+                                Log.d("SectionOptions", "Clicked: $optionName")
+                            }
                         )
                     }
                 }
 
-                // *** START: NEW EXPANDING FAB MENU ***
+                // Expanding FAB Menu
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(16.dp),
                     horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp) // <-- THE FIX IS HERE
                 ) {
                     // 1. "Camera" Button
                     AnimatedVisibility(
@@ -287,7 +368,6 @@ fun YardlyApp(
                         }
                     }
                 }
-                // *** END: NEW EXPANDING FAB MENU ***
             }
 
             // Section Navigation
@@ -296,6 +376,7 @@ fun YardlyApp(
                     selectedSection = selectedNavSection,
                     onSectionSelected = { section ->
                         selectedNavSection = section
+                        selectedSubOption = null
                         showRehomeInAquaSwap = false
                         selectedSectionOptions = if (sectionOptions.containsKey(section) && selectedSectionOptions != section) section else null
                     },
@@ -306,6 +387,7 @@ fun YardlyApp(
                         if (section == "aqua-swap") {
                             showRehomeInAquaSwap = true
                             selectedSectionOptions = section
+                            selectedSubOption = "Rehome"
                         }
                     },
                     showRehomeInAquaSwap = showRehomeInAquaSwap,
@@ -321,6 +403,13 @@ fun YardlyApp(
                 onSectionSelected = { section ->
                     selectedIconSection = section
                     selectedSectionOptions = null
+
+                    // --- FIX #3: Set nav section to "home-default" ---
+                    if (section == "home") {
+                        selectedNavSection = "home-default"
+                        selectedSubOption = null
+                    }
+
                     profileScreenState = ProfileScreenState.Profile
                 }
             )
@@ -550,7 +639,8 @@ fun BottomIconNavigation(
 fun SectionOptions(
     options: List<String>,
     xOffset: Float,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onOptionClick: (String) -> Unit
 ) {
     val density = LocalDensity.current
     val xOffsetDp = with(density) { xOffset.toDp() }
@@ -563,13 +653,7 @@ fun SectionOptions(
     ) {
         options.forEach { name ->
             Button(
-                onClick = {
-                    if (name == "Rehome") {
-                        println("Rehome option selected")
-                    } else {
-                        println("$name option selected")
-                    }
-                },
+                onClick = { onOptionClick(name) },
                 modifier = Modifier
                     .width(110.dp)
                     .height(44.dp),
@@ -596,6 +680,7 @@ fun SectionOptions(
 
 @Composable
 fun ContentArea(
+    ads: List<Ad>,
     gridState: LazyGridState,
     selectedIconSection: String,
     selectedNavSection: String,
@@ -617,15 +702,6 @@ fun ContentArea(
 ) {
     when (selectedIconSection) {
         "home" -> {
-            val adNames = listOf(
-                "Air Force 1",
-                "iPhone 13",
-                "PlayStation 4",
-                "Macbook Air 13",
-                "Denim Jacket",
-                "Razer Gaming Chair"
-            )
-
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 state = gridState,
@@ -634,18 +710,17 @@ fun ContentArea(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 20.dp)
             ) {
-                itemsIndexed(adNames) { index, adName ->
-                    val userName = "User ${index + 1}"
-                    val saveCount = saveCounts.getOrDefault(adName, 0)
-                    val isSaved = savedItems.getOrDefault(adName, false)
+                items(ads) { ad ->
+                    val saveCount = saveCounts.getOrDefault(ad.name, 0)
+                    val isSaved = savedItems.getOrDefault(ad.name, false)
                     AdCard(
-                        advertisementName = adName,
-                        userName = userName,
+                        advertisementName = ad.name,
+                        userName = ad.user,
                         saveCount = saveCount,
                         isSaved = isSaved,
                         onAdClick = onAdClick,
                         onUserClick = onUserClick,
-                        onSaveClick = { onSaveClick(adName) }
+                        onSaveClick = { onSaveClick(ad.name) }
                     )
                 }
             }
@@ -658,7 +733,7 @@ fun ContentArea(
                 onBackClick = onBackClick,
                 savedItems = savedItems,
                 saveCounts = saveCounts,
-                onSaveClick = onSaveClick  // ← THIS IS THE FIX
+                onSaveClick = onSaveClick
             )
         }
         "profile" -> {
