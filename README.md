@@ -10,7 +10,6 @@ Think Marketplace, but laser-focused: **instant area-only drops, sublease swaps,
 This repository contains the native Android application for Yardly, built entirely with Kotlin and Jetpack Compose.
 
 * **Hyper-Local Location Filtering:** Yardly ditches the standard "radius" search. Users filter by specific neighborhood "corners" (e.g., "SW, Cedar Rapids") or by "County" for broader, but still defined, accessibility.
-* **Hyper-Local Location Filtering: Yardly ditches the standard "radius" search. Users filter by specific neighborhood "corners" (e.g., "SW, Cedar Rapids") or by "County" for broader, but still defined, accessibility.
 * **Dual-Gesture Navigation:** The main `SectionNavigation` bar ("Aqua Swap," "Yard Sales," "Lease") is built for speed and power-users:
     * **Single-Tap:** Selects the main category.
     * **Double-Tap:** Reveals sub-options (like "Move Out" or "Room").
