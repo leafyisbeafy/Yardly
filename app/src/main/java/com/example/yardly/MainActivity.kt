@@ -12,18 +12,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListState // <-- This is okay for ContentArea param
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells // <-- ADDED IMPORT
-import androidx.compose.foundation.lazy.grid.LazyGridState // <-- ADDED IMPORT
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid // <-- ADDED IMPORT
-import androidx.compose.foundation.lazy.grid.itemsIndexed // <-- ADDED IMPORT
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState // <-- CHANGED IMPORT
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -68,7 +71,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             var isDarkMode by remember { mutableStateOf(false) }
-
             val onDarkModeToggle: (Boolean) -> Unit = { enabled ->
                 isDarkMode = enabled
                 Log.d("DarkModeToggle", "dark_mode_enabled: $enabled")
@@ -100,16 +102,10 @@ fun YardlyApp(
     var showAdLoginModal by remember { mutableStateOf(false) }
     var showProfileSheet by remember { mutableStateOf(false) }
     var showChooseCornerSheet by remember { mutableStateOf(false) }
-
     var profileScreenState by remember { mutableStateOf<ProfileScreenState>(ProfileScreenState.Profile) }
-
     val saveCounts = remember { mutableStateMapOf<String, Int>() }
     val savedItems = remember { mutableStateMapOf<String, Boolean>() }
-
     val showHeaderAndNav = selectedIconSection == "home"
-
-    // *** THIS IS THE FIX for fab23e.png ***
-    // Changed from rememberLazyListState() to rememberLazyGridState()
     val gridState = rememberLazyGridState()
     var previousIndex by remember(gridState) { mutableStateOf(gridState.firstVisibleItemIndex) }
     var previousOffset by remember(gridState) { mutableStateOf(gridState.firstVisibleItemScrollOffset) }
@@ -127,10 +123,11 @@ fun YardlyApp(
 
             previousIndex = currentIndex
             previousOffset = currentOffset
-
             isScrollingUp || currentIndex == 0
         }
     }
+
+    var isFabMenuExpanded by remember { mutableStateOf(false) }
 
     val navigateToSettings = {
         showProfileSheet = false
@@ -138,7 +135,8 @@ fun YardlyApp(
         profileScreenState = ProfileScreenState.Settings
     }
 
-    val onToggleSave: (String) -> Unit = { adName ->
+    // *** THIS IS THE FIX: Create onSaveClick ***
+    val onSaveClick: (String) -> Unit = { adName ->
         val currentCount = saveCounts.getOrDefault(adName, 0)
         saveCounts[adName] = currentCount + 1
         savedItems[adName] = true
@@ -177,9 +175,8 @@ fun YardlyApp(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                // *** THIS IS THE FIX (Removed padding) ***
                 ContentArea(
-                    gridState = gridState, // <-- PASSING NEW STATE
+                    gridState = gridState,
                     selectedIconSection = selectedIconSection,
                     selectedNavSection = selectedNavSection,
                     profileScreenState = profileScreenState,
@@ -196,7 +193,7 @@ fun YardlyApp(
                     onAccessibilityClick = { profileScreenState = ProfileScreenState.Accessibility },
                     onDarkModeClick = { profileScreenState = ProfileScreenState.DarkMode },
                     onDarkModeToggle = onDarkModeToggle,
-                    onSaveClick = onToggleSave
+                    onSaveClick = onSaveClick // <-- Pass it here
                 )
 
                 // Section Options
@@ -211,14 +208,86 @@ fun YardlyApp(
                     }
                 }
 
-                // FindNear Button
-                if (selectedIconSection == "home") {
-                    FindNear(
-                        isVisible = isFabVisible,
-                        onClick = { showChooseCornerSheet = true },
-                        modifier = Modifier.align(Alignment.BottomEnd)
-                    )
+                // *** START: NEW EXPANDING FAB MENU ***
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // 1. "Camera" Button
+                    AnimatedVisibility(
+                        visible = isFabMenuExpanded && isFabVisible && selectedIconSection == "home",
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        FloatingActionButton(
+                            onClick = {
+                                // TODO: Handle create post navigation
+                                isFabMenuExpanded = false
+                            },
+                            shape = CircleShape,
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onSecondary
+                        ) {
+                            Icon(
+                                Icons.Filled.CameraAlt,
+                                contentDescription = "Create Post"
+                            )
+                        }
+                    }
+
+                    // 2. "Location" Button
+                    AnimatedVisibility(
+                        visible = isFabMenuExpanded && isFabVisible && selectedIconSection == "home",
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        FloatingActionButton(
+                            onClick = {
+                                showChooseCornerSheet = true
+                                isFabMenuExpanded = false
+                            },
+                            shape = CircleShape,
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ) {
+                            Icon(
+                                Icons.Filled.LocationOn,
+                                contentDescription = "Choose Location"
+                            )
+                        }
+                    }
+
+                    // 3. Main FAB (The "plus" / "cross" button)
+                    AnimatedVisibility(
+                        visible = isFabVisible && selectedIconSection == "home",
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        FloatingActionButton(
+                            onClick = { isFabMenuExpanded = !isFabMenuExpanded },
+                            shape = CircleShape,
+                            containerColor = if (isFabMenuExpanded) {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            },
+                            contentColor = if (isFabMenuExpanded) {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.onPrimary
+                            }
+                        ) {
+                            Icon(
+                                imageVector = if (isFabMenuExpanded) Icons.Filled.Close else Icons.Filled.Add,
+                                contentDescription = "Toggle Menu"
+                            )
+                        }
+                    }
                 }
+                // *** END: NEW EXPANDING FAB MENU ***
             }
 
             // Section Navigation
@@ -262,12 +331,14 @@ fun YardlyApp(
             showModal = showAdLoginModal,
             onDismiss = { showAdLoginModal = false }
         )
+
         ProfilePopup(
             showModal = showProfileSheet,
             onDismiss = { showProfileSheet = false },
             onBackClick = { showProfileSheet = false },
             onMenuClick = navigateToSettings
         )
+
         ChooseCornerSheet(
             showModal = showChooseCornerSheet,
             onDismiss = { showChooseCornerSheet = false }
@@ -278,7 +349,6 @@ fun YardlyApp(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar() {
-    // ... (This function is unchanged)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -288,6 +358,7 @@ fun TopBar() {
                 .fillMaxWidth()
                 .statusBarsPadding()
         )
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -344,13 +415,13 @@ fun SectionNavigation(
     showRehomeInAquaSwap: Boolean,
     onRehomeStateChange: (Boolean) -> Unit
 ) {
-    // ... (This function is unchanged)
     val sections = listOf(
         "aqua-swap" to "Aqua Swap",
         "yard-sales" to "Yard Sales",
         "lease" to "Lease",
         "auction" to "Auction"
     )
+
     val hapticFeedback = LocalHapticFeedback.current
     LazyRow(
         modifier = Modifier
@@ -430,13 +501,13 @@ fun BottomIconNavigation(
     selectedSection: String,
     onSectionSelected: (String) -> Unit
 ) {
-    // ... (This function is unchanged)
     val sections = listOf(
         "home" to "Home",
         "yardly" to "Yardly",
         "watchlist" to "Watchlist",
         "profile" to "Profile"
     )
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -481,7 +552,6 @@ fun SectionOptions(
     xOffset: Float,
     modifier: Modifier = Modifier
 ) {
-    // ... (This function is unchanged)
     val density = LocalDensity.current
     val xOffsetDp = with(density) { xOffset.toDp() }
     Column(
@@ -526,7 +596,7 @@ fun SectionOptions(
 
 @Composable
 fun ContentArea(
-    gridState: LazyGridState, // <-- CHANGED
+    gridState: LazyGridState,
     selectedIconSection: String,
     selectedNavSection: String,
     profileScreenState: ProfileScreenState,
@@ -556,22 +626,18 @@ fun ContentArea(
                 "Razer Gaming Chair"
             )
 
-            // *** THIS IS THE FIX (LazyVerticalGrid) ***
             LazyVerticalGrid(
-                columns = GridCells.Fixed(2), // 2 columns
-                state = gridState, // <-- PASS THE CORRECT STATE
+                columns = GridCells.Fixed(2),
+                state = gridState,
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 20.dp) // No more ugly gutters
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 20.dp)
             ) {
                 itemsIndexed(adNames) { index, adName ->
                     val userName = "User ${index + 1}"
                     val saveCount = saveCounts.getOrDefault(adName, 0)
                     val isSaved = savedItems.getOrDefault(adName, false)
-
-                    // *** THIS IS THE FIX (fb0b7e.png) ***
-                    // We are calling the card you like, without 'price'
                     AdCard(
                         advertisementName = adName,
                         userName = userName,
@@ -592,7 +658,7 @@ fun ContentArea(
                 onBackClick = onBackClick,
                 savedItems = savedItems,
                 saveCounts = saveCounts,
-                onSaveClick = onSaveClick
+                onSaveClick = onSaveClick  // ← THIS IS THE FIX
             )
         }
         "profile" -> {
@@ -620,12 +686,9 @@ fun ContentArea(
         "messenger" -> {
             val content = """
                 Messages
-
                 Your conversations and messages will appear here
-
                 John Doe
                 Hey! Are you still interested in the pet adoption?
-
                 Sarah Wilson
                 Thanks for the lease swap.
             """.trimIndent()
