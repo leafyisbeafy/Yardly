@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark // <-- ADDED IMPORT
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material3.*
@@ -23,23 +23,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yardly.ui.theme.YardlyTheme
 
+// All scrolling logic has been removed from this file
+
 @Composable
 fun AdCard(
     advertisementName: String = "Name of the advertisement",
     userName: String = "First Last",
     saveCount: Int,
-    isSaved: Boolean, // <-- ADDED PARAMETER
+    isSaved: Boolean,
     onSaveClick: () -> Unit = {},
     onAdClick: () -> Unit = {},
     onUserClick: () -> Unit = {},
     modifier: Modifier = Modifier
+    // Removed isScrollable and scrollableImages parameters
 ) {
     Card(
         modifier = modifier
             .width(350.dp)
             .wrapContentHeight(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surface // Card is white
         ),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(0.dp)
@@ -62,7 +65,8 @@ fun AdCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Middle section - Image placeholder
+            // *** THIS IS THE CHANGE ***
+            // Reverted to one single placeholder for ALL ads
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -80,6 +84,7 @@ fun AdCard(
                     modifier = Modifier.size(48.dp)
                 )
             }
+            // *** END OF CHANGE ***
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -118,7 +123,6 @@ fun AdCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Animated Save Count
                     AnimatedVisibility(
                         visible = saveCount > 0,
                         enter = fadeIn(),
@@ -131,9 +135,6 @@ fun AdCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-
-                    // *** THIS IS THE CHANGE ***
-                    // Save icon
                     IconButton(
                         onClick = onSaveClick,
                         modifier = Modifier
@@ -141,10 +142,8 @@ fun AdCard(
                             .padding(end = 0.dp)
                     ) {
                         Icon(
-                            // Show filled icon if saved, outline if not
                             imageVector = if (isSaved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkAdd,
                             contentDescription = "Save Advertisement",
-                            // Change color to accent if saved
                             tint = if (isSaved) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(20.dp)
                         )
@@ -159,9 +158,6 @@ fun AdCard(
 @Composable
 fun AdCardPreview() {
     YardlyTheme(isDarkMode = false) {
-        Column {
-            AdCard(saveCount = 1, isSaved = true) // Preview saved
-            AdCard(saveCount = 0, isSaved = false) // Preview not saved
-        }
+        AdCard(saveCount = 1, isSaved = true)
     }
 }

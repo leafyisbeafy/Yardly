@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.theme.YardlyTheme // <-- ADDED IMPORT
 
 // The ModalBottomSheet logic has been moved to ProfilePopup.kt
 
@@ -68,12 +69,12 @@ fun ProfileContent(
                         text = "Peyton Venzeee",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = MaterialTheme.colorScheme.onBackground // Kept theme color
                     )
                     Text(
                         text = "peyton",
                         fontSize = 16.sp,
-                        color = Color(0xFF666666)
+                        color = Color(0xFF666666) // <-- KEPT ORIGINAL COLOR
                     )
                 }
 
@@ -86,14 +87,14 @@ fun ProfileContent(
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(CircleShape)
-                            .background(Color(0xFF0F1B3C)), // Penn blue
+                            .background(Color(0xFF0F1B3C)), // <-- KEPT ORIGINAL COLOR
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "Peyton",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = Color.White // <-- KEPT ORIGINAL COLOR
                         )
                     }
 
@@ -101,7 +102,7 @@ fun ProfileContent(
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = "Verified",
-                        tint = Color(0xFF1DA1F2), // Twitter blue
+                        tint = Color(0xFF1DA1F2), // <-- KEPT ORIGINAL COLOR
                         modifier = Modifier
                             .size(24.dp)
                             .align(Alignment.BottomEnd)
@@ -116,14 +117,14 @@ fun ProfileContent(
             Text(
                 text = "just another broke college student trying to make some extra cash by selling off my old books, clothes I totally don’t wear anymore, and a few electronics that are just collecting dust. Honestly, it’s wild how much stuff we accumulate over time!",
                 fontSize = 15.sp,
-                color = MaterialTheme.colorScheme.onBackground,
+                color = MaterialTheme.colorScheme.onBackground, // Kept theme color
                 lineHeight = 20.sp
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Surface(
-                modifier = Modifier.border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(16.dp)),
+                modifier = Modifier.border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(16.dp)), // <-- KEPT ORIGINAL COLOR
                 shape = RoundedCornerShape(16.dp),
                 color = Color.Transparent
             ) {
@@ -134,7 +135,7 @@ fun ProfileContent(
                     Text(
                         text = "Channel: Peyton Used Stuff",
                         fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = MaterialTheme.colorScheme.onBackground // Kept theme color
                     )
                 }
             }
@@ -152,16 +153,25 @@ fun TopProfileBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 8.dp, vertical = 8.dp), // <-- Adjusted padding
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Back arrow
-        IconButton(onClick = onBackClick) {
+        // *** THIS IS THE CHANGE ***
+        // Back arrow (Changed to Button for ripple)
+        Button(
+            onClick = onBackClick,
+            shape = CircleShape,
+            modifier = Modifier.size(40.dp),
+            contentPadding = PaddingValues(0.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onBackground
+            )
+        ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
-                tint = MaterialTheme.colorScheme.onBackground
+                contentDescription = "Back"
             )
         }
 
@@ -189,7 +199,9 @@ fun TopProfileBar(
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 fun ProfileContentPreview() {
-    MaterialTheme {
+    // *** THIS IS THE CHANGE ***
+    // Wrapped in YardlyTheme to fix preview
+    YardlyTheme(isDarkMode = false) {
         ProfileContent(
             onBackClick = {},
             onEditClick = {},

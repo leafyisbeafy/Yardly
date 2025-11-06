@@ -24,7 +24,7 @@ import com.example.yardly.ui.theme.YardlyTheme
 fun SettingsRow(
     name: String,
     onClick: () -> Unit,
-    isSelected: Boolean = false // <-- ADDED
+    isSelected: Boolean = false
 ) {
     Column(
         modifier = Modifier
@@ -34,9 +34,9 @@ fun SettingsRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(horizontal = 20.dp, vertical = 16.dp), // Increased vertical padding
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween // <-- CHANGED
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = name,
@@ -44,7 +44,6 @@ fun SettingsRow(
                 color = MaterialTheme.colorScheme.onBackground
             )
 
-            // *** NEW: Show checkmark if selected ***
             if (isSelected) {
                 Icon(
                     imageVector = Icons.Default.Check,
@@ -53,10 +52,7 @@ fun SettingsRow(
                 )
             }
         }
-        Divider(
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            modifier = Modifier.padding(horizontal = 20.dp)
-        )
+        // *** DIVIDER REMOVED FROM HERE ***
     }
 }
 

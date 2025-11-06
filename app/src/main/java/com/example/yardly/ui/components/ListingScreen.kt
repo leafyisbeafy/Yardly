@@ -129,10 +129,7 @@ private fun CategoryRow(
             )
             // No icon or arrow
         }
-        Divider(
-            color = MaterialTheme.colorScheme.surfaceVariant, // Light gray
-            modifier = Modifier.padding(horizontal = 20.dp)
-        )
+        // *** DIVIDER REMOVED FROM HERE ***
     }
 }
 
@@ -199,7 +196,6 @@ private fun ListingTopBar() {
 @Preview
 @Composable
 fun ListingScreenPreview() {
-    // *** THIS IS THE FIX ***
     YardlyTheme(isDarkMode = false) {
         ListingScreen()
     }
@@ -208,7 +204,6 @@ fun ListingScreenPreview() {
 @Preview
 @Composable
 fun ListingTopBarPreview() {
-    // *** THIS IS THE FIX ***
     YardlyTheme(isDarkMode = false) {
         ListingTopBar()
     }

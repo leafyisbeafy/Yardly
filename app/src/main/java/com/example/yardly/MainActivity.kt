@@ -43,6 +43,7 @@ import com.example.yardly.ui.components.AdLoginSheet
 import com.example.yardly.ui.components.ChooseCornerSheet
 import com.example.yardly.ui.components.DarkModeScreen
 import com.example.yardly.ui.components.FindNear
+// import com.example.yardly.ui.components.ImageScrollType // <-- REMOVED
 import com.example.yardly.ui.components.ListingScreen
 import com.example.yardly.ui.components.ProfileContent
 import com.example.yardly.ui.components.ProfilePopup
@@ -99,7 +100,6 @@ fun YardlyApp(
 
     var profileScreenState by remember { mutableStateOf<ProfileScreenState>(ProfileScreenState.Profile) }
 
-    // *** NEW: State keyed by AD NAME (String) ***
     val saveCounts = remember { mutableStateMapOf<String, Int>() }
     val savedItems = remember { mutableStateMapOf<String, Boolean>() }
 
@@ -134,13 +134,10 @@ fun YardlyApp(
         profileScreenState = ProfileScreenState.Settings
     }
 
-    // *** NEW: Single function to handle all save toggles ***
     val onToggleSave: (String) -> Unit = { adName ->
-        val isCurrentlySaved = savedItems.getOrDefault(adName, false)
         val currentCount = saveCounts.getOrDefault(adName, 0)
-
-        savedItems[adName] = !isCurrentlySaved
-        saveCounts[adName] = if (isCurrentlySaved) currentCount - 1 else currentCount + 1
+        saveCounts[adName] = currentCount + 1
+        savedItems[adName] = true
     }
 
     val baseSectionOptions = mapOf(
@@ -204,7 +201,7 @@ fun YardlyApp(
                         onAccessibilityClick = { profileScreenState = ProfileScreenState.Accessibility },
                         onDarkModeClick = { profileScreenState = ProfileScreenState.DarkMode },
                         onDarkModeToggle = onDarkModeToggle,
-                        onSaveClick = onToggleSave // <-- PASS ACTION
+                        onSaveClick = onToggleSave
                     )
                 }
 
@@ -540,7 +537,7 @@ fun ContentArea(
     selectedNavSection: String,
     profileScreenState: ProfileScreenState,
     isDarkMode: Boolean,
-    saveCounts: Map<String, Int>, // <-- CHANGED
+    saveCounts: Map<String, Int>,
     savedItems: Map<String, Boolean>,
     onAdClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
@@ -552,7 +549,7 @@ fun ContentArea(
     onAccessibilityClick: () -> Unit = {},
     onDarkModeClick: () -> Unit = {},
     onDarkModeToggle: (Boolean) -> Unit,
-    onSaveClick: (String) -> Unit // <-- CHANGED
+    onSaveClick: (String) -> Unit
 ) {
     when (selectedIconSection) {
         "home" -> {
@@ -579,11 +576,11 @@ fun ContentArea(
                     }
 
                     val userName = "User ${index + 1}"
-
-                    // *** Get count and state by AD NAME ***
                     val saveCount = saveCounts.getOrDefault(adName, 0)
                     val isSaved = savedItems.getOrDefault(adName, false)
 
+                    // *** THIS IS THE CHANGE ***
+                    // Removed all scrolling logic. All cards are now default.
                     AdCard(
                         advertisementName = adName,
                         userName = userName,
@@ -591,7 +588,7 @@ fun ContentArea(
                         isSaved = isSaved,
                         onAdClick = onAdClick,
                         onUserClick = onUserClick,
-                        onSaveClick = { onSaveClick(adName) } // <-- Pass name
+                        onSaveClick = { onSaveClick(adName) }
                     )
                 }
             }
@@ -603,8 +600,8 @@ fun ContentArea(
             WatchlistScreen(
                 onBackClick = onBackClick,
                 savedItems = savedItems,
-                saveCounts = saveCounts, // <-- PASS COUNTS
-                onSaveClick = onSaveClick // <-- PASS ACTION
+                saveCounts = saveCounts,
+                onSaveClick = onSaveClick
             )
         }
         "profile" -> {

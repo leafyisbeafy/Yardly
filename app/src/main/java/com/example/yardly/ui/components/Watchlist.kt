@@ -4,12 +4,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,7 +37,7 @@ private val dummyItems = listOf(
 fun WatchlistScreen(
     onBackClick: () -> Unit,
     savedItems: Map<String, Boolean>,
-    saveCounts: Map<String, Int>, // <-- ADDED
+    saveCounts: Map<String, Int>,
     onSaveClick: (String) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
@@ -52,13 +54,13 @@ fun WatchlistScreen(
         ) {
             items(dummyItems) { item ->
                 val isSaved = savedItems.getOrDefault(item.name, false)
-                val saveCount = saveCounts.getOrDefault(item.name, 0) // <-- GET COUNT
+                val saveCount = saveCounts.getOrDefault(item.name, 0)
 
                 WatchlistCard(
                     itemName = item.name,
                     price = item.price,
                     isSaved = isSaved,
-                    saveCount = saveCount, // <-- PASS COUNT
+                    saveCount = saveCount,
                     onSaveClick = { onSaveClick(item.name) }
                 )
             }
@@ -85,14 +87,26 @@ private fun WatchlistTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            IconButton(onClick = onBackClick) {
+            // Back Arrow
+            Button(
+                onClick = onBackClick,
+                shape = CircleShape,
+                modifier = Modifier.size(40.dp),
+                contentPadding = PaddingValues(0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                )
+            ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = MaterialTheme.colorScheme.onBackground
+                    contentDescription = "Back"
                 )
             }
+
             Spacer(modifier = Modifier.width(16.dp))
+
+            // Title
             Text(
                 text = "Watchlist",
                 fontSize = 22.sp,
@@ -110,8 +124,16 @@ fun WatchlistScreenPreview() {
         WatchlistScreen(
             onBackClick = {},
             savedItems = mapOf("Air Force 1" to true),
-            saveCounts = mapOf("Air Force 1" to 3), // <-- ADDED
+            saveCounts = mapOf("Air Force 1" to 3),
             onSaveClick = {}
         )
+    }
+}
+
+@Preview
+@Composable
+private fun WatchlistTopBarPreview() {
+    YardlyTheme(isDarkMode = false) {
+        WatchlistTopBar(onBackClick = {})
     }
 }
