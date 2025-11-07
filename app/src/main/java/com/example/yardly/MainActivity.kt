@@ -1,5 +1,6 @@
 package com.example.yardly
 
+import android.content.SharedPreferences // <-- NEW IMPORT
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -91,7 +92,7 @@ private val allAquaSwapAds = mapOf(
 
 private val allAuctionAds = listOf(Ad("Rare Coin Auction", "User S"), Ad("Vintage Watch", "User T"))
 
-// --- *** CHANGE 1: Add new mock data for new categories *** ---
+// --- (Added in previous step) ---
 private val allClothingAds = listOf(
     Ad("Vintage T-Shirt", "User U"),
     Ad("Designer Jeans", "User V"),
@@ -115,8 +116,6 @@ private val allGamingAds = listOf(
     Ad("PS5 Controller", "User EE"),
     Ad("Logitech Mouse", "User FF")
 )
-// --- *** END OF CHANGE 1 *** ---
-
 
 // --- END MOCK DATA ---
 
@@ -128,15 +127,42 @@ sealed class ProfileScreenState {
     object DarkMode : ProfileScreenState()
 }
 
+// --- *** CHANGE 1: Define preference constants *** ---
+private const val PREFS_NAME = "yardly_settings"
+private const val KEY_DARK_MODE = "dark_mode_enabled"
+// --- *** END OF CHANGE 1 *** ---
+
 class MainActivity : ComponentActivity() {
+
+    // --- *** CHANGE 2: Add lazy-initialized SharedPreferences *** ---
+    private val sharedPreferences: SharedPreferences by lazy {
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+    }
+    // --- *** END OF CHANGE 2 *** ---
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // --- *** CHANGE 3: Load the saved value *** ---
+        val savedIsDarkMode = sharedPreferences.getBoolean(KEY_DARK_MODE, false)
+        // --- *** END OF CHANGE 3 *** ---
+
         setContent {
-            var isDarkMode by remember { mutableStateOf(false) }
+            // --- *** CHANGE 4: Initialize state with the saved value *** ---
+            var isDarkMode by remember { mutableStateOf(savedIsDarkMode) }
+            // --- *** END OF CHANGE 4 *** ---
+
             val onDarkModeToggle: (Boolean) -> Unit = { enabled ->
                 isDarkMode = enabled
                 Log.d("DarkModeToggle", "dark_mode_enabled: $enabled")
+
+                // --- *** CHANGE 5: Save the new value on toggle *** ---
+                with(sharedPreferences.edit()) {
+                    putBoolean(KEY_DARK_MODE, enabled)
+                    apply()
+                }
+                // --- *** END OF CHANGE 5 *** ---
             }
 
             YardlyTheme(
@@ -229,7 +255,7 @@ fun YardlyApp(
             "home-default" -> {
                 defaultAds
             }
-            // --- *** CHANGE 2: Add cases for new categories *** ---
+            // --- (Added in previous step) ---
             "clothing" -> {
                 allClothingAds
             }
@@ -242,7 +268,7 @@ fun YardlyApp(
             "gaming" -> {
                 allGamingAds
             }
-            // --- *** END OF CHANGE 2 *** ---
+            // ---
             "lease" -> {
                 selectedSubOption?.let {
                     allLeaseAds[it]
@@ -272,13 +298,11 @@ fun YardlyApp(
     } ?: defaultAds
 
 
-    // --- *** (This was CHANGE 1 in the last step, it's already here) *** ---
     val onSectionDoubleClick: (String) -> Unit = { section ->
         if (section == "aqua-swap") {
             showRehomeInAquaSwap = false // Ensure rehome is off
             selectedSectionOptions = if (selectedSectionOptions != section) section else null // Toggle options
         }
-        // Other sections don't have a double-tap handler, so no 'else' is needed.
     }
 
 
@@ -345,7 +369,7 @@ fun YardlyApp(
                         .align(Alignment.BottomEnd)
                         .padding(16.dp),
                     horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(16.dp) // <-- THE FIX IS HERE
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     // 1. "Camera" Button
                     AnimatedVisibility(
@@ -425,7 +449,7 @@ fun YardlyApp(
                 SectionNavigation(
                     selectedSection = selectedNavSection,
                     onSectionSelected = { section ->
-                        // --- *** CHANGE 3: Modify single-tap logic for new buttons *** ---
+                        // --- (Logic from previous step) ---
                         selectedNavSection = section
                         selectedSubOption = null
                         showRehomeInAquaSwap = false
@@ -436,13 +460,10 @@ fun YardlyApp(
                             section == "electronics" ||
                             section == "gaming"
                         ) {
-                            // These sections HIDE options on a single tap
                             selectedSectionOptions = null
                         } else {
-                            // "yard-sales", "lease", "auction" keep the OLD logic
                             selectedSectionOptions = if (sectionOptions.containsKey(section) && selectedSectionOptions != section) section else null
                         }
-                        // --- *** END OF CHANGE 3 *** ---
                     },
                     onButtonPositioned = { key, x ->
                         buttonCoordinates[key] = x
@@ -454,7 +475,6 @@ fun YardlyApp(
                             selectedSubOption = "Rehome"
                         }
                     },
-                    // --- (This was CHANGE 3 in the last step, it's already here) ---
                     onDoubleClick = onSectionDoubleClick,
                     showRehomeInAquaSwap = showRehomeInAquaSwap,
                     onRehomeStateChange = { newState ->
@@ -561,19 +581,18 @@ fun TopBar() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class) // <-- Ensure this import is present
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
     selectedSection: String,
     onSectionSelected: (String) -> Unit,
     onButtonPositioned: (String, Float) -> Unit,
     onLongPress: (String) -> Unit = {},
-    // --- (This was CHANGE 4 in the last step, it's already here) ---
     onDoubleClick: (String) -> Unit,
     showRehomeInAquaSwap: Boolean,
     onRehomeStateChange: (Boolean) -> Unit
 ) {
-    // --- *** CHANGE 4: Add new sections to the list *** ---
+    // --- (List from previous step) ---
     val sections = listOf(
         "clothing" to "Clothing",
         "sneaker" to "Sneaker",
@@ -584,7 +603,6 @@ fun SectionNavigation(
         "lease" to "Lease",
         "auction" to "Auction"
     )
-    // --- *** END OF CHANGE 4 *** ---
 
     val hapticFeedback = LocalHapticFeedback.current
     LazyRow(
@@ -598,7 +616,6 @@ fun SectionNavigation(
             val (sectionKey, sectionName) = sections[index]
             val isSelected = selectedSection == sectionKey
             if (sectionKey == "aqua-swap") {
-                // This 'if' block is *only* for "aqua-swap"
                 Box(
                     modifier = Modifier
                         .width(110.dp)
@@ -610,7 +627,6 @@ fun SectionNavigation(
                             color = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
                             shape = RoundedCornerShape(20.dp)
                         )
-                        // --- (This was CHANGE 5 in the last step, it's already here) ---
                         .combinedClickable(
                             onClick = {
                                 onRehomeStateChange(false)
@@ -621,11 +637,10 @@ fun SectionNavigation(
                                 onLongPress(sectionKey)
                             },
                             onDoubleClick = {
-                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress) // Add haptic for double-tam
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 onDoubleClick(sectionKey)
                             }
                         )
-                        // --- *** END OF CHANGE 5 *** ---
                         .padding(12.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -639,7 +654,6 @@ fun SectionNavigation(
                     )
                 }
             } else {
-                // All other buttons (new and old) use this simple Button logic
                 Button(
                     onClick = { onSectionSelected(sectionKey) },
                     modifier = Modifier
