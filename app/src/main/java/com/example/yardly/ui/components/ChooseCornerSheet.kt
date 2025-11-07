@@ -30,18 +30,20 @@ fun ChooseCornerSheet(
     if (showModal) {
         ModalBottomSheet(
             onDismissRequest = onDismiss,
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            // --- *** CHANGE 1: Removed skipPartiallyExpanded = true *** ---
+            sheetState = rememberModalBottomSheetState(),
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             containerColor = MaterialTheme.colorScheme.surface,
-            scrimColor = Color.Black.copy(alpha = 0.4f), // <-- ADDED
+            scrimColor = Color.Black.copy(alpha = 0.4f),
             dragHandle = null,
-            modifier = Modifier.fillMaxHeight(0.95f)
+            // --- *** CHANGE 2: Removed .fillMaxHeight(0.95f) modifier *** ---
         ) {
-            // ... (Rest of the file is unchanged)
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    // --- *** CHANGE 3: Removed .fillMaxSize() and added padding *** ---
+                    .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface)
+                    .padding(bottom = 32.dp) // Add padding so content isn't at screen bottom
             ) {
                 // 1. Top Bar
                 Row(
