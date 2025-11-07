@@ -1,15 +1,19 @@
 package com.example.yardly
 
-import android.content.SharedPreferences // <-- NEW IMPORT
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -32,6 +36,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
@@ -58,6 +63,16 @@ import com.example.yardly.ui.components.SettingsScreen
 import com.example.yardly.ui.components.WatchlistScreen
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
+import com.example.yardly.ui.theme.BtnDarkOrange
+import com.example.yardly.ui.theme.BtnElectricLime
+import com.example.yardly.ui.theme.BtnForestGlow
+import com.example.yardly.ui.theme.BtnMagentaShock
+import com.example.yardly.ui.theme.BtnNeonAzure
+import com.example.yardly.ui.theme.BtnSlateEmber
+import com.example.yardly.ui.theme.BtnTealPulse
+import com.example.yardly.ui.theme.BtnTerracotta
+// (AppBlack import is no longer needed)
+
 
 // --- NEW DATA CLASS ---
 data class Ad(val name: String, val user: String)
@@ -127,42 +142,33 @@ sealed class ProfileScreenState {
     object DarkMode : ProfileScreenState()
 }
 
-// --- *** CHANGE 1: Define preference constants *** ---
+// --- (Preferences logic from previous step) ---
 private const val PREFS_NAME = "yardly_settings"
 private const val KEY_DARK_MODE = "dark_mode_enabled"
-// --- *** END OF CHANGE 1 *** ---
 
 class MainActivity : ComponentActivity() {
 
-    // --- *** CHANGE 2: Add lazy-initialized SharedPreferences *** ---
     private val sharedPreferences: SharedPreferences by lazy {
         getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
     }
-    // --- *** END OF CHANGE 2 *** ---
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // --- *** CHANGE 3: Load the saved value *** ---
         val savedIsDarkMode = sharedPreferences.getBoolean(KEY_DARK_MODE, false)
-        // --- *** END OF CHANGE 3 *** ---
 
         setContent {
-            // --- *** CHANGE 4: Initialize state with the saved value *** ---
             var isDarkMode by remember { mutableStateOf(savedIsDarkMode) }
-            // --- *** END OF CHANGE 4 *** ---
 
             val onDarkModeToggle: (Boolean) -> Unit = { enabled ->
                 isDarkMode = enabled
                 Log.d("DarkModeToggle", "dark_mode_enabled: $enabled")
 
-                // --- *** CHANGE 5: Save the new value on toggle *** ---
                 with(sharedPreferences.edit()) {
                     putBoolean(KEY_DARK_MODE, enabled)
                     apply()
                 }
-                // --- *** END OF CHANGE 5 *** ---
             }
 
             YardlyTheme(
@@ -184,13 +190,9 @@ fun YardlyApp(
     onDarkModeToggle: (Boolean) -> Unit
 ) {
     var selectedIconSection by remember { mutableStateOf("home") }
-
-    // --- FIX #1: Default to "home-default" ---
     var selectedNavSection by remember { mutableStateOf("home-default") }
-
     var selectedSectionOptions by remember { mutableStateOf<String?>(null) }
     var selectedSubOption by remember { mutableStateOf<String?>(null) }
-
     val buttonCoordinates = remember { mutableStateMapOf<String, Float>() }
     var showRehomeInAquaSwap by remember { mutableStateOf(false) }
     var showAdLoginModal by remember { mutableStateOf(false) }
@@ -251,11 +253,9 @@ fun YardlyApp(
 
     val dynamicAdList = remember(selectedNavSection, selectedSubOption, showRehomeInAquaSwap) {
         when (selectedNavSection) {
-            // --- FIX #2: Add case for "home-default" ---
             "home-default" -> {
                 defaultAds
             }
-            // --- (Added in previous step) ---
             "clothing" -> {
                 allClothingAds
             }
@@ -268,7 +268,6 @@ fun YardlyApp(
             "gaming" -> {
                 allGamingAds
             }
-            // ---
             "lease" -> {
                 selectedSubOption?.let {
                     allLeaseAds[it]
@@ -300,8 +299,8 @@ fun YardlyApp(
 
     val onSectionDoubleClick: (String) -> Unit = { section ->
         if (section == "aqua-swap") {
-            showRehomeInAquaSwap = false // Ensure rehome is off
-            selectedSectionOptions = if (selectedSectionOptions != section) section else null // Toggle options
+            showRehomeInAquaSwap = false
+            selectedSectionOptions = if (selectedSectionOptions != section) section else null
         }
     }
 
@@ -449,7 +448,6 @@ fun YardlyApp(
                 SectionNavigation(
                     selectedSection = selectedNavSection,
                     onSectionSelected = { section ->
-                        // --- (Logic from previous step) ---
                         selectedNavSection = section
                         selectedSubOption = null
                         showRehomeInAquaSwap = false
@@ -490,7 +488,6 @@ fun YardlyApp(
                     selectedIconSection = section
                     selectedSectionOptions = null
 
-                    // --- FIX #3: Set nav section to "home-default" ---
                     if (section == "home") {
                         selectedNavSection = "home-default"
                         selectedSubOption = null
@@ -581,6 +578,7 @@ fun TopBar() {
     }
 }
 
+// --- *** THIS IS THE MAIN CHANGE AREA *** ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
@@ -592,16 +590,27 @@ fun SectionNavigation(
     showRehomeInAquaSwap: Boolean,
     onRehomeStateChange: (Boolean) -> Unit
 ) {
-    // --- (List from previous step) ---
     val sections = listOf(
         "clothing" to "Clothing",
         "sneaker" to "Sneaker",
         "electronics" to "Electronics",
         "gaming" to "Gaming",
-        "aqua-swap" to "Aqua Swap",
-        "yard-sales" to "Yard Sales",
+        "aqua-swap" to "Aquascape",
+        "yard-sales" to "Yardly",
         "lease" to "Lease",
         "auction" to "Auction"
+    )
+
+    // This map defines the "Glow" color
+    val buttonAccentColors = mapOf(
+        "clothing" to BtnTerracotta,
+        "sneaker" to BtnElectricLime,
+        "electronics" to BtnNeonAzure,
+        "gaming" to BtnMagentaShock,
+        "aqua-swap" to BtnTealPulse,
+        "yard-sales" to BtnForestGlow,
+        "lease" to BtnSlateEmber,
+        "auction" to BtnDarkOrange
     )
 
     val hapticFeedback = LocalHapticFeedback.current
@@ -615,72 +624,88 @@ fun SectionNavigation(
         items(sections.size) { index ->
             val (sectionKey, sectionName) = sections[index]
             val isSelected = selectedSection == sectionKey
-            if (sectionKey == "aqua-swap") {
-                Box(
-                    modifier = Modifier
-                        .width(110.dp)
-                        .height(44.dp)
-                        .onGloballyPositioned {
-                            onButtonPositioned(sectionKey, it.positionInParent().x)
-                        }
-                        .background(
-                            color = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .combinedClickable(
-                            onClick = {
+
+            // --- *** CHANGE 1: Define Animation States (with the bug fix) *** ---
+            val animationSpec = tween<Color>(300)
+
+            // The "Glow" (Border Color)
+            val animatedBorderColor by animateColorAsState(
+                targetValue = if (isSelected) buttonAccentColors[sectionKey] ?: Color.Transparent else Color.Transparent,
+                label = "borderColor",
+                animationSpec = animationSpec
+            )
+
+            // --- *** (This is where the bug was) *** ---
+            // The buggy `animatedTextColor` variable has been REMOVED.
+            // --- *** (End of bug fix) *** ---
+
+            // The "Pulse" (Scale) - (Unchanged)
+            val scale = remember { Animatable(1f) }
+            LaunchedEffect(isSelected) {
+                if (isSelected) {
+                    scale.animateTo(1.05f, tween(150))
+                    scale.animateTo(1f, tween(150))
+                }
+            }
+            // --- *** END OF CHANGE 1 *** ---
+
+
+            Box(
+                modifier = Modifier
+                    .scale(scale.value)
+                    .width(110.dp)
+                    .height(44.dp)
+                    .onGloballyPositioned {
+                        onButtonPositioned(sectionKey, it.positionInParent().x)
+                    }
+                    .border(
+                        width = 3.dp,
+                        color = animatedBorderColor, // Uses the animated glow
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .background(
+                        color = Color.Transparent,
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .combinedClickable(
+                        onClick = {
+                            if (sectionKey == "aqua-swap") {
                                 onRehomeStateChange(false)
-                                onSectionSelected(sectionKey)
-                            },
-                            onLongClick = {
+                            }
+                            onSectionSelected(sectionKey)
+                        },
+                        onLongClick = {
+                            if (sectionKey == "aqua-swap") {
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 onLongPress(sectionKey)
-                            },
-                            onDoubleClick = {
+                            }
+                        },
+                        onDoubleClick = {
+                            if (sectionKey == "aqua-swap") {
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 onDoubleClick(sectionKey)
                             }
-                        )
-                        .padding(12.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = sectionName,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                        color = MaterialTheme.colorScheme.onBackground
+                        }
                     )
-                }
-            } else {
-                Button(
-                    onClick = { onSectionSelected(sectionKey) },
-                    modifier = Modifier
-                        .width(110.dp)
-                        .height(44.dp)
-                        .onGloballyPositioned {
-                            onButtonPositioned(sectionKey, it.positionInParent().x)
-                        },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.onBackground
-                    ),
-                    shape = RoundedCornerShape(20.dp),
-                    contentPadding = PaddingValues(12.dp)
-                ) {
-                    Text(
-                        text = sectionName,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1
-                    )
-                }
+                    .padding(12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = sectionName,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    // --- *** CHANGE 2: THE FIX *** ---
+                    // Text color is now ALWAYS the default theme color.
+                    color = MaterialTheme.colorScheme.onBackground
+                    // --- *** END OF CHANGE 2 *** ---
+                )
             }
         }
     }
 }
+// --- *** END OF MAIN CHANGE AREA *** ---
 
 @Composable
 fun BottomIconNavigation(

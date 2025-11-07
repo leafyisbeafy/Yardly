@@ -9,13 +9,24 @@ val AppGray = Color(0xFFF5F5F5)
 val AppMediumGray = Color(0xFFCCCCCC)
 val AppDarkGray = Color(0xFF888888)
 
-// *** NEW: Dark Theme Colors ***
+// Dark Theme Colors (unchanged)
 val DarkBackground = Color(0xFF0F1116)
 val DarkMainText = Color(0xFFFAFAFA)
 val DarkSecondaryText = Color(0xFF9CA3AF)
 val DarkAccent = Color(0xFF4A90E2)
 val DarkDivider = Color(0xFF606060)
 
-// *** NEW: Special Effect Colors ***
+// Special Effect Colors (unchanged)
 val PriceDropRed1 = Color(0xFFEF4444)
 val PriceDropRed2 = Color(0xFFDC2626)
+
+// --- *** NEW: Custom Button Colors *** ---
+val BtnTerracotta = Color(0xFFE07A5F) // Clothing (Needs white text)
+val BtnElectricLime = Color(0xFFCCFF00) // Sneakers (Needs black text)
+val BtnNeonAzure = Color(0xFF00BFFF) // Electronics (Needs white text)
+val BtnMagentaShock = Color(0xFFD900FF) // Gaming (Needs white text)
+val BtnTealPulse = Color(0xFF3DCCC7) // Aquascape (Needs white text)
+val BtnForestGlow = Color(0xFF1A535C) // Yardly (Needs white text)
+val BtnSlateEmber = Color(0xFF485A6C) // Lease (Needs white text)
+val BtnDarkOrange = Color(0xFFB85000) // Auction (Needs white text)
+// --- *** END OF NEW COLORS *** ---
