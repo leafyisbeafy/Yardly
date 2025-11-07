@@ -91,6 +91,32 @@ private val allAquaSwapAds = mapOf(
 
 private val allAuctionAds = listOf(Ad("Rare Coin Auction", "User S"), Ad("Vintage Watch", "User T"))
 
+// --- *** CHANGE 1: Add new mock data for new categories *** ---
+private val allClothingAds = listOf(
+    Ad("Vintage T-Shirt", "User U"),
+    Ad("Designer Jeans", "User V"),
+    Ad("Winter Coat", "User W")
+)
+
+private val allSneakerAds = listOf(
+    Ad("Jordan 1s", "User X"),
+    Ad("Yeezy 350", "User Y"),
+    Ad("New Balance 550", "User Z")
+)
+
+private val allElectronicsAds = listOf(
+    Ad("Sony Headphones", "User AA"),
+    Ad("Dell Monitor", "User BB"),
+    Ad("GoPro Hero 8", "User CC")
+)
+
+private val allGamingAds = listOf(
+    Ad("Nintendo Switch", "User DD"),
+    Ad("PS5 Controller", "User EE"),
+    Ad("Logitech Mouse", "User FF")
+)
+// --- *** END OF CHANGE 1 *** ---
+
 
 // --- END MOCK DATA ---
 
@@ -203,6 +229,20 @@ fun YardlyApp(
             "home-default" -> {
                 defaultAds
             }
+            // --- *** CHANGE 2: Add cases for new categories *** ---
+            "clothing" -> {
+                allClothingAds
+            }
+            "sneaker" -> {
+                allSneakerAds
+            }
+            "electronics" -> {
+                allElectronicsAds
+            }
+            "gaming" -> {
+                allGamingAds
+            }
+            // --- *** END OF CHANGE 2 *** ---
             "lease" -> {
                 selectedSubOption?.let {
                     allLeaseAds[it]
@@ -230,6 +270,16 @@ fun YardlyApp(
             }
         }
     } ?: defaultAds
+
+
+    // --- *** (This was CHANGE 1 in the last step, it's already here) *** ---
+    val onSectionDoubleClick: (String) -> Unit = { section ->
+        if (section == "aqua-swap") {
+            showRehomeInAquaSwap = false // Ensure rehome is off
+            selectedSectionOptions = if (selectedSectionOptions != section) section else null // Toggle options
+        }
+        // Other sections don't have a double-tap handler, so no 'else' is needed.
+    }
 
 
     Box(
@@ -375,10 +425,24 @@ fun YardlyApp(
                 SectionNavigation(
                     selectedSection = selectedNavSection,
                     onSectionSelected = { section ->
+                        // --- *** CHANGE 3: Modify single-tap logic for new buttons *** ---
                         selectedNavSection = section
                         selectedSubOption = null
                         showRehomeInAquaSwap = false
-                        selectedSectionOptions = if (sectionOptions.containsKey(section) && selectedSectionOptions != section) section else null
+
+                        if (section == "aqua-swap" ||
+                            section == "clothing" ||
+                            section == "sneaker" ||
+                            section == "electronics" ||
+                            section == "gaming"
+                        ) {
+                            // These sections HIDE options on a single tap
+                            selectedSectionOptions = null
+                        } else {
+                            // "yard-sales", "lease", "auction" keep the OLD logic
+                            selectedSectionOptions = if (sectionOptions.containsKey(section) && selectedSectionOptions != section) section else null
+                        }
+                        // --- *** END OF CHANGE 3 *** ---
                     },
                     onButtonPositioned = { key, x ->
                         buttonCoordinates[key] = x
@@ -390,6 +454,8 @@ fun YardlyApp(
                             selectedSubOption = "Rehome"
                         }
                     },
+                    // --- (This was CHANGE 3 in the last step, it's already here) ---
+                    onDoubleClick = onSectionDoubleClick,
                     showRehomeInAquaSwap = showRehomeInAquaSwap,
                     onRehomeStateChange = { newState ->
                         showRehomeInAquaSwap = newState
@@ -495,21 +561,30 @@ fun TopBar() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class) // <-- Ensure this import is present
 @Composable
 fun SectionNavigation(
     selectedSection: String,
     onSectionSelected: (String) -> Unit,
     onButtonPositioned: (String, Float) -> Unit,
     onLongPress: (String) -> Unit = {},
+    // --- (This was CHANGE 4 in the last step, it's already here) ---
+    onDoubleClick: (String) -> Unit,
     showRehomeInAquaSwap: Boolean,
     onRehomeStateChange: (Boolean) -> Unit
 ) {
+    // --- *** CHANGE 4: Add new sections to the list *** ---
     val sections = listOf(
+        "clothing" to "Clothing",
+        "sneaker" to "Sneaker",
+        "electronics" to "Electronics",
+        "gaming" to "Gaming",
         "aqua-swap" to "Aqua Swap",
         "yard-sales" to "Yard Sales",
         "lease" to "Lease",
         "auction" to "Auction"
     )
+    // --- *** END OF CHANGE 4 *** ---
 
     val hapticFeedback = LocalHapticFeedback.current
     LazyRow(
@@ -523,6 +598,7 @@ fun SectionNavigation(
             val (sectionKey, sectionName) = sections[index]
             val isSelected = selectedSection == sectionKey
             if (sectionKey == "aqua-swap") {
+                // This 'if' block is *only* for "aqua-swap"
                 Box(
                     modifier = Modifier
                         .width(110.dp)
@@ -534,6 +610,7 @@ fun SectionNavigation(
                             color = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
                             shape = RoundedCornerShape(20.dp)
                         )
+                        // --- (This was CHANGE 5 in the last step, it's already here) ---
                         .combinedClickable(
                             onClick = {
                                 onRehomeStateChange(false)
@@ -542,8 +619,13 @@ fun SectionNavigation(
                             onLongClick = {
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 onLongPress(sectionKey)
+                            },
+                            onDoubleClick = {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress) // Add haptic for double-tam
+                                onDoubleClick(sectionKey)
                             }
                         )
+                        // --- *** END OF CHANGE 5 *** ---
                         .padding(12.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -557,6 +639,7 @@ fun SectionNavigation(
                     )
                 }
             } else {
+                // All other buttons (new and old) use this simple Button logic
                 Button(
                     onClick = { onSectionSelected(sectionKey) },
                     modifier = Modifier

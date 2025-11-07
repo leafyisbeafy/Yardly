@@ -22,6 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yardly.ui.theme.YardlyTheme
+// --- *** ADD THIS IMPORT *** ---
+import androidx.compose.ui.text.style.TextOverflow
 
 // All scrolling logic has been removed from this file
 
@@ -60,7 +62,13 @@ fun AdCard(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+
+                // --- *** THESE ARE THE CHANGES *** ---
+                minLines = 2,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+                // --- *** END OF CHANGES *** ---
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -157,6 +165,22 @@ fun AdCard(
 @Composable
 fun AdCardPreview() {
     YardlyTheme(isDarkMode = false) {
-        AdCard(saveCount = 1, isSaved = true)
+        Column {
+            AdCard(
+                advertisementName = "Short Name",
+                saveCount = 1,
+                isSaved = true
+            )
+            AdCard(
+                advertisementName = "This is a Very Long Advertisement Name That Wraps to Two Lines",
+                saveCount = 1,
+                isSaved = true
+            )
+            AdCard(
+                advertisementName = "This is an Absurdly Long Advertisement Name That Will Be Truncated With an Ellipsis",
+                saveCount = 1,
+                isSaved = true
+            )
+        }
     }
 }
