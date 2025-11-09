@@ -869,7 +869,8 @@ fun ContentArea(
                 onBackClick = onBackClick,
                 savedItems = savedItems,
                 saveCounts = saveCounts,
-                onSaveClick = onSaveClick
+                onSaveClick = onSaveClick,
+                userPosts = userPosts // <-- *** THIS IS THE FIX ***
             )
         }
         "profile" -> {

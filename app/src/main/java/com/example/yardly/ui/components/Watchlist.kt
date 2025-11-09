@@ -17,14 +17,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.UserPost // <-- *** 1. NEW IMPORT ***
 import com.example.yardly.ui.theme.YardlyTheme
 import com.example.yardly.ui.components.WatchlistCard
 
 // Dummy data class for the grid
 private data class WatchlistItem(val id: Int, val name: String, val price: String)
 
-// --- *** THIS IS THE CORRECTED LIST *** ---
-// This list now acts as the "database" of ALL possible items
+// This list now acts as the "database" of all possible items
 private val dummyItems = listOf(
     // Original Items
     WatchlistItem(1, "Air Force 1", "$291.28"),
@@ -66,19 +66,34 @@ private val dummyItems = listOf(
     WatchlistItem(27, "PS5 Controller", "$60.00"),
     WatchlistItem(28, "Logitech Mouse", "$40.00")
 )
-// --- *** END OF FIX *** ---
 
 @Composable
 fun WatchlistScreen(
     onBackClick: () -> Unit,
     savedItems: Map<String, Boolean>,
     saveCounts: Map<String, Int>,
-    onSaveClick: (String) -> Unit
+    onSaveClick: (String) -> Unit,
+    // --- *** 2. ACCEPT THE NEW LIST *** ---
+    userPosts: List<UserPost> = emptyList() // Default to empty list
 ) {
-    // Filter the dummyItems list based on the savedItems map
-    val dynamicallySavedItems = dummyItems.filter { item ->
+    // --- *** 3. COMBINE THE LISTS *** ---
+    // Convert UserPost objects to WatchlistItem objects
+    val userWatchlistItems = userPosts.map { post ->
+        WatchlistItem(
+            id = post.id.toInt(), // Use post ID
+            name = post.title,
+            price = "$${post.price}" // Format the price
+        )
+    }
+
+    // Combine the new user posts with the old dummy items
+    val combinedItems = userWatchlistItems + dummyItems
+
+    // Filter the *combined* list based on the savedItems map
+    val dynamicallySavedItems = combinedItems.filter { item ->
         savedItems.getOrDefault(item.name, false)
     }
+    // --- *** END OF CHANGE *** ---
 
     Column(modifier = Modifier.fillMaxSize()) {
         // 1. New Top Bar
@@ -149,16 +164,16 @@ private fun WatchlistTopBar(
 
             // Title
             Text(
-                text = "Saved", // <-- CHANGED
+                text = "Saved",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
 
-            Spacer(modifier = Modifier.weight(1f)) // <-- ADDED SPACER
+            Spacer(modifier = Modifier.weight(1f))
 
             // Plus Icon
-            IconButton(onClick = { /* TODO: Handle add action */ }) { // <-- ADDED
+            IconButton(onClick = { /* TODO: Handle add action */ }) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add",
@@ -175,10 +190,10 @@ fun WatchlistScreenPreview() {
     YardlyTheme(isDarkMode = false) {
         WatchlistScreen(
             onBackClick = {},
-            // Simulate that a new item is saved
             savedItems = mapOf("Air Force 1" to true, "Jordan 1s" to true),
             saveCounts = mapOf("Air Force 1" to 3, "Jordan 1s" to 1),
-            onSaveClick = {}
+            onSaveClick = {},
+            userPosts = emptyList() // <-- *** 4. ADDED FOR PREVIEW ***
         )
     }
 }
