@@ -22,14 +22,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yardly.ui.theme.YardlyTheme
-// --- *** ADD THIS IMPORT *** ---
 import androidx.compose.ui.text.style.TextOverflow
-
-// All scrolling logic has been removed from this file
 
 @Composable
 fun AdCard(
     advertisementName: String = "Name of the advertisement",
+    // --- *** CHANGE 1: 'price' parameter REMOVED *** ---
     userName: String = "First Last",
     saveCount: Int,
     isSaved: Boolean,
@@ -40,8 +38,7 @@ fun AdCard(
 ) {
     Card(
         modifier = modifier
-            // .width(350.dp) // <-- REMOVED this fixed width
-            .fillMaxWidth() // <-- ADDED this to fill the grid cell
+            .fillMaxWidth()
             .wrapContentHeight(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface // Card is white
@@ -63,13 +60,12 @@ fun AdCard(
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
-
-                // --- *** THESE ARE THE CHANGES *** ---
                 minLines = 2,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
-                // --- *** END OF CHANGES *** ---
             )
+
+            // --- *** CHANGE 2: Price Text and Spacer REMOVED *** ---
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -77,8 +73,7 @@ fun AdCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    // Aspect ratio keeps it a consistent shape in the grid
-                    .aspectRatio(1f) // <-- CHANGED from fixed height to 1:1 ratio
+                    .aspectRatio(1f)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(12.dp)
@@ -107,11 +102,11 @@ fun AdCard(
                         .weight(1f)
                         .clickable(onClick = onUserClick),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp) // Space avatar and name
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(32.dp) // <-- Made avatar smaller
+                            .size(32.dp)
                             .background(
                                 color = MaterialTheme.colorScheme.surfaceVariant,
                                 shape = CircleShape
@@ -165,19 +160,16 @@ fun AdCard(
 @Composable
 fun AdCardPreview() {
     YardlyTheme(isDarkMode = false) {
-        Column {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             AdCard(
                 advertisementName = "Short Name",
+                // price = "100.00", // <-- Removed from preview
                 saveCount = 1,
                 isSaved = true
             )
             AdCard(
                 advertisementName = "This is a Very Long Advertisement Name That Wraps to Two Lines",
-                saveCount = 1,
-                isSaved = true
-            )
-            AdCard(
-                advertisementName = "This is an Absurdly Long Advertisement Name That Will Be Truncated With an Ellipsis",
+                // price = "25.50", // <-- Removed from preview
                 saveCount = 1,
                 isSaved = true
             )

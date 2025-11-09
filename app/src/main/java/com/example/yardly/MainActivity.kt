@@ -58,6 +58,7 @@ import com.example.yardly.ui.components.CreatePostSheet
 import com.example.yardly.ui.components.DarkModeScreen
 import com.example.yardly.ui.components.FindNear
 import com.example.yardly.ui.components.ListingScreen
+import com.example.yardly.ui.components.PostStorage
 import com.example.yardly.ui.components.ProfileContent
 import com.example.yardly.ui.components.ProfilePopup
 import com.example.yardly.ui.components.SettingsScreen
@@ -72,11 +73,13 @@ import com.example.yardly.ui.theme.BtnNeonAzure
 import com.example.yardly.ui.theme.BtnSlateEmber
 import com.example.yardly.ui.theme.BtnTealPulse
 import com.example.yardly.ui.theme.BtnTerracotta
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
+// --- (All data classes and mock data are unchanged) ---
 data class Ad(val name: String, val user: String)
-
-// ... (All mock data lists remain the same) ...
 private val defaultAds = listOf(
     Ad("Air Force 1", "User 1"),
     Ad("iPhone 13", "User 2"),
@@ -132,24 +135,20 @@ private const val PREFS_NAME = "yardly_settings"
 private const val KEY_DARK_MODE = "dark_mode_enabled"
 
 class MainActivity : ComponentActivity() {
-    // ... (onCreate and SharedPreferences logic remains exactly the same) ...
     private val sharedPreferences: SharedPreferences by lazy {
         getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
     }
+    private lateinit var postStorage: PostStorage
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        postStorage = PostStorage(applicationContext)
         enableEdgeToEdge()
-
         val savedIsDarkMode = sharedPreferences.getBoolean(KEY_DARK_MODE, false)
-
         setContent {
             var isDarkMode by remember { mutableStateOf(savedIsDarkMode) }
-
             val onDarkModeToggle: (Boolean) -> Unit = { enabled ->
                 isDarkMode = enabled
-                Log.d("DarkModeToggle", "dark_mode_enabled: $enabled")
-
                 with(sharedPreferences.edit()) {
                     putBoolean(KEY_DARK_MODE, enabled)
                     apply()
@@ -162,7 +161,8 @@ class MainActivity : ComponentActivity() {
             ) {
                 YardlyApp(
                     isDarkMode = isDarkMode,
-                    onDarkModeToggle = onDarkModeToggle
+                    onDarkModeToggle = onDarkModeToggle,
+                    postStorage = postStorage
                 )
             }
         }
@@ -173,8 +173,10 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun YardlyApp(
     isDarkMode: Boolean,
-    onDarkModeToggle: (Boolean) -> Unit
+    onDarkModeToggle: (Boolean) -> Unit,
+    postStorage: PostStorage
 ) {
+    // --- (All state variables are unchanged) ---
     var selectedIconSection by remember { mutableStateOf("home") }
     var selectedNavSection by remember { mutableStateOf("home-default") }
     var selectedSectionOptions by remember { mutableStateOf<String?>(null) }
@@ -192,59 +194,64 @@ fun YardlyApp(
     val gridState = rememberLazyGridState()
     var previousIndex by remember(gridState) { mutableStateOf(gridState.firstVisibleItemIndex) }
     var previousOffset by remember(gridState) { mutableStateOf(gridState.firstVisibleItemScrollOffset) }
+    var userPosts by remember { mutableStateOf<List<UserPost>>(emptyList()) }
+    val coroutineScope = rememberCoroutineScope()
+
+    // --- (All LaunchedEffects are unchanged) ---
+    LaunchedEffect(Unit) {
+        coroutineScope.launch(Dispatchers.IO) {
+            val loadedPosts = postStorage.loadPosts()
+            withContext(Dispatchers.Main) {
+                userPosts = loadedPosts
+            }
+        }
+    }
+    LaunchedEffect(userPosts) {
+        if (userPosts.isNotEmpty()) {
+            coroutineScope.launch(Dispatchers.IO) {
+                postStorage.savePosts(userPosts)
+            }
+        }
+    }
 
     val isFabVisible by remember {
-        // ... (isFabVisible logic is unchanged) ...
         derivedStateOf {
             val currentIndex = gridState.firstVisibleItemIndex
             val currentOffset = gridState.firstVisibleItemScrollOffset
-
             val isScrollingUp = if (currentIndex != previousIndex) {
                 currentIndex < previousIndex
             } else {
                 currentOffset < previousOffset
             }
-
             previousIndex = currentIndex
             previousOffset = currentOffset
             isScrollingUp || currentIndex == 0
         }
     }
-
     var isFabMenuExpanded by remember { mutableStateOf(false) }
-
     val navigateToSettings = {
-        // ... (navigateToSettings logic is unchanged) ...
         showProfileSheet = false
         selectedIconSection = "profile"
         profileScreenState = ProfileScreenState.Settings
     }
-
     val onSaveClick: (String) -> Unit = { adName ->
-        // ... (onSaveClick logic is unchanged) ...
         val currentCount = saveCounts.getOrDefault(adName, 0)
         saveCounts[adName] = currentCount + 1
         savedItems[adName] = true
     }
-
     val baseSectionOptions = mapOf(
-        // ... (baseSectionOptions logic is unchanged) ...
         "aqua-swap" to listOf("Equipment", "Coral", "Plants", "Substrate", "Tank"),
         "yard-sales" to listOf("Move Out", "Garage Sale"),
         "lease" to listOf("Room", "Car", "Retail Store")
     )
-
     val sectionOptions = baseSectionOptions.mapValues { (key, options) ->
-        // ... (sectionOptions logic is unchanged) ...
         if (key == "aqua-swap" && showRehomeInAquaSwap) {
             listOf("Rehome")
         } else {
             options
         }
     }
-
     val dynamicAdList = remember(selectedNavSection, selectedSubOption, showRehomeInAquaSwap) {
-        // ... (dynamicAdList logic is unchanged) ...
         when (selectedNavSection) {
             "home-default" -> {
                 defaultAds
@@ -288,16 +295,12 @@ fun YardlyApp(
             }
         }
     } ?: defaultAds
-
-
     val onSectionDoubleClick: (String) -> Unit = { section ->
-        // ... (onSectionDoubleClick logic is unchanged) ...
         if (section == "aqua-swap") {
             showRehomeInAquaSwap = false
             selectedSectionOptions = if (selectedSectionOptions != section) section else null
         }
     }
-
 
     Box(
         modifier = Modifier
@@ -319,7 +322,8 @@ fun YardlyApp(
                     .weight(1f)
             ) {
                 ContentArea(
-                    // ... (ContentArea parameters are unchanged) ...
+                    // --- (Parameters are unchanged, price is removed in ContentArea) ---
+                    userPosts = userPosts,
                     ads = dynamicAdList,
                     gridState = gridState,
                     selectedIconSection = selectedIconSection,
@@ -341,9 +345,8 @@ fun YardlyApp(
                     onSaveClick = onSaveClick
                 )
 
-                // Section Options
+                // ... (SectionOptions, FAB Menu logic is all unchanged) ...
                 selectedSectionOptions?.let { section ->
-                    // ... (SectionOptions logic is unchanged) ...
                     sectionOptions[section]?.let { options ->
                         val xOffset = buttonCoordinates[section] ?: 0f
                         SectionOptions(
@@ -357,8 +360,6 @@ fun YardlyApp(
                         )
                     }
                 }
-
-                // Expanding FAB Menu
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -366,7 +367,6 @@ fun YardlyApp(
                     horizontalAlignment = Alignment.End,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // 1. "Camera" Button
                     AnimatedVisibility(
                         visible = isFabMenuExpanded && isFabVisible && selectedIconSection == "home",
                         enter = fadeIn(),
@@ -374,7 +374,6 @@ fun YardlyApp(
                     ) {
                         FloatingActionButton(
                             onClick = {
-                                // ... (Camera onClick is unchanged) ...
                                 showCreatePostSheet = true
                                 isFabMenuExpanded = false
                             },
@@ -388,8 +387,6 @@ fun YardlyApp(
                             )
                         }
                     }
-
-                    // 2. "Location" Button
                     AnimatedVisibility(
                         visible = isFabMenuExpanded && isFabVisible && selectedIconSection == "home",
                         enter = fadeIn(),
@@ -397,7 +394,6 @@ fun YardlyApp(
                     ) {
                         FloatingActionButton(
                             onClick = {
-                                // ... (Location onClick is unchanged) ...
                                 showChooseCornerSheet = true
                                 isFabMenuExpanded = false
                             },
@@ -411,15 +407,12 @@ fun YardlyApp(
                             )
                         }
                     }
-
-                    // 3. Main FAB (The "plus" / "cross" button)
                     AnimatedVisibility(
                         visible = isFabVisible && selectedIconSection == "home",
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
                         FloatingActionButton(
-                            // ... (Main FAB onClick is unchanged) ...
                             onClick = { isFabMenuExpanded = !isFabMenuExpanded },
                             shape = CircleShape,
                             containerColor = if (isFabMenuExpanded) {
@@ -504,25 +497,29 @@ fun YardlyApp(
             showModal = showAdLoginModal,
             onDismiss = { showAdLoginModal = false }
         )
-
         ProfilePopup(
             showModal = showProfileSheet,
             onDismiss = { showProfileSheet = false },
             onBackClick = { showProfileSheet = false },
             onMenuClick = navigateToSettings
         )
-
         ChooseCornerSheet(
             showModal = showChooseCornerSheet,
             onDismiss = { showChooseCornerSheet = false }
         )
-
         CreatePostSheet(
             showModal = showCreatePostSheet,
             onDismiss = { showCreatePostSheet = false },
-            // (Callback from previous step, now with price)
             onPostListing = { title, desc, category, location, price ->
-                Log.d("CreatePostSheet", "New Post: $title, $desc, $category, $location, Price: $price")
+                val newPost = UserPost(
+                    title = title,
+                    description = desc,
+                    category = category,
+                    location = location,
+                    price = price
+                )
+                userPosts = listOf(newPost) + userPosts
+                Log.d("CreatePostSheet", "New Post Saved: $newPost")
             }
         )
     }
@@ -590,7 +587,7 @@ fun TopBar() {
 }
 
 
-// --- *** THIS IS THE MAIN CHANGE AREA *** ---
+// ... (SectionNavigation composable is unchanged) ...
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
@@ -612,7 +609,6 @@ fun SectionNavigation(
         "lease" to "Lease",
         "auction" to "Auction"
     )
-
     val buttonAccentColors = mapOf(
         "clothing" to BtnTerracotta,
         "sneaker" to BtnElectricLime,
@@ -623,7 +619,6 @@ fun SectionNavigation(
         "lease" to BtnSlateEmber,
         "auction" to BtnDarkOrange
     )
-
     val hapticFeedback = LocalHapticFeedback.current
     LazyRow(
         modifier = Modifier
@@ -647,7 +642,6 @@ fun SectionNavigation(
             LaunchedEffect(isSelected) {
                 if (isSelected) {
                     scale.animateTo(1.05f, tween(150))
-                    // --- *** FIX #1: Corrected the typo '1Gist 50' to '150' *** ---
                     scale.animateTo(1f, tween(150))
                 }
             }
@@ -704,8 +698,8 @@ fun SectionNavigation(
         }
     }
 }
-// --- *** END OF MAIN CHANGE AREA *** ---
 
+// ... (BottomIconNavigation composable is unchanged) ...
 @Composable
 fun BottomIconNavigation(
     selectedSection: String,
@@ -756,6 +750,7 @@ fun BottomIconNavigation(
     }
 }
 
+// ... (SectionOptions composable is unchanged) ...
 @Composable
 fun SectionOptions(
     options: List<String>,
@@ -766,7 +761,6 @@ fun SectionOptions(
     val density = LocalDensity.current
     val xOffsetDp = with(density) { xOffset.toDp() }
     Column(
-        // --- *** FIX #2: Corrected 'Methods.padding' to 'modifier.padding' *** ---
         modifier = modifier
             .fillMaxWidth()
             .padding(start = xOffsetDp, bottom = 16.dp),
@@ -800,8 +794,10 @@ fun SectionOptions(
     }
 }
 
+// --- *** THIS IS THE MAIN CHANGE AREA *** ---
 @Composable
 fun ContentArea(
+    userPosts: List<UserPost>,
     ads: List<Ad>,
     gridState: LazyGridState,
     selectedIconSection: String,
@@ -832,11 +828,29 @@ fun ContentArea(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 20.dp)
             ) {
+                // Display User's new posts first
+                items(userPosts, key = { it.id }) { post ->
+                    val saveCount = saveCounts.getOrDefault(post.title, 0)
+                    val isSaved = savedItems.getOrDefault(post.title, false)
+                    AdCard(
+                        advertisementName = post.title,
+                        // --- *** THE FIX: 'price' property removed *** ---
+                        userName = post.userName,
+                        saveCount = saveCount,
+                        isSaved = isSaved,
+                        onAdClick = onAdClick,
+                        onUserClick = onUserClick,
+                        onSaveClick = { onSaveClick(post.title) }
+                    )
+                }
+
+                // Display the other mock/filtered ads
                 items(ads) { ad ->
                     val saveCount = saveCounts.getOrDefault(ad.name, 0)
                     val isSaved = savedItems.getOrDefault(ad.name, false)
                     AdCard(
                         advertisementName = ad.name,
+                        // --- *** THE FIX: 'price' property removed *** ---
                         userName = ad.user,
                         saveCount = saveCount,
                         isSaved = isSaved,
@@ -906,19 +920,30 @@ fun ContentArea(
         )
     }
 }
+// --- *** END OF MAIN CHANGE AREA *** ---
 
 @Preview(showBackground = true)
 @Composable
 fun YardlyAppPreview() {
+    val context = androidx.compose.ui.platform.LocalContext.current
     YardlyTheme(isDarkMode = false) {
-        YardlyApp(isDarkMode = false, onDarkModeToggle = {})
+        YardlyApp(
+            isDarkMode = false,
+            onDarkModeToggle = {},
+            postStorage = PostStorage(context)
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun YardlyAppPreviewDark() {
+    val context = androidx.compose.ui.platform.LocalContext.current
     YardlyTheme(isDarkMode = true) {
-        YardlyApp(isDarkMode = true, onDarkModeToggle = {})
+        YardlyApp(
+            isDarkMode = true,
+            onDarkModeToggle = {},
+            postStorage = PostStorage(context)
+        )
     }
 }
