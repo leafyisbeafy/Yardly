@@ -1,24 +1,30 @@
 # Yardly: The Relocation Marketplace
 
+Yardly isn't just another marketplace.
 
-Yardly isn't just another marketplace. It's a **relocation marketplace**, built from the ground up to solve the waste, cost, and stress of moving.
+Facebook Marketplace is not solving the problem; Craigslist is full of odd individuals. There are niche apps for subleasing and pet adoption, but I don’t think people want to keep dozens of apps on their phones.
 
-Think Marketplace, but laser-focused: **instant area-only drops, sublease swaps, and even pet rehomes**. No shipping, no landfill, no Craigslist weirdos. Yardly is a sublease + garage-sale mashup with a built-in conscience, turning dumping into deals and helping broke newcomers.
+It pains me to see people trapped in the cycle of subleasing for rooms and cars. Even if they want to transfer deposits and pay rent, they struggle to find someone.
 
-## 🚀 Core Features
+Students cannot make money from their used textbooks, and the goodwill of stationary is too far out of reach.
+
+A student who kept pests is now unable to care for them and is trying to find someone who can take them in, but is struggling to find the right person.
+
+I’m giving it a shot to fix the problems I see every other day.
+
+## Core Features
 
 This repository contains the native Android application for Yardly, built entirely with Kotlin and Jetpack Compose.
 
 * **Hyper-Local Location Filtering:** Yardly ditches the standard "radius" search. Users filter by specific neighborhood "corners" (e.g., "SW, Cedar Rapids") or by "County" for broader, but still defined, accessibility.
-* **Dual-Gesture Navigation:** The main `SectionNavigation` bar ("Aqua Swap," "Yard Sales," "Lease") is built for speed and power-users:
+* **Dual-Gesture Navigation:** The main `SectionNavigation` bar is built for speed and power-users:
     * **Single-Tap:** Selects the main category.
     * **Double-Tap:** Reveals sub-options (like "Move Out" or "Room").
     * **Long-Press:** Triggers urgent, special-case actions like "Rehome".
-* **Expanding Action Menu:** A multi-purpose Floating Action Button that expands to give users quick access to "Create Post" and "Choose Location".
-* **"Saved" Watchlist with Price Drops:** A dedicated watchlist screen that uses a `WatchlistCard` to show saved items. It features a pulsing red icon to instantly alert users to price drops.
+* **"Saved" Watchlist with Price Drops:** A dedicated watchlist screen that uses a `WatchlistCard` to show saved items. It will keep the student engaged by encouraging them to check back for notifications about price drops. Everyone, at some point, wants to get rid of their items to make some money, often by lowering the price. This creates a loop of dopamine similar to social media, though not exactly the same.
 * **Component-Based UI:** A clean, scalable UI built with reusable, stateless components for everything from ad cards to login sheets and profiles.
 
-## 🛠 Tech Stack & Architecture
+## Tech Stack
 
 * **Language:** 100% [Kotlin](https://kotlinlang.org/)
 * **UI Toolkit:** [Jetpack Compose](https://developer.android.com/jetpack/compose)
@@ -34,7 +40,7 @@ This repository contains the native Android application for Yardly, built entire
 This project is in active development. The core UI, navigation, and state management foundation are in place.
 
 ### Future Roadmap
-* Implement ViewModel layer to manage and hoist state out of composables.
 * Integrate backend services (e.g., Firebase) for user auth and database.
 * Build out the "Create Post" functionality.
-* Add functionality to the "Create Collection" (plus) button on the Saved screen.
+
+

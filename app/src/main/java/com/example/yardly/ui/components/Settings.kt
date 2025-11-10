@@ -1,9 +1,14 @@
 package com.example.yardly.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues // <-- ADDED IMPORT
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,11 +24,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,6 +54,8 @@ fun SettingsScreen(
         "Location"
     )
 
+    var expandedSetting by remember { mutableStateOf<String?>(null) }
+
     Column(modifier = Modifier.fillMaxSize()) {
         // 1. Top Bar
         SettingsTopBar(onBackClick = onBackClick)
@@ -55,16 +65,43 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(settingsOptions) { optionName ->
+                val isExpanded = expandedSetting == optionName
+
+                // Only "Accessibility" is expandable for this example
+                val isExpandable = optionName == "Accessibility"
+
                 SettingsRow(
                     name = optionName,
                     onClick = {
-                        if (optionName == "Accessibility") {
-                            onAccessibilityClick()
+                        if (isExpandable) {
+                            // Toggle expansion
+                            expandedSetting = if (isExpanded) null else optionName
                         } else {
                             // TODO: Handle other clicks
                         }
-                    }
+                    },
+                    isExpanded = isExpanded,
+                    showArrow = isExpandable // Show arrow only for expandable items
                 )
+
+                AnimatedVisibility(
+                    visible = isExpanded,
+                    enter = expandVertically(animationSpec = tween(durationMillis = 300)),
+                    exit = shrinkVertically(animationSpec = tween(durationMillis = 300))
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 20.dp) // Indent the sub-items
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                    ) {
+                        // This is the sub-item, "Dark Mode"
+                        SettingsRow(
+                            name = "Dark Mode",
+                            onClick = onAccessibilityClick // This now navigates
+                        )
+                    }
+                }
             }
         }
     }
