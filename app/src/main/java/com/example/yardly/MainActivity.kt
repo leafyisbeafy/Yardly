@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler // <-- Kept this import
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
@@ -341,7 +341,7 @@ fun YardlyApp(
                     .weight(1f)
             ) {
                 ContentArea(
-                    // --- (Parameters are unchanged, price is removed in ContentArea) ---
+                    // --- (Parameters are unchanged) ---
                     userPosts = userPosts,
                     ads = dynamicAdList,
                     gridState = gridState,
@@ -478,9 +478,6 @@ fun YardlyApp(
                     onButtonPositioned = { key, x ->
                         buttonCoordinates[key] = x
                     },
-                    // --- *** THIS IS THE FIX *** ---
-                    // Restored the onLongPress lambda to its original state-handling logic.
-                    // The haptic feedback is (correctly) handled inside SectionNavigation.
                     onLongPress = { section ->
                         if (section == "aqua-swap") {
                             showRehomeInAquaSwap = true
@@ -488,7 +485,6 @@ fun YardlyApp(
                             selectedSubOption = "Rehome"
                         }
                     },
-                    // --- *** END OF FIX *** ---
                     onDoubleClick = onSectionDoubleClick,
                     showRehomeInAquaSwap = showRehomeInAquaSwap,
                     onRehomeStateChange = { newState ->
@@ -548,7 +544,7 @@ fun YardlyApp(
     }
 }
 
-// ... (TopBar composable is unchanged) ...
+// --- *** THIS IS THE CHANGED COMPOSABLE *** ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar() {
@@ -566,7 +562,10 @@ fun TopBar() {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    MaterialTheme.colorScheme.surfaceVariant,
+                    // *** THIS IS THE CHANGE ***
+                    // Was: MaterialTheme.colorScheme.surfaceVariant
+                    // Now: Matches the BottomIconNavigation
+                    MaterialTheme.colorScheme.background,
                     RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
                 )
                 .padding(horizontal = 20.dp, vertical = 10.dp),
@@ -579,6 +578,10 @@ fun TopBar() {
                 Button(
                     onClick = { /* TODO: Handle notifications */ },
                     colors = ButtonDefaults.buttonColors(
+                        // *** THIS IS THE CHANGE ***
+                        // The button container must now be a different color
+                        // to be visible against the new background in light mode.
+                        // We'll use surfaceVariant, which is what the bar *used* to be.
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         contentColor = MaterialTheme.colorScheme.onBackground
                     ),
@@ -593,6 +596,7 @@ fun TopBar() {
                 Button(
                     onClick = { /* TODO: Handle messenger */ },
                     colors = ButtonDefaults.buttonColors(
+                        // *** THIS IS THE CHANGE *** (Same as above)
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         contentColor = MaterialTheme.colorScheme.onBackground
                     ),
@@ -608,9 +612,9 @@ fun TopBar() {
         }
     }
 }
+// --- *** END OF CHANGE *** ---
 
 
-// --- (SectionNavigation is unchanged, the haptic logic is correct here) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
@@ -665,7 +669,6 @@ fun SectionNavigation(
             LaunchedEffect(isSelected) {
                 if (isSelected) {
                     scale.animateTo(1.05f, tween(150))
-                    // --- *** THE FIX IS HERE *** ---
                     scale.animateTo(1f, tween(150))
                 }
             }
@@ -722,7 +725,6 @@ fun SectionNavigation(
         }
     }
 }
-// --- *** END OF MAIN CHANGE AREA *** ---
 
 // ... (BottomIconNavigation composable is unchanged) ...
 @Composable
@@ -819,7 +821,7 @@ fun SectionOptions(
     }
 }
 
-// --- (ContentArea is unchanged from the last fix) ---
+// --- (ContentArea is unchanged) ---
 @Composable
 fun ContentArea(
     userPosts: List<UserPost>,
