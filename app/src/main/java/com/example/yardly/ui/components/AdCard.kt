@@ -25,11 +25,7 @@ import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.ui.text.style.TextOverflow
 
 /**
- * AdCard - the heart of our marketplace UI!
- * This component represents each item in the grid feed
- * Went through many iterations to get the spacing and interactions just right
- * 
- * Note: Removed price display for cleaner look - users can see price in detail view
+ * AdCard component for displaying marketplace items in grid layout
  */
 @Composable
 fun AdCard(
@@ -58,8 +54,6 @@ fun AdCard(
                 .padding(12.dp)
                 .clickable(onClick = onAdClick)  // Entire card is clickable
         ) {
-            // Title section - the item name
-            // Using minLines/maxLines to ensure consistent card heights in grid
             Text(
                 text = advertisementName,
                 fontSize = 16.sp,
@@ -67,26 +61,23 @@ fun AdCard(
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 2,  // Forces consistent height
-                maxLines = 2,  // Prevents overly long titles
-                overflow = TextOverflow.Ellipsis  // Graceful text cutoff
+                minLines = 2,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Image placeholder - will eventually support actual photos
-            // Square aspect ratio ensures consistent grid layout
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1f)  // Perfect square for grid consistency
+                    .aspectRatio(1f)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(12.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                // TODO: Replace with actual image loading (probably use Coil library)
                 Icon(
                     imageVector = Icons.Filled.ImageNotSupported,
                     contentDescription = "Image coming soon!",
@@ -97,21 +88,18 @@ fun AdCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Bottom row - user info on left, save functionality on right
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Seller information section
                 Row(
                     modifier = Modifier
                         .weight(1f)
-                        .clickable(onClick = onUserClick), // Click to view user profile
+                        .clickable(onClick = onUserClick),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Profile picture placeholder - simple circle for now
                     Box(
                         modifier = Modifier
                             .size(32.dp)
@@ -128,12 +116,10 @@ fun AdCard(
                     )
                 }
 
-                // Save functionality - count and button
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Save count with smooth animation - users love seeing popularity!
                     AnimatedVisibility(
                         visible = saveCount > 0,
                         enter = fadeIn(),
@@ -147,7 +133,6 @@ fun AdCard(
                         )
                     }
 
-                    // The save/bookmark button - visual feedback is crucial here
                     IconButton(
                         onClick = onSaveClick,
                         modifier = Modifier
@@ -174,13 +159,11 @@ fun AdCardPreview() {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             AdCard(
                 advertisementName = "Short Name",
-                // price = "100.00", // <-- Removed from preview
                 saveCount = 1,
                 isSaved = true
             )
             AdCard(
                 advertisementName = "This is a Very Long Advertisement Name That Wraps to Two Lines",
-                // price = "25.50", // <-- Removed from preview
                 saveCount = 1,
                 isSaved = true
             )

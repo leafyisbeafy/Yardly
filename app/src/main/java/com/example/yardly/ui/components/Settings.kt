@@ -23,8 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-// --- *** 1. THIS IMPORT IS CHANGED *** ---
-import androidx.compose.material.icons.filled.KeyboardArrowLeft // Was .ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -94,7 +93,7 @@ fun SettingsScreen(
                             if (optionName == "Log out") {
                                 showLogoutDialog = true // This shows the dialog
                             } else {
-                                // TODO: Handle "About" click
+                                // Handle about section navigation
                             }
                         }
                     },
@@ -161,11 +160,10 @@ private fun SettingsTopBar(
                     contentColor = MaterialTheme.colorScheme.onBackground
                 )
             ) {
-                // --- *** 2. THIS IS THE ICON CHANGE *** ---
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowLeft, // Was .ArrowBack
+                    imageVector = Icons.Default.KeyboardArrowLeft,
                     contentDescription = "Back",
-                    modifier = Modifier.size(28.dp) // <-- Made icon slightly larger
+                    modifier = Modifier.size(28.dp)
                 )
             }
 

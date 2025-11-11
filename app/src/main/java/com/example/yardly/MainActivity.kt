@@ -9,7 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -37,7 +36,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
@@ -58,6 +56,7 @@ import com.example.yardly.ui.components.AdLoginSheet
 import com.example.yardly.ui.components.ChooseCornerSheet
 import com.example.yardly.ui.components.CreatePostSheet
 import com.example.yardly.ui.components.DarkModeScreen
+import com.example.yardly.ui.components.EditProfileScreen
 import com.example.yardly.ui.components.FindNear
 import com.example.yardly.ui.components.ListingScreen
 import com.example.yardly.ui.components.PostStorage
@@ -67,7 +66,7 @@ import com.example.yardly.ui.components.SettingsScreen
 import com.example.yardly.ui.components.WatchlistScreen
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
-import com.example.yardly.ui.theme.BtnDarkOrange
+import com.example.yardly.ui.theme.BtnDarkOrange // <-- This is now unused
 import com.example.yardly.ui.theme.BtnElectricLime
 import com.example.yardly.ui.theme.BtnForestGlow
 import com.example.yardly.ui.theme.BtnMagentaShock
@@ -105,6 +104,7 @@ private val allAquaSwapAds = mapOf(
     "Tank" to listOf(Ad("40 Gallon Tank", "User O"), Ad("10g Betta Tank", "User P")),
     "Rehome" to listOf(Ad("Goldfish needs home", "User Q"), Ad("Betta Fish (Free)", "User R"))
 )
+// "Auction" ads are still defined, but no button will point to them
 private val allAuctionAds = listOf(Ad("Rare Coin Auction", "User S"), Ad("Vintage Watch", "User T"))
 private val allClothingAds = listOf(
     Ad("Vintage T-Shirt", "User U"),
@@ -132,6 +132,7 @@ sealed class ProfileScreenState {
     object Settings : ProfileScreenState()
     object Accessibility : ProfileScreenState()
     object DarkMode : ProfileScreenState()
+    object EditProfile : ProfileScreenState()
 }
 private const val PREFS_NAME = "yardly_settings"
 private const val KEY_DARK_MODE = "dark_mode_enabled"
@@ -148,7 +149,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val savedIsDarkMode = sharedPreferences.getBoolean(KEY_DARK_MODE, false)
 
-        // --- (Status Bar Fix from previous step) ---
         val insetsController = WindowCompat.getInsetsController(window, window.decorView)
         insetsController.isAppearanceLightStatusBars = !savedIsDarkMode
 
@@ -157,7 +157,6 @@ class MainActivity : ComponentActivity() {
             val onDarkModeToggle: (Boolean) -> Unit = { enabled ->
                 isDarkMode = enabled
 
-                // --- (Status Bar Fix from previous step) ---
                 val insetsController = WindowCompat.getInsetsController(window, window.decorView)
                 insetsController.isAppearanceLightStatusBars = !enabled
 
@@ -188,13 +187,12 @@ fun YardlyApp(
     onDarkModeToggle: (Boolean) -> Unit,
     postStorage: PostStorage
 ) {
-    // --- (All state variables are unchanged) ---
     var selectedIconSection by remember { mutableStateOf("home") }
     var selectedNavSection by remember { mutableStateOf("home-default") }
     var selectedSectionOptions by remember { mutableStateOf<String?>(null) }
     var selectedSubOption by remember { mutableStateOf<String?>(null) }
     val buttonCoordinates = remember { mutableStateMapOf<String, Float>() }
-    var showRehomeInAquaSwap by remember { mutableStateOf(false) }
+    var showRehomeInAquaSwap by remember { mutableStateOf(false) } // Renamed this variable for clarity
     var showAdLoginModal by remember { mutableStateOf(false) }
     var showProfileSheet by remember { mutableStateOf(false) }
     var showChooseCornerSheet by remember { mutableStateOf(false) }
@@ -209,14 +207,14 @@ fun YardlyApp(
     var userPosts by remember { mutableStateOf<List<UserPost>>(emptyList()) }
     val coroutineScope = rememberCoroutineScope()
 
-    // --- (Back Handler logic is unchanged) ---
+    var profileName by remember { mutableStateOf("Peyton Venzeee") }
+    var profileUsername by remember { mutableStateOf("peyton") }
+    var profileBio by remember { mutableStateOf("just another broke college student trying to make some extra cash by selling off my old books, clothes I totally don’t wear anymore, and a few electronics that are just collecting dust. Honestly, it’s wild how much stuff we accumulate over time!") }
+
     BackHandler(enabled = selectedIconSection != "home") {
-        // If back is pressed on any screen other than "home",
-        // navigate back to "home".
         selectedIconSection = "home"
     }
 
-    // --- (All LaunchedEffects are unchanged) ---
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             val loadedPosts = postStorage.loadPosts()
@@ -253,23 +251,33 @@ fun YardlyApp(
         selectedIconSection = "profile"
         profileScreenState = ProfileScreenState.Settings
     }
+    val navigateToEditProfile = {
+        showProfileSheet = false // Close the popup
+        selectedIconSection = "profile"
+        profileScreenState = ProfileScreenState.EditProfile // Set new state
+    }
+
     val onSaveClick: (String) -> Unit = { adName ->
         val currentCount = saveCounts.getOrDefault(adName, 0)
         saveCounts[adName] = currentCount + 1
         savedItems[adName] = true
     }
+
+    // --- *** 1. "aqua-swap" RENAMED TO "rehome" *** ---
     val baseSectionOptions = mapOf(
-        "aqua-swap" to listOf("Equipment", "Coral", "Plants", "Substrate", "Tank"),
+        "rehome" to listOf("Equipment", "Coral", "Plants", "Substrate", "Tank"),
         "yard-sales" to listOf("Move Out", "Garage Sale"),
         "lease" to listOf("Room", "Car", "Retail Store")
     )
+    // --- *** 2. "aqua-swap" RENAMED TO "rehome" *** ---
     val sectionOptions = baseSectionOptions.mapValues { (key, options) ->
-        if (key == "aqua-swap" && showRehomeInAquaSwap) {
+        if (key == "rehome" && showRehomeInAquaSwap) {
             listOf("Rehome")
         } else {
             options
         }
     }
+    // --- *** 3. "aqua-swap" RENAMED/REMOVED *** ---
     val dynamicAdList = remember(selectedNavSection, selectedSubOption, showRehomeInAquaSwap) {
         when (selectedNavSection) {
             "home-default" -> {
@@ -297,7 +305,7 @@ fun YardlyApp(
                     allYardSaleAds[it]
                 } ?: allYardSaleAds.values.flatten()
             }
-            "aqua-swap" -> {
+            "rehome" -> { // <-- Renamed from "aqua-swap"
                 if (showRehomeInAquaSwap) {
                     allAquaSwapAds["Rehome"] ?: emptyList()
                 } else {
@@ -306,16 +314,16 @@ fun YardlyApp(
                     } ?: allAquaSwapAds.values.flatten().filterNot { allAquaSwapAds["Rehome"]?.contains(it) ?: false }
                 }
             }
-            "auction" -> {
-                allAuctionAds
-            }
+            // "auction" case is removed
             else -> {
                 defaultAds
             }
         }
     } ?: defaultAds
+
+    // --- *** 4. "aqua-swap" RENAMED TO "rehome" *** ---
     val onSectionDoubleClick: (String) -> Unit = { section ->
-        if (section == "aqua-swap") {
+        if (section == "rehome") {
             showRehomeInAquaSwap = false
             selectedSectionOptions = if (selectedSectionOptions != section) section else null
         }
@@ -341,7 +349,6 @@ fun YardlyApp(
                     .weight(1f)
             ) {
                 ContentArea(
-                    // --- (Parameters are unchanged) ---
                     userPosts = userPosts,
                     ads = dynamicAdList,
                     gridState = gridState,
@@ -351,11 +358,24 @@ fun YardlyApp(
                     isDarkMode = isDarkMode,
                     saveCounts = saveCounts,
                     savedItems = savedItems,
+
+                    profileName = profileName,
+                    profileUsername = profileUsername,
+                    profileBio = profileBio,
+                    onSaveProfile = { newName, newUsername, newBio ->
+                        profileName = newName
+                        profileUsername = newUsername
+                        profileBio = newBio
+                        profileScreenState = ProfileScreenState.Profile // Navigate back
+                    },
+
                     onAdClick = { showAdLoginModal = true },
                     onBackClick = { selectedIconSection = "home" },
                     onSettingsBackClick = { profileScreenState = ProfileScreenState.Profile },
                     onAccessibilityBackClick = { profileScreenState = ProfileScreenState.Settings },
                     onDarkModeBackClick = { profileScreenState = ProfileScreenState.Accessibility },
+                    onEditProfileBackClick = { profileScreenState = ProfileScreenState.Profile },
+                    onEditClick = navigateToEditProfile,
                     onUserClick = { showProfileSheet = true },
                     onMenuClick = navigateToSettings,
                     onAccessibilityClick = { profileScreenState = ProfileScreenState.Accessibility },
@@ -457,14 +477,14 @@ fun YardlyApp(
             // Section Navigation
             if (showHeaderAndNav) {
                 SectionNavigation(
-                    // ... (SectionNavigation logic is unchanged) ...
                     selectedSection = selectedNavSection,
                     onSectionSelected = { section ->
                         selectedNavSection = section
                         selectedSubOption = null
                         showRehomeInAquaSwap = false
 
-                        if (section == "aqua-swap" ||
+                        // --- *** 5. "aqua-swap" RENAMED TO "rehome" *** ---
+                        if (section == "rehome" ||
                             section == "clothing" ||
                             section == "sneaker" ||
                             section == "electronics" ||
@@ -478,8 +498,9 @@ fun YardlyApp(
                     onButtonPositioned = { key, x ->
                         buttonCoordinates[key] = x
                     },
+                    // --- *** 6. "aqua-swap" RENAMED TO "rehome" *** ---
                     onLongPress = { section ->
-                        if (section == "aqua-swap") {
+                        if (section == "rehome") {
                             showRehomeInAquaSwap = true
                             selectedSectionOptions = section
                             selectedSubOption = "Rehome"
@@ -495,7 +516,6 @@ fun YardlyApp(
 
             // Bottom Icon Navigation
             BottomIconNavigation(
-                // ... (BottomIconNavigation logic is unchanged) ...
                 selectedSection = selectedIconSection,
                 onSectionSelected = { section ->
                     selectedIconSection = section
@@ -516,12 +536,18 @@ fun YardlyApp(
             showModal = showAdLoginModal,
             onDismiss = { showAdLoginModal = false }
         )
+
         ProfilePopup(
+            name = profileName,
+            username = profileUsername,
+            bio = profileBio,
             showModal = showProfileSheet,
             onDismiss = { showProfileSheet = false },
             onBackClick = { showProfileSheet = false },
+            onEditClick = navigateToEditProfile,
             onMenuClick = navigateToSettings
         )
+
         ChooseCornerSheet(
             showModal = showChooseCornerSheet,
             onDismiss = { showChooseCornerSheet = false }
@@ -544,7 +570,7 @@ fun YardlyApp(
     }
 }
 
-// --- *** THIS IS THE CHANGED COMPOSABLE *** ---
+// --- (TopBar composable is unchanged) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar() {
@@ -562,9 +588,6 @@ fun TopBar() {
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    // *** THIS IS THE CHANGE ***
-                    // Was: MaterialTheme.colorScheme.surfaceVariant
-                    // Now: Matches the BottomIconNavigation
                     MaterialTheme.colorScheme.background,
                     RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
                 )
@@ -578,10 +601,6 @@ fun TopBar() {
                 Button(
                     onClick = { /* TODO: Handle notifications */ },
                     colors = ButtonDefaults.buttonColors(
-                        // *** THIS IS THE CHANGE ***
-                        // The button container must now be a different color
-                        // to be visible against the new background in light mode.
-                        // We'll use surfaceVariant, which is what the bar *used* to be.
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         contentColor = MaterialTheme.colorScheme.onBackground
                     ),
@@ -596,7 +615,6 @@ fun TopBar() {
                 Button(
                     onClick = { /* TODO: Handle messenger */ },
                     colors = ButtonDefaults.buttonColors(
-                        // *** THIS IS THE CHANGE *** (Same as above)
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         contentColor = MaterialTheme.colorScheme.onBackground
                     ),
@@ -612,9 +630,9 @@ fun TopBar() {
         }
     }
 }
-// --- *** END OF CHANGE *** ---
 
 
+// --- *** 7. SectionNavigation COMPOSABLE UPDATED *** ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
@@ -626,25 +644,27 @@ fun SectionNavigation(
     showRehomeInAquaSwap: Boolean,
     onRehomeStateChange: (Boolean) -> Unit
 ) {
+    // --- Reordered, Renamed "aqua-swap" to "rehome", Removed "auction"
     val sections = listOf(
+        "rehome" to "Rehome",
+        "lease" to "Lease",
+        "yard-sales" to "Yardly",
         "clothing" to "Clothing",
         "sneaker" to "Sneaker",
         "electronics" to "Electronics",
-        "gaming" to "Gaming",
-        "aqua-swap" to "Aquascape",
-        "yard-sales" to "Yardly",
-        "lease" to "Lease",
-        "auction" to "Auction"
+        "gaming" to "Gaming"
     )
+
+    // --- Updated map to match
     val buttonAccentColors = mapOf(
+        "rehome" to BtnTealPulse, // <-- Was "aqua-swap"
+        "lease" to BtnSlateEmber,
+        "yard-sales" to BtnForestGlow,
         "clothing" to BtnTerracotta,
         "sneaker" to BtnElectricLime,
         "electronics" to BtnNeonAzure,
-        "gaming" to BtnMagentaShock,
-        "aqua-swap" to BtnTealPulse,
-        "yard-sales" to BtnForestGlow,
-        "lease" to BtnSlateEmber,
-        "auction" to BtnDarkOrange
+        "gaming" to BtnMagentaShock
+        // "auction" key removed
     )
     val hapticFeedback = LocalHapticFeedback.current
     LazyRow(
@@ -681,21 +701,22 @@ fun SectionNavigation(
                         color = Color.Transparent,
                         shape = RoundedCornerShape(20.dp)
                     )
+                    // --- 8. "aqua-swap" RENAMED TO "rehome" *** ---
                     .combinedClickable(
                         onClick = {
-                            if (sectionKey == "aqua-swap") {
+                            if (sectionKey == "rehome") {
                                 onRehomeStateChange(false)
                             }
                             onSectionSelected(sectionKey)
                         },
                         onLongClick = {
-                            if (sectionKey == "aqua-swap") {
+                            if (sectionKey == "rehome") {
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 onLongPress(sectionKey)
                             }
                         },
                         onDoubleClick = {
-                            if (sectionKey == "aqua-swap") {
+                            if (sectionKey == "rehome") {
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 onDoubleClick(sectionKey)
                             }
@@ -812,7 +833,7 @@ fun SectionOptions(
     }
 }
 
-// --- (ContentArea is unchanged) ---
+// --- (ContentArea composable is unchanged from last step) ---
 @Composable
 fun ContentArea(
     userPosts: List<UserPost>,
@@ -824,13 +845,22 @@ fun ContentArea(
     isDarkMode: Boolean,
     saveCounts: Map<String, Int>,
     savedItems: Map<String, Boolean>,
+
+    // New params
+    profileName: String,
+    profileUsername: String,
+    profileBio: String,
+    onSaveProfile: (String, String, String) -> Unit,
+
     onAdClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
     onSettingsBackClick: () -> Unit = {},
     onAccessibilityBackClick: () -> Unit = {},
     onDarkModeBackClick: () -> Unit = {},
+    onEditProfileBackClick: () -> Unit = {},
     onUserClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
+    onEditClick: () -> Unit = {},
     onAccessibilityClick: () -> Unit = {},
     onDarkModeClick: () -> Unit = {},
     onDarkModeToggle: (Boolean) -> Unit,
@@ -846,7 +876,7 @@ fun ContentArea(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 20.dp)
             ) {
-                // Display User's new posts first
+                // ... (items blocks are unchanged) ...
                 items(userPosts, key = { it.id }) { post ->
                     val saveCount = saveCounts.getOrDefault(post.title, 0)
                     val isSaved = savedItems.getOrDefault(post.title, false)
@@ -861,7 +891,6 @@ fun ContentArea(
                     )
                 }
 
-                // Display the other mock/filtered ads
                 items(ads) { ad ->
                     val saveCount = saveCounts.getOrDefault(ad.name, 0)
                     val isSaved = savedItems.getOrDefault(ad.name, false)
@@ -892,8 +921,11 @@ fun ContentArea(
         "profile" -> {
             when (profileScreenState) {
                 ProfileScreenState.Profile -> ProfileContent(
+                    name = profileName,
+                    username = profileUsername,
+                    bio = profileBio,
                     onBackClick = onBackClick,
-                    onEditClick = { /* Handle Edit */ },
+                    onEditClick = onEditClick,
                     onMenuClick = onMenuClick
                 )
                 ProfileScreenState.Settings -> SettingsScreen(
@@ -908,6 +940,15 @@ fun ContentArea(
                     onBackClick = onDarkModeBackClick,
                     isDarkMode = isDarkMode,
                     onToggle = onDarkModeToggle
+                )
+                ProfileScreenState.EditProfile -> EditProfileScreen(
+                    // Pass current state
+                    currentName = profileName,
+                    currentUsername = profileUsername,
+                    currentBio = profileBio,
+                    // Pass callbacks
+                    onBackClick = onEditProfileBackClick,
+                    onSaveClick = onSaveProfile
                 )
             }
         }

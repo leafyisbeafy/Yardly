@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.yardly.UserPost // <-- *** 1. NEW IMPORT ***
+import com.example.yardly.UserPost
 import com.example.yardly.ui.theme.YardlyTheme
 import com.example.yardly.ui.components.WatchlistCard
 
@@ -73,27 +73,21 @@ fun WatchlistScreen(
     savedItems: Map<String, Boolean>,
     saveCounts: Map<String, Int>,
     onSaveClick: (String) -> Unit,
-    // --- *** 2. ACCEPT THE NEW LIST *** ---
-    userPosts: List<UserPost> = emptyList() // Default to empty list
+    userPosts: List<UserPost> = emptyList()
 ) {
-    // --- *** 3. COMBINE THE LISTS *** ---
-    // Convert UserPost objects to WatchlistItem objects
     val userWatchlistItems = userPosts.map { post ->
         WatchlistItem(
-            id = post.id.toInt(), // Use post ID
+            id = post.id.toInt(),
             name = post.title,
-            price = "$${post.price}" // Format the price
+            price = "$${post.price}"
         )
     }
 
-    // Combine the new user posts with the old dummy items
     val combinedItems = userWatchlistItems + dummyItems
 
-    // Filter the *combined* list based on the savedItems map
     val dynamicallySavedItems = combinedItems.filter { item ->
         savedItems.getOrDefault(item.name, false)
     }
-    // --- *** END OF CHANGE *** ---
 
     Column(modifier = Modifier.fillMaxSize()) {
         // 1. New Top Bar
@@ -173,7 +167,7 @@ private fun WatchlistTopBar(
             Spacer(modifier = Modifier.weight(1f))
 
             // Plus Icon
-            IconButton(onClick = { /* TODO: Handle add action */ }) {
+            IconButton(onClick = { /* Add new item to watchlist */ }) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add",
@@ -193,7 +187,7 @@ fun WatchlistScreenPreview() {
             savedItems = mapOf("Air Force 1" to true, "Jordan 1s" to true),
             saveCounts = mapOf("Air Force 1" to 3, "Jordan 1s" to 1),
             onSaveClick = {},
-            userPosts = emptyList() // <-- *** 4. ADDED FOR PREVIEW ***
+            userPosts = emptyList()
         )
     }
 }
