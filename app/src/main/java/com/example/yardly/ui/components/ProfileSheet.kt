@@ -7,9 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,7 +21,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.yardly.ui.theme.YardlyTheme // <-- ADDED IMPORT
+import com.example.yardly.ui.theme.YardlyTheme
+import androidx.compose.ui.res.painterResource // <-- 1. ADD THIS IMPORT
+import com.example.yardly.R // <-- 2. ADD THIS IMPORT
 
 // The ModalBottomSheet logic has been moved to ProfilePopup.kt
 
@@ -157,8 +158,7 @@ fun TopProfileBar(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // *** THIS IS THE CHANGE ***
-        // Back arrow (Changed to Button for ripple)
+        // Back arrow
         Button(
             onClick = onBackClick,
             shape = CircleShape,
@@ -170,26 +170,31 @@ fun TopProfileBar(
             )
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back"
+                imageVector = Icons.Default.KeyboardArrowLeft,
+                contentDescription = "Back",
+                modifier = Modifier.size(28.dp)
             )
         }
 
         // Right side icons
         Row {
             IconButton(onClick = onEditClick) {
+                // --- *** 3. THIS IS THE CHANGE *** ---
                 Icon(
-                    imageVector = Icons.Default.Edit,
+                    // This now points to your profilesheet_edit.xml file
+                    painter = painterResource(id = R.drawable.profilesheet_edit),
                     contentDescription = "Edit",
                     tint = if (isEditMode) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onBackground
+                    else MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.size(24.dp)
                 )
             }
             IconButton(onClick = onMenuClick) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = "More options",
-                    tint = MaterialTheme.colorScheme.onBackground
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
@@ -199,8 +204,6 @@ fun TopProfileBar(
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 fun ProfileContentPreview() {
-    // *** THIS IS THE CHANGE ***
-    // Wrapped in YardlyTheme to fix preview
     YardlyTheme(isDarkMode = false) {
         ProfileContent(
             onBackClick = {},
