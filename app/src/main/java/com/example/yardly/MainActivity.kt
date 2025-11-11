@@ -665,17 +665,8 @@ fun SectionNavigation(
                 animationSpec = animationSpec
             )
 
-            val scale = remember { Animatable(1f) }
-            LaunchedEffect(isSelected) {
-                if (isSelected) {
-                    scale.animateTo(1.05f, tween(150))
-                    scale.animateTo(1f, tween(150))
-                }
-            }
-
             Box(
                 modifier = Modifier
-                    .scale(scale.value)
                     .width(110.dp)
                     .height(44.dp)
                     .onGloballyPositioned {

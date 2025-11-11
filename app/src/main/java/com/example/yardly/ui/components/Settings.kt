@@ -7,12 +7,14 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -21,9 +23,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+// --- *** 1. THIS IMPORT IS CHANGED *** ---
+import androidx.compose.material.icons.filled.KeyboardArrowLeft // Was .ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -47,16 +51,28 @@ fun SettingsScreen(
     onAccessibilityClick: () -> Unit
 ) {
     val settingsOptions = listOf(
-        "Accessibility",
-        "Privacy",
+        "Account",
         "Notification",
-        "Invite friend and refer",
-        "Location"
+        "Security & Permission",
+        "Privacy",
+        "Accessibility",
+        "About",
+        "Log out"
     )
+    val nonExpandableItems = setOf("About", "Log out")
 
     var expandedSetting by remember { mutableStateOf<String?>(null) }
 
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier.fillMaxSize()) {
+
+        if (showLogoutDialog) {
+            ExitDialog(
+                onDismiss = { showLogoutDialog = false }
+            )
+        }
+
         // 1. Top Bar
         SettingsTopBar(onBackClick = onBackClick)
 
@@ -66,9 +82,7 @@ fun SettingsScreen(
         ) {
             items(settingsOptions) { optionName ->
                 val isExpanded = expandedSetting == optionName
-
-                // Only "Accessibility" is expandable for this example
-                val isExpandable = optionName == "Accessibility"
+                val isExpandable = optionName !in nonExpandableItems
 
                 SettingsRow(
                     name = optionName,
@@ -77,11 +91,15 @@ fun SettingsScreen(
                             // Toggle expansion
                             expandedSetting = if (isExpanded) null else optionName
                         } else {
-                            // TODO: Handle other clicks
+                            if (optionName == "Log out") {
+                                showLogoutDialog = true // This shows the dialog
+                            } else {
+                                // TODO: Handle "About" click
+                            }
                         }
                     },
                     isExpanded = isExpanded,
-                    showArrow = isExpandable // Show arrow only for expandable items
+                    showArrow = isExpandable // Show arrow only if expandable
                 )
 
                 AnimatedVisibility(
@@ -92,14 +110,20 @@ fun SettingsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 20.dp) // Indent the sub-items
+                            .padding(start = 20.dp)
                             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
                     ) {
-                        // This is the sub-item, "Dark Mode"
-                        SettingsRow(
-                            name = "Dark Mode",
-                            onClick = onAccessibilityClick // This now navigates
-                        )
+                        when (optionName) {
+                            "Accessibility" -> {
+                                SettingsRow(
+                                    name = "Dark Mode",
+                                    onClick = onAccessibilityClick
+                                )
+                            }
+                            "Account", "Notification", "Security & Permission", "Privacy" -> {
+                                Box(modifier = Modifier.height(1.dp))
+                            }
+                        }
                     }
                 }
             }
@@ -137,9 +161,11 @@ private fun SettingsTopBar(
                     contentColor = MaterialTheme.colorScheme.onBackground
                 )
             ) {
+                // --- *** 2. THIS IS THE ICON CHANGE *** ---
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
+                    imageVector = Icons.Default.KeyboardArrowLeft, // Was .ArrowBack
+                    contentDescription = "Back",
+                    modifier = Modifier.size(28.dp) // <-- Made icon slightly larger
                 )
             }
 
