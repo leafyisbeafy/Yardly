@@ -59,6 +59,7 @@ import com.example.yardly.ui.components.DarkModeScreen
 import com.example.yardly.ui.components.EditProfileScreen
 import com.example.yardly.ui.components.FindNear
 import com.example.yardly.ui.components.ListingScreen
+import com.example.yardly.ui.components.MessengerScreen
 import com.example.yardly.ui.components.PostStorage
 import com.example.yardly.ui.components.ProfileContent
 import com.example.yardly.ui.components.ProfilePopup
@@ -263,13 +264,11 @@ fun YardlyApp(
         savedItems[adName] = true
     }
 
-    // --- *** 1. "aqua-swap" RENAMED TO "rehome" *** ---
     val baseSectionOptions = mapOf(
         "rehome" to listOf("Equipment", "Coral", "Plants", "Substrate", "Tank"),
         "yard-sales" to listOf("Move Out", "Garage Sale"),
         "lease" to listOf("Room", "Car", "Retail Store")
     )
-    // --- *** 2. "aqua-swap" RENAMED TO "rehome" *** ---
     val sectionOptions = baseSectionOptions.mapValues { (key, options) ->
         if (key == "rehome" && showRehomeInAquaSwap) {
             listOf("Rehome")
@@ -277,7 +276,6 @@ fun YardlyApp(
             options
         }
     }
-    // --- *** 3. "aqua-swap" RENAMED/REMOVED *** ---
     val dynamicAdList = remember(selectedNavSection, selectedSubOption, showRehomeInAquaSwap) {
         when (selectedNavSection) {
             "home-default" -> {
@@ -321,7 +319,6 @@ fun YardlyApp(
         }
     } ?: defaultAds
 
-    // --- *** 4. "aqua-swap" RENAMED TO "rehome" *** ---
     val onSectionDoubleClick: (String) -> Unit = { section ->
         if (section == "rehome") {
             showRehomeInAquaSwap = false
@@ -339,7 +336,11 @@ fun YardlyApp(
         ) {
             // Top Bar (Header)
             if (showHeaderAndNav) {
-                TopBar()
+                // --- *** 1. THIS IS THE CHANGE *** ---
+                // Pass the navigation lambda to the TopBar
+                TopBar(
+                    onMessengerClick = { selectedIconSection = "messenger" }
+                )
             }
 
             // Content Area and Section Options Overlap
@@ -483,7 +484,6 @@ fun YardlyApp(
                         selectedSubOption = null
                         showRehomeInAquaSwap = false
 
-                        // --- *** 5. "aqua-swap" RENAMED TO "rehome" *** ---
                         if (section == "rehome" ||
                             section == "clothing" ||
                             section == "sneaker" ||
@@ -498,7 +498,6 @@ fun YardlyApp(
                     onButtonPositioned = { key, x ->
                         buttonCoordinates[key] = x
                     },
-                    // --- *** 6. "aqua-swap" RENAMED TO "rehome" *** ---
                     onLongPress = { section ->
                         if (section == "rehome") {
                             showRehomeInAquaSwap = true
@@ -570,10 +569,12 @@ fun YardlyApp(
     }
 }
 
-// --- (TopBar composable is unchanged) ---
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar() {
+// --- *** 2. THIS IS THE CHANGE *** ---
+// Add the onMessengerClick parameter
+fun TopBar(onMessengerClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -613,7 +614,9 @@ fun TopBar() {
                     )
                 }
                 Button(
-                    onClick = { /* TODO: Handle messenger */ },
+                    // --- *** 3. THIS IS THE CHANGE *** ---
+                    // Call the lambda instead of the TODO
+                    onClick = onMessengerClick,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         contentColor = MaterialTheme.colorScheme.onBackground
@@ -632,7 +635,7 @@ fun TopBar() {
 }
 
 
-// --- *** 7. SectionNavigation COMPOSABLE UPDATED *** ---
+// --- (SectionNavigation composable is unchanged) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
@@ -701,7 +704,6 @@ fun SectionNavigation(
                         color = Color.Transparent,
                         shape = RoundedCornerShape(20.dp)
                     )
-                    // --- 8. "aqua-swap" RENAMED TO "rehome" *** ---
                     .combinedClickable(
                         onClick = {
                             if (sectionKey == "rehome") {
@@ -738,7 +740,7 @@ fun SectionNavigation(
     }
 }
 
-// ... (BottomIconNavigation composable is unchanged) ...
+// --- (BottomIconNavigation composable is unchanged) ...
 @Composable
 fun BottomIconNavigation(
     selectedSection: String,
@@ -789,7 +791,7 @@ fun BottomIconNavigation(
     }
 }
 
-// ... (SectionOptions composable is unchanged) ...
+// --- (SectionOptions composable is unchanged) ...
 @Composable
 fun SectionOptions(
     options: List<String>,
@@ -833,7 +835,7 @@ fun SectionOptions(
     }
 }
 
-// --- (ContentArea composable is unchanged from last step) ---
+// --- (ContentArea composable is unchanged) ---
 @Composable
 fun ContentArea(
     userPosts: List<UserPost>,
@@ -953,20 +955,8 @@ fun ContentArea(
             }
         }
         "messenger" -> {
-            val content = """
-                Messages
-                Your conversations and messages will appear here
-                John Doe
-                Hey! Are you still interested in the pet adoption?
-                Sarah Wilson
-                Thanks for the lease swap.
-            """.trimIndent()
-            Text(
-                text = content,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp,
-                textAlign = TextAlign.Center,
-                lineHeight = 24.sp
+            MessengerScreen(
+                onBackClick = onBackClick
             )
         }
         else -> Text(
@@ -979,6 +969,7 @@ fun ContentArea(
     }
 }
 
+// --- (Previews are unchanged) ---
 @Preview(showBackground = true)
 @Composable
 fun YardlyAppPreview() {
