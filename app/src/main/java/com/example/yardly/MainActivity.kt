@@ -341,7 +341,7 @@ fun YardlyApp(
         ) {
             // Top Bar (Header)
             if (showHeaderAndNav) {
-                TopBar() // Removed onMessengerClick
+                TopBar()
             }
 
             // Content Area and Section Options Overlap
@@ -377,8 +377,6 @@ fun YardlyApp(
                     onAccessibilityBackClick = { profileScreenState = ProfileScreenState.Settings },
                     onDarkModeBackClick = { profileScreenState = ProfileScreenState.Accessibility },
                     onEditProfileBackClick = { profileScreenState = ProfileScreenState.Profile },
-                    // --- *** 1. THIS IS THE FIX (PART 1) *** ---
-                    // Pass the lambda that updates the state
                     onAdDetailBackClick = { profileScreenState = ProfileScreenState.Profile },
 
                     onEditClick = navigateToEditProfile,
@@ -521,7 +519,7 @@ fun YardlyApp(
                 )
             }
 
-            // --- (BottomIconNavigation is unchanged) ---
+            // --- *** 1. THIS IS THE CHANGE (Part 1) *** ---
             BottomIconNavigation(
                 selectedSection = selectedIconSection,
                 onSectionSelected = { section ->
@@ -533,7 +531,10 @@ fun YardlyApp(
                         selectedSubOption = null
                     }
 
-                    profileScreenState = ProfileScreenState.Profile
+                    // Reset profile state if navigating away
+                    if (section != "profile") {
+                        profileScreenState = ProfileScreenState.Profile
+                    }
                 }
             )
         }
@@ -583,9 +584,10 @@ fun YardlyApp(
 }
 
 
+// --- (TopBar composable is unchanged from last step) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar() { // Removed onMessengerClick
+fun TopBar() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -621,7 +623,6 @@ fun TopBar() { // Removed onMessengerClick
                     fontSize = 12.sp
                 )
             }
-            // Messenger button removed
         }
     }
 }
@@ -728,15 +729,16 @@ fun SectionNavigation(
     }
 }
 
-// --- (BottomIconNavigation composable is unchanged) ...
+// --- *** 2. THIS IS THE CHANGE (Part 2) *** ---
 @Composable
 fun BottomIconNavigation(
     selectedSection: String,
     onSectionSelected: (String) -> Unit
 ) {
+    // Changed "yardly" to "messenger" and "Market" to "Messenger"
     val sections = listOf(
         "home" to "Home",
-        "yardly" to "Market",
+        "messenger" to "Messenger",
         "watchlist" to "Watchlist",
         "profile" to "Profile"
     )
@@ -857,7 +859,7 @@ fun SectionOptions(
     }
 }
 
-// --- (ContentArea composable IS CHANGED) ---
+// --- *** 3. THIS IS THE CHANGE (Part 3) *** ---
 @Composable
 fun ContentArea(
     userPosts: List<UserPost>,
@@ -881,8 +883,6 @@ fun ContentArea(
     onAccessibilityBackClick: () -> Unit = {},
     onDarkModeBackClick: () -> Unit = {},
     onEditProfileBackClick: () -> Unit = {},
-    // --- *** 2. THIS IS THE FIX (PART 2) *** ---
-    // Add the new parameter
     onAdDetailBackClick: () -> Unit = {},
     onUserClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
@@ -934,9 +934,7 @@ fun ContentArea(
                 }
             }
         }
-        "yardly" -> {
-            ListingScreen()
-        }
+        // --- The "yardly" case has been removed ---
         "watchlist" -> {
             WatchlistScreen(
                 onBackClick = onBackClick,
@@ -981,9 +979,6 @@ fun ContentArea(
                     title = "My Dummy Listing",
                     description = "This is the description for the dummy listing clicked from the profile screen. It's a great item, buy it now!",
                     isSaved = savedItems.getOrDefault("My Dummy Listing", false),
-                    // --- *** 3. THIS IS THE FIX (PART 3) *** ---
-                    // Call the new lambda, which is correctly implemented
-                    // in YardlyApp to update the state.
                     onBackClick = onAdDetailBackClick,
                     onUserClick = { /* Stay on profile */ },
                     onSaveClick = { onSaveClick("My Dummy Listing") },
@@ -991,6 +986,7 @@ fun ContentArea(
                 )
             }
         }
+        // This case is now triggered by the new nav button
         "messenger" -> {
             MessengerScreen(
                 onBackClick = onBackClick
