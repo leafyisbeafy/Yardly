@@ -95,8 +95,9 @@ private fun AccessibilityTopBar(
                 )
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    modifier = Modifier.size(28.dp)
                 )
             }
 

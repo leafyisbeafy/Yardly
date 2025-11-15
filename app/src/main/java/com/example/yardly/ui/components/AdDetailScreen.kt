@@ -51,18 +51,28 @@ fun AdDetailScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             // Back Button
-            IconButton(onClick = onBackClick) {
+            Button(
+                onClick = onBackClick,
+                shape = CircleShape,
+                modifier = Modifier.size(40.dp),
+                contentPadding = PaddingValues(0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                )
+            ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = MaterialTheme.colorScheme.onBackground
+                    modifier = Modifier.size(28.dp)
                 )
             }
+
+            Spacer(Modifier.weight(1f))
 
             // Avatar Icon
             Box(
