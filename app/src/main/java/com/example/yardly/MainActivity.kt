@@ -67,7 +67,7 @@ import com.example.yardly.ui.components.SettingsScreen
 import com.example.yardly.ui.components.WatchlistScreen
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
-import com.example.yardly.ui.theme.BtnDarkOrange
+import com.example.yardly.ui.theme.BtnDarkOrange // <-- This is now unused
 import com.example.yardly.ui.theme.BtnElectricLime
 import com.example.yardly.ui.theme.BtnForestGlow
 import com.example.yardly.ui.theme.BtnMagentaShock
@@ -80,6 +80,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
+// --- (All data classes and mock data are unchanged) ---
 data class Ad(val name: String, val user: String)
 private val defaultAds = listOf(
     Ad("Air Force 1", "User 1"),
@@ -104,6 +105,7 @@ private val allAquaSwapAds = mapOf(
     "Tank" to listOf(Ad("40 Gallon Tank", "User O"), Ad("10g Betta Tank", "User P")),
     "Rehome" to listOf(Ad("Goldfish needs home", "User Q"), Ad("Betta Fish (Free)", "User R"))
 )
+// "Auction" ads are still defined, but no button will point to them
 private val allAuctionAds = listOf(Ad("Rare Coin Auction", "User S"), Ad("Vintage Watch", "User T"))
 private val allClothingAds = listOf(
     Ad("Vintage T-Shirt", "User U"),
@@ -191,7 +193,7 @@ fun YardlyApp(
     var selectedSectionOptions by remember { mutableStateOf<String?>(null) }
     var selectedSubOption by remember { mutableStateOf<String?>(null) }
     val buttonCoordinates = remember { mutableStateMapOf<String, Float>() }
-    var showRehomeInAquaSwap by remember { mutableStateOf(false) }
+    var showRehomeInAquaSwap by remember { mutableStateOf(false) } // Renamed this variable for clarity
     var showAdLoginModal by remember { mutableStateOf(false) }
     var showProfileSheet by remember { mutableStateOf(false) }
     var showChooseCornerSheet by remember { mutableStateOf(false) }
@@ -251,9 +253,9 @@ fun YardlyApp(
         profileScreenState = ProfileScreenState.Settings
     }
     val navigateToEditProfile = {
-        showProfileSheet = false
+        showProfileSheet = false // Close the popup
         selectedIconSection = "profile"
-        profileScreenState = ProfileScreenState.EditProfile
+        profileScreenState = ProfileScreenState.EditProfile // Set new state
     }
 
     val onSaveClick: (String) -> Unit = { adName ->
@@ -301,7 +303,7 @@ fun YardlyApp(
                     allYardSaleAds[it]
                 } ?: allYardSaleAds.values.flatten()
             }
-            "rehome" -> {
+            "rehome" -> { // <-- Renamed from "aqua-swap"
                 if (showRehomeInAquaSwap) {
                     allAquaSwapAds["Rehome"] ?: emptyList()
                 } else {
@@ -310,6 +312,7 @@ fun YardlyApp(
                     } ?: allAquaSwapAds.values.flatten().filterNot { allAquaSwapAds["Rehome"]?.contains(it) ?: false }
                 }
             }
+            // "auction" case is removed
             else -> {
                 defaultAds
             }
@@ -364,7 +367,7 @@ fun YardlyApp(
                         profileName = newName
                         profileUsername = newUsername
                         profileBio = newBio
-                        profileScreenState = ProfileScreenState.Profile
+                        profileScreenState = ProfileScreenState.Profile // Navigate back
                     },
 
                     onAdClick = { showAdLoginModal = true },
@@ -382,6 +385,7 @@ fun YardlyApp(
                     onSaveClick = onSaveClick
                 )
 
+                // ... (SectionOptions, FAB Menu logic is all unchanged) ...
                 selectedSectionOptions?.let { section ->
                     sectionOptions[section]?.let { options ->
                         val xOffset = buttonCoordinates[section] ?: 0f
@@ -568,6 +572,8 @@ fun YardlyApp(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+// --- *** 2. THIS IS THE CHANGE *** ---
+// Add the onMessengerClick parameter
 fun TopBar(onMessengerClick: () -> Unit) {
     Column(
         modifier = Modifier
@@ -594,7 +600,7 @@ fun TopBar(onMessengerClick: () -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Button(
-                    onClick = { },
+                    onClick = { /* TODO: Handle notifications */ },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         contentColor = MaterialTheme.colorScheme.onBackground
@@ -608,6 +614,8 @@ fun TopBar(onMessengerClick: () -> Unit) {
                     )
                 }
                 Button(
+                    // --- *** 3. THIS IS THE CHANGE *** ---
+                    // Call the lambda instead of the TODO
                     onClick = onMessengerClick,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -627,6 +635,7 @@ fun TopBar(onMessengerClick: () -> Unit) {
 }
 
 
+// --- (SectionNavigation composable is unchanged) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
@@ -638,6 +647,7 @@ fun SectionNavigation(
     showRehomeInAquaSwap: Boolean,
     onRehomeStateChange: (Boolean) -> Unit
 ) {
+    // --- Reordered, Renamed "aqua-swap" to "rehome", Removed "auction"
     val sections = listOf(
         "rehome" to "Rehome",
         "lease" to "Lease",
@@ -648,14 +658,16 @@ fun SectionNavigation(
         "gaming" to "Gaming"
     )
 
+    // --- Updated map to match
     val buttonAccentColors = mapOf(
-        "rehome" to BtnTealPulse,
+        "rehome" to BtnTealPulse, // <-- Was "aqua-swap"
         "lease" to BtnSlateEmber,
         "yard-sales" to BtnForestGlow,
         "clothing" to BtnTerracotta,
         "sneaker" to BtnElectricLime,
         "electronics" to BtnNeonAzure,
         "gaming" to BtnMagentaShock
+        // "auction" key removed
     )
     val hapticFeedback = LocalHapticFeedback.current
     LazyRow(
@@ -728,6 +740,7 @@ fun SectionNavigation(
     }
 }
 
+// --- (BottomIconNavigation composable is unchanged) ...
 @Composable
 fun BottomIconNavigation(
     selectedSection: String,
@@ -778,6 +791,7 @@ fun BottomIconNavigation(
     }
 }
 
+// --- (SectionOptions composable is unchanged) ...
 @Composable
 fun SectionOptions(
     options: List<String>,
@@ -855,6 +869,7 @@ fun SectionOptions(
     }
 }
 
+// --- (ContentArea composable is unchanged) ---
 @Composable
 fun ContentArea(
     userPosts: List<UserPost>,
@@ -897,6 +912,7 @@ fun ContentArea(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 20.dp)
             ) {
+                // ... (items blocks are unchanged) ...
                 items(userPosts, key = { it.id }) { post ->
                     val saveCount = saveCounts.getOrDefault(post.title, 0)
                     val isSaved = savedItems.getOrDefault(post.title, false)
@@ -987,6 +1003,7 @@ fun ContentArea(
     }
 }
 
+// --- (Previews are unchanged) ---
 @Preview(showBackground = true)
 @Composable
 fun YardlyAppPreview() {
