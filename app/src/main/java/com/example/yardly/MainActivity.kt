@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.example.yardly.ui.components.AccessibilityScreen
 import com.example.yardly.ui.components.AdCard
+import com.example.yardly.ui.components.AdDetailScreen // <-- *** 1. ADD IMPORT ***
 import com.example.yardly.ui.components.AdLoginSheet
 import com.example.yardly.ui.components.ChooseCornerSheet
 import com.example.yardly.ui.components.CreatePostSheet
@@ -67,7 +68,7 @@ import com.example.yardly.ui.components.SettingsScreen
 import com.example.yardly.ui.components.WatchlistScreen
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
-import com.example.yardly.ui.theme.BtnDarkOrange // <-- This is now unused
+import com.example.yardly.ui.theme.BtnDarkOrange
 import com.example.yardly.ui.theme.BtnElectricLime
 import com.example.yardly.ui.theme.BtnForestGlow
 import com.example.yardly.ui.theme.BtnMagentaShock
@@ -105,7 +106,6 @@ private val allAquaSwapAds = mapOf(
     "Tank" to listOf(Ad("40 Gallon Tank", "User O"), Ad("10g Betta Tank", "User P")),
     "Rehome" to listOf(Ad("Goldfish needs home", "User Q"), Ad("Betta Fish (Free)", "User R"))
 )
-// "Auction" ads are still defined, but no button will point to them
 private val allAuctionAds = listOf(Ad("Rare Coin Auction", "User S"), Ad("Vintage Watch", "User T"))
 private val allClothingAds = listOf(
     Ad("Vintage T-Shirt", "User U"),
@@ -134,6 +134,7 @@ sealed class ProfileScreenState {
     object Accessibility : ProfileScreenState()
     object DarkMode : ProfileScreenState()
     object EditProfile : ProfileScreenState()
+    object AdDetail : ProfileScreenState() // <-- *** 2. ADD NEW STATE ***
 }
 private const val PREFS_NAME = "yardly_settings"
 private const val KEY_DARK_MODE = "dark_mode_enabled"
@@ -193,7 +194,7 @@ fun YardlyApp(
     var selectedSectionOptions by remember { mutableStateOf<String?>(null) }
     var selectedSubOption by remember { mutableStateOf<String?>(null) }
     val buttonCoordinates = remember { mutableStateMapOf<String, Float>() }
-    var showRehomeInAquaSwap by remember { mutableStateOf(false) } // Renamed this variable for clarity
+    var showRehomeInAquaSwap by remember { mutableStateOf(false) }
     var showAdLoginModal by remember { mutableStateOf(false) }
     var showProfileSheet by remember { mutableStateOf(false) }
     var showChooseCornerSheet by remember { mutableStateOf(false) }
@@ -216,6 +217,7 @@ fun YardlyApp(
         selectedIconSection = "home"
     }
 
+    // --- (LaunchedEffects are unchanged) ---
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             val loadedPosts = postStorage.loadPosts()
@@ -232,6 +234,7 @@ fun YardlyApp(
         }
     }
 
+    // --- (isFabVisible logic is unchanged) ---
     val isFabVisible by remember {
         derivedStateOf {
             val currentIndex = gridState.firstVisibleItemIndex
@@ -247,6 +250,8 @@ fun YardlyApp(
         }
     }
     var isFabMenuExpanded by remember { mutableStateOf(false) }
+
+    // --- (navigation lambdas are unchanged) ---
     val navigateToSettings = {
         showProfileSheet = false
         selectedIconSection = "profile"
@@ -257,13 +262,13 @@ fun YardlyApp(
         selectedIconSection = "profile"
         profileScreenState = ProfileScreenState.EditProfile // Set new state
     }
-
     val onSaveClick: (String) -> Unit = { adName ->
         val currentCount = saveCounts.getOrDefault(adName, 0)
         saveCounts[adName] = currentCount + 1
         savedItems[adName] = true
     }
 
+    // --- (sectionOptions and dynamicAdList are unchanged) ---
     val baseSectionOptions = mapOf(
         "rehome" to listOf("Equipment", "Coral", "Plants", "Substrate", "Tank"),
         "yard-sales" to listOf("Move Out", "Garage Sale"),
@@ -303,7 +308,7 @@ fun YardlyApp(
                     allYardSaleAds[it]
                 } ?: allYardSaleAds.values.flatten()
             }
-            "rehome" -> { // <-- Renamed from "aqua-swap"
+            "rehome" -> {
                 if (showRehomeInAquaSwap) {
                     allAquaSwapAds["Rehome"] ?: emptyList()
                 } else {
@@ -312,13 +317,13 @@ fun YardlyApp(
                     } ?: allAquaSwapAds.values.flatten().filterNot { allAquaSwapAds["Rehome"]?.contains(it) ?: false }
                 }
             }
-            // "auction" case is removed
             else -> {
                 defaultAds
             }
         }
     } ?: defaultAds
 
+    // --- (onSectionDoubleClick is unchanged) ---
     val onSectionDoubleClick: (String) -> Unit = { section ->
         if (section == "rehome") {
             showRehomeInAquaSwap = false
@@ -334,10 +339,8 @@ fun YardlyApp(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Top Bar (Header)
+            // --- (TopBar is unchanged) ---
             if (showHeaderAndNav) {
-                // --- *** 1. THIS IS THE CHANGE *** ---
-                // Pass the navigation lambda to the TopBar
                 TopBar(
                     onMessengerClick = { selectedIconSection = "messenger" }
                 )
@@ -382,10 +385,14 @@ fun YardlyApp(
                     onAccessibilityClick = { profileScreenState = ProfileScreenState.Accessibility },
                     onDarkModeClick = { profileScreenState = ProfileScreenState.DarkMode },
                     onDarkModeToggle = onDarkModeToggle,
-                    onSaveClick = onSaveClick
+                    onSaveClick = onSaveClick,
+                    // --- *** 3. ADD NEW LAMBDA *** ---
+                    onDummyListingClick = {
+                        profileScreenState = ProfileScreenState.AdDetail
+                    }
                 )
 
-                // ... (SectionOptions, FAB Menu logic is all unchanged) ...
+                // --- (SectionOptions, FAB Menu logic is all unchanged) ...
                 selectedSectionOptions?.let { section ->
                     sectionOptions[section]?.let { options ->
                         val xOffset = buttonCoordinates[section] ?: 0f
@@ -475,7 +482,7 @@ fun YardlyApp(
                 }
             }
 
-            // Section Navigation
+            // --- (SectionNavigation is unchanged) ---
             if (showHeaderAndNav) {
                 SectionNavigation(
                     selectedSection = selectedNavSection,
@@ -513,7 +520,7 @@ fun YardlyApp(
                 )
             }
 
-            // Bottom Icon Navigation
+            // --- (BottomIconNavigation is unchanged) ---
             BottomIconNavigation(
                 selectedSection = selectedIconSection,
                 onSectionSelected = { section ->
@@ -544,13 +551,20 @@ fun YardlyApp(
             onDismiss = { showProfileSheet = false },
             onBackClick = { showProfileSheet = false },
             onEditClick = navigateToEditProfile,
-            onMenuClick = navigateToSettings
+            onMenuClick = navigateToSettings,
+            // --- *** 4. ADD NEW LAMBDA *** ---
+            onDummyListingClick = {
+                showProfileSheet = false // Close popup
+                selectedIconSection = "profile" // Go to profile section
+                profileScreenState = ProfileScreenState.AdDetail // Show detail
+            }
         )
 
         ChooseCornerSheet(
             showModal = showChooseCornerSheet,
             onDismiss = { showChooseCornerSheet = false }
         )
+        // --- (CreatePostSheet is unchanged) ---
         CreatePostSheet(
             showModal = showCreatePostSheet,
             onDismiss = { showCreatePostSheet = false },
@@ -570,10 +584,9 @@ fun YardlyApp(
 }
 
 
+// --- (TopBar composable is unchanged) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-// --- *** 2. THIS IS THE CHANGE *** ---
-// Add the onMessengerClick parameter
 fun TopBar(onMessengerClick: () -> Unit) {
     Column(
         modifier = Modifier
@@ -614,8 +627,6 @@ fun TopBar(onMessengerClick: () -> Unit) {
                     )
                 }
                 Button(
-                    // --- *** 3. THIS IS THE CHANGE *** ---
-                    // Call the lambda instead of the TODO
                     onClick = onMessengerClick,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -647,7 +658,6 @@ fun SectionNavigation(
     showRehomeInAquaSwap: Boolean,
     onRehomeStateChange: (Boolean) -> Unit
 ) {
-    // --- Reordered, Renamed "aqua-swap" to "rehome", Removed "auction"
     val sections = listOf(
         "rehome" to "Rehome",
         "lease" to "Lease",
@@ -657,17 +667,14 @@ fun SectionNavigation(
         "electronics" to "Electronics",
         "gaming" to "Gaming"
     )
-
-    // --- Updated map to match
     val buttonAccentColors = mapOf(
-        "rehome" to BtnTealPulse, // <-- Was "aqua-swap"
+        "rehome" to BtnTealPulse,
         "lease" to BtnSlateEmber,
         "yard-sales" to BtnForestGlow,
         "clothing" to BtnTerracotta,
         "sneaker" to BtnElectricLime,
         "electronics" to BtnNeonAzure,
         "gaming" to BtnMagentaShock
-        // "auction" key removed
     )
     val hapticFeedback = LocalHapticFeedback.current
     LazyRow(
@@ -869,7 +876,7 @@ fun SectionOptions(
     }
 }
 
-// --- (ContentArea composable is unchanged) ---
+// --- (ContentArea composable IS CHANGED) ---
 @Composable
 fun ContentArea(
     userPosts: List<UserPost>,
@@ -882,7 +889,6 @@ fun ContentArea(
     saveCounts: Map<String, Int>,
     savedItems: Map<String, Boolean>,
 
-    // New params
     profileName: String,
     profileUsername: String,
     profileBio: String,
@@ -900,7 +906,8 @@ fun ContentArea(
     onAccessibilityClick: () -> Unit = {},
     onDarkModeClick: () -> Unit = {},
     onDarkModeToggle: (Boolean) -> Unit,
-    onSaveClick: (String) -> Unit
+    onSaveClick: (String) -> Unit,
+    onDummyListingClick: () -> Unit // <-- *** 5. ADD PARAMETER ***
 ) {
     when (selectedIconSection) {
         "home" -> {
@@ -912,13 +919,14 @@ fun ContentArea(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 20.dp)
             ) {
-                // ... (items blocks are unchanged) ...
+                // --- (items blocks are unchanged) ...
                 items(userPosts, key = { it.id }) { post ->
                     val saveCount = saveCounts.getOrDefault(post.title, 0)
                     val isSaved = savedItems.getOrDefault(post.title, false)
                     AdCard(
                         advertisementName = post.title,
                         userName = post.userName,
+                        // price = post.price, // AdCard doesn't support price yet
                         saveCount = saveCount,
                         isSaved = isSaved,
                         onAdClick = onAdClick,
@@ -955,6 +963,7 @@ fun ContentArea(
             )
         }
         "profile" -> {
+            // --- *** 6. THIS IS THE CHANGE *** ---
             when (profileScreenState) {
                 ProfileScreenState.Profile -> ProfileContent(
                     name = profileName,
@@ -962,7 +971,8 @@ fun ContentArea(
                     bio = profileBio,
                     onBackClick = onBackClick,
                     onEditClick = onEditClick,
-                    onMenuClick = onMenuClick
+                    onMenuClick = onMenuClick,
+                    onDummyListingClick = onDummyListingClick // <-- Pass lambda
                 )
                 ProfileScreenState.Settings -> SettingsScreen(
                     onBackClick = onSettingsBackClick,
@@ -978,13 +988,20 @@ fun ContentArea(
                     onToggle = onDarkModeToggle
                 )
                 ProfileScreenState.EditProfile -> EditProfileScreen(
-                    // Pass current state
                     currentName = profileName,
                     currentUsername = profileUsername,
                     currentBio = profileBio,
-                    // Pass callbacks
                     onBackClick = onEditProfileBackClick,
                     onSaveClick = onSaveProfile
+                )
+                ProfileScreenState.AdDetail -> AdDetailScreen(
+                    title = "My Dummy Listing",
+                    description = "This is the description for the dummy listing clicked from the profile screen. It's a great item, buy it now!",
+                    isSaved = savedItems.getOrDefault("My Dummy Listing", false),
+                    onBackClick = onEditProfileBackClick,
+                    onUserClick = { /* Stay on profile */ },
+                    onSaveClick = { onSaveClick("My Dummy Listing") },
+                    onShareClick = { /* TODO */ }
                 )
             }
         }

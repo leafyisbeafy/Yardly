@@ -14,16 +14,15 @@ import com.example.yardly.ui.theme.YardlyTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfilePopup(
-    // Parameters are already correct
     name: String,
     username: String,
     bio: String,
-
     showModal: Boolean,
     onDismiss: () -> Unit,
     onBackClick: () -> Unit = {},
     onEditClick: () -> Unit = {},
-    onMenuClick: () -> Unit = {}
+    onMenuClick: () -> Unit = {},
+    onDummyListingClick: () -> Unit // <-- *** 1. ADD PARAMETER ***
 ) {
     if (showModal) {
         ModalBottomSheet(
@@ -34,7 +33,7 @@ fun ProfilePopup(
             scrimColor = Color.Black.copy(alpha = 0.4f),
             dragHandle = null
         ) {
-            // --- *** THIS IS THE FIX *** ---
+            // --- *** 2. THIS IS THE FIX *** ---
             // Pass all parameters down to ProfileContent
             ProfileContent(
                 name = name,
@@ -42,9 +41,9 @@ fun ProfilePopup(
                 bio = bio,
                 onBackClick = onBackClick,
                 onEditClick = onEditClick,
-                onMenuClick = onMenuClick
+                onMenuClick = onMenuClick,
+                onDummyListingClick = onDummyListingClick // <-- Pass it down
             )
-            // --- *** END OF FIX *** ---
         }
     }
 }
@@ -58,7 +57,8 @@ fun ProfilePopupPreview() {
             username = "preview_user",
             bio = "This is a preview bio for the popup.",
             showModal = true,
-            onDismiss = {}
+            onDismiss = {},
+            onDummyListingClick = {} // <-- *** 3. ADD PREVIEW PARAM ***
         )
     }
 }
