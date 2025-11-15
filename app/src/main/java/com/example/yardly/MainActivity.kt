@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.example.yardly.ui.components.AccessibilityScreen
 import com.example.yardly.ui.components.AdCard
-import com.example.yardly.ui.components.AdDetailScreen // <-- *** 1. ADD IMPORT ***
+import com.example.yardly.ui.components.AdDetailScreen
 import com.example.yardly.ui.components.AdLoginSheet
 import com.example.yardly.ui.components.ChooseCornerSheet
 import com.example.yardly.ui.components.CreatePostSheet
@@ -134,7 +134,7 @@ sealed class ProfileScreenState {
     object Accessibility : ProfileScreenState()
     object DarkMode : ProfileScreenState()
     object EditProfile : ProfileScreenState()
-    object AdDetail : ProfileScreenState() // <-- *** 2. ADD NEW STATE ***
+    object AdDetail : ProfileScreenState()
 }
 private const val PREFS_NAME = "yardly_settings"
 private const val KEY_DARK_MODE = "dark_mode_enabled"
@@ -339,11 +339,9 @@ fun YardlyApp(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // --- (TopBar is unchanged) ---
+            // Top Bar (Header)
             if (showHeaderAndNav) {
-                TopBar(
-                    onMessengerClick = { selectedIconSection = "messenger" }
-                )
+                TopBar() // Removed onMessengerClick
             }
 
             // Content Area and Section Options Overlap
@@ -379,6 +377,10 @@ fun YardlyApp(
                     onAccessibilityBackClick = { profileScreenState = ProfileScreenState.Settings },
                     onDarkModeBackClick = { profileScreenState = ProfileScreenState.Accessibility },
                     onEditProfileBackClick = { profileScreenState = ProfileScreenState.Profile },
+                    // --- *** 1. THIS IS THE FIX (PART 1) *** ---
+                    // Pass the lambda that updates the state
+                    onAdDetailBackClick = { profileScreenState = ProfileScreenState.Profile },
+
                     onEditClick = navigateToEditProfile,
                     onUserClick = { showProfileSheet = true },
                     onMenuClick = navigateToSettings,
@@ -386,7 +388,6 @@ fun YardlyApp(
                     onDarkModeClick = { profileScreenState = ProfileScreenState.DarkMode },
                     onDarkModeToggle = onDarkModeToggle,
                     onSaveClick = onSaveClick,
-                    // --- *** 3. ADD NEW LAMBDA *** ---
                     onDummyListingClick = {
                         profileScreenState = ProfileScreenState.AdDetail
                     }
@@ -537,7 +538,7 @@ fun YardlyApp(
             )
         }
 
-        // Modals
+        // --- (Modals are unchanged) ---
         AdLoginSheet(
             showModal = showAdLoginModal,
             onDismiss = { showAdLoginModal = false }
@@ -552,11 +553,10 @@ fun YardlyApp(
             onBackClick = { showProfileSheet = false },
             onEditClick = navigateToEditProfile,
             onMenuClick = navigateToSettings,
-            // --- *** 4. ADD NEW LAMBDA *** ---
             onDummyListingClick = {
-                showProfileSheet = false // Close popup
-                selectedIconSection = "profile" // Go to profile section
-                profileScreenState = ProfileScreenState.AdDetail // Show detail
+                showProfileSheet = false
+                selectedIconSection = "profile"
+                profileScreenState = ProfileScreenState.AdDetail
             }
         )
 
@@ -564,7 +564,6 @@ fun YardlyApp(
             showModal = showChooseCornerSheet,
             onDismiss = { showChooseCornerSheet = false }
         )
-        // --- (CreatePostSheet is unchanged) ---
         CreatePostSheet(
             showModal = showCreatePostSheet,
             onDismiss = { showCreatePostSheet = false },
@@ -584,10 +583,9 @@ fun YardlyApp(
 }
 
 
-// --- (TopBar composable is unchanged) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(onMessengerClick: () -> Unit) {
+fun TopBar() { // Removed onMessengerClick
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -609,38 +607,21 @@ fun TopBar(onMessengerClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            Button(
+                onClick = { /* TODO: Handle notifications */ },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ),
+                shape = RoundedCornerShape(20.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp)
             ) {
-                Button(
-                    onClick = { /* TODO: Handle notifications */ },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = MaterialTheme.colorScheme.onBackground
-                    ),
-                    shape = RoundedCornerShape(20.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp)
-                ) {
-                    Text(
-                        text = "Notification",
-                        fontSize = 12.sp
-                    )
-                }
-                Button(
-                    onClick = onMessengerClick,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = MaterialTheme.colorScheme.onBackground
-                    ),
-                    shape = RoundedCornerShape(20.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp)
-                ) {
-                    Text(
-                        text = "Messenger",
-                        fontSize = 12.sp
-                    )
-                }
+                Text(
+                    text = "Notification",
+                    fontSize = 12.sp
+                )
             }
+            // Messenger button removed
         }
     }
 }
@@ -900,6 +881,9 @@ fun ContentArea(
     onAccessibilityBackClick: () -> Unit = {},
     onDarkModeBackClick: () -> Unit = {},
     onEditProfileBackClick: () -> Unit = {},
+    // --- *** 2. THIS IS THE FIX (PART 2) *** ---
+    // Add the new parameter
+    onAdDetailBackClick: () -> Unit = {},
     onUserClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
     onEditClick: () -> Unit = {},
@@ -907,7 +891,7 @@ fun ContentArea(
     onDarkModeClick: () -> Unit = {},
     onDarkModeToggle: (Boolean) -> Unit,
     onSaveClick: (String) -> Unit,
-    onDummyListingClick: () -> Unit // <-- *** 5. ADD PARAMETER ***
+    onDummyListingClick: () -> Unit
 ) {
     when (selectedIconSection) {
         "home" -> {
@@ -963,7 +947,6 @@ fun ContentArea(
             )
         }
         "profile" -> {
-            // --- *** 6. THIS IS THE CHANGE *** ---
             when (profileScreenState) {
                 ProfileScreenState.Profile -> ProfileContent(
                     name = profileName,
@@ -972,7 +955,7 @@ fun ContentArea(
                     onBackClick = onBackClick,
                     onEditClick = onEditClick,
                     onMenuClick = onMenuClick,
-                    onDummyListingClick = onDummyListingClick // <-- Pass lambda
+                    onDummyListingClick = onDummyListingClick
                 )
                 ProfileScreenState.Settings -> SettingsScreen(
                     onBackClick = onSettingsBackClick,
@@ -998,7 +981,10 @@ fun ContentArea(
                     title = "My Dummy Listing",
                     description = "This is the description for the dummy listing clicked from the profile screen. It's a great item, buy it now!",
                     isSaved = savedItems.getOrDefault("My Dummy Listing", false),
-                    onBackClick = onEditProfileBackClick,
+                    // --- *** 3. THIS IS THE FIX (PART 3) *** ---
+                    // Call the new lambda, which is correctly implemented
+                    // in YardlyApp to update the state.
+                    onBackClick = onAdDetailBackClick,
                     onUserClick = { /* Stay on profile */ },
                     onSaveClick = { onSaveClick("My Dummy Listing") },
                     onShareClick = { /* TODO */ }
