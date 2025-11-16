@@ -139,26 +139,6 @@ fun AdDetailScreen(
                 }
             }
 
-            // Fixed 300dp Square Image
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(), // Center the box
-                    contentAlignment = Alignment.Center
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(300.dp)
-                            .background(MaterialTheme.colorScheme.background)
-                            .border(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                    )
-                }
-            }
-
             // Button Row
             item {
                 Row(

@@ -14,17 +14,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.clickable // *** CHANGED ***
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,13 +34,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,8 +48,6 @@ import com.example.yardly.ui.components.ChooseCornerSheet
 import com.example.yardly.ui.components.CreatePostSheet
 import com.example.yardly.ui.components.DarkModeScreen
 import com.example.yardly.ui.components.EditProfileScreen
-import com.example.yardly.ui.components.FindNear
-import com.example.yardly.ui.components.ListingScreen
 import com.example.yardly.ui.components.MessengerScreen
 import com.example.yardly.ui.components.PostStorage
 import com.example.yardly.ui.components.ProfileContent
@@ -68,7 +56,6 @@ import com.example.yardly.ui.components.SettingsScreen
 import com.example.yardly.ui.components.WatchlistScreen
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
-import com.example.yardly.ui.theme.BtnDarkOrange
 import com.example.yardly.ui.theme.BtnElectricLime
 import com.example.yardly.ui.theme.BtnForestGlow
 import com.example.yardly.ui.theme.BtnMagentaShock
@@ -76,7 +63,7 @@ import com.example.yardly.ui.theme.BtnNeonAzure
 import com.example.yardly.ui.theme.BtnSlateEmber
 import com.example.yardly.ui.theme.BtnTealPulse
 import com.example.yardly.ui.theme.BtnTerracotta
-import com.example.yardly.ui.theme.Dimens // <-- *** IMPORT THE DIMENSIONS ***
+import com.example.yardly.ui.theme.Dimens
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -192,10 +179,10 @@ fun YardlyApp(
 ) {
     var selectedIconSection by remember { mutableStateOf("home") }
     var selectedNavSection by remember { mutableStateOf("home-default") }
-    var selectedSectionOptions by remember { mutableStateOf<String?>(null) }
-    var selectedSubOption by remember { mutableStateOf<String?>(null) }
-    val buttonCoordinates = remember { mutableStateMapOf<String, Float>() }
-    var showRehomeInAquaSwap by remember { mutableStateOf(false) }
+    // --- *** REMOVED selectedSectionOptions *** ---
+    // --- *** REMOVED selectedSubOption *** ---
+    // --- *** REMOVED buttonCoordinates *** ---
+    // --- *** REMOVED showRehomeInAquaSwap *** ---
     var showAdLoginModal by remember { mutableStateOf(false) }
     var showProfileSheet by remember { mutableStateOf(false) }
     var showChooseCornerSheet by remember { mutableStateOf(false) }
@@ -269,68 +256,24 @@ fun YardlyApp(
         savedItems[adName] = true
     }
 
-    // --- (sectionOptions and dynamicAdList are unchanged) ---
-    val baseSectionOptions = mapOf(
-        "rehome" to listOf("Equipment", "Coral", "Plants", "Substrate", "Tank"),
-        "yard-sales" to listOf("Move Out", "Garage Sale"),
-        "lease" to listOf("Room", "Car", "Retail Store")
-    )
-    val sectionOptions = baseSectionOptions.mapValues { (key, options) ->
-        if (key == "rehome" && showRehomeInAquaSwap) {
-            listOf("Rehome")
-        } else {
-            options
-        }
-    }
-    val dynamicAdList = remember(selectedNavSection, selectedSubOption, showRehomeInAquaSwap) {
+    // --- (sectionOptions removed) ---
+
+    // --- *** SIMPLIFIED dynamicAdList *** ---
+    val dynamicAdList = remember(selectedNavSection) {
         when (selectedNavSection) {
-            "home-default" -> {
-                defaultAds
-            }
-            "clothing" -> {
-                allClothingAds
-            }
-            "sneaker" -> {
-                allSneakerAds
-            }
-            "electronics" -> {
-                allElectronicsAds
-            }
-            "gaming" -> {
-                allGamingAds
-            }
-            "lease" -> {
-                selectedSubOption?.let {
-                    allLeaseAds[it]
-                } ?: allLeaseAds.values.flatten()
-            }
-            "yard-sales" -> {
-                selectedSubOption?.let {
-                    allYardSaleAds[it]
-                } ?: allYardSaleAds.values.flatten()
-            }
-            "rehome" -> {
-                if (showRehomeInAquaSwap) {
-                    allAquaSwapAds["Rehome"] ?: emptyList()
-                } else {
-                    selectedSubOption?.let {
-                        allAquaSwapAds[it]
-                    } ?: allAquaSwapAds.values.flatten().filterNot { allAquaSwapAds["Rehome"]?.contains(it) ?: false }
-                }
-            }
-            else -> {
-                defaultAds
-            }
+            "home-default" -> defaultAds
+            "clothing" -> allClothingAds
+            "sneaker" -> allSneakerAds
+            "electronics" -> allElectronicsAds
+            "gaming" -> allGamingAds
+            "lease" -> allLeaseAds.values.flatten()
+            "yard-sales" -> allYardSaleAds.values.flatten()
+            "rehome" -> allAquaSwapAds.values.flatten()
+            else -> defaultAds
         }
     } ?: defaultAds
 
-    // --- (onSectionDoubleClick is unchanged) ---
-    val onSectionDoubleClick: (String) -> Unit = { section ->
-        if (section == "rehome") {
-            showRehomeInAquaSwap = false
-            selectedSectionOptions = if (selectedSectionOptions != section) section else null
-        }
-    }
+    // --- (onSectionDoubleClick removed) ---
 
     Box(
         modifier = Modifier
@@ -392,27 +335,15 @@ fun YardlyApp(
                     }
                 )
 
-                // --- (SectionOptions, FAB Menu logic is all unchanged) ...
-                selectedSectionOptions?.let { section ->
-                    sectionOptions[section]?.let { options ->
-                        val xOffset = buttonCoordinates[section] ?: 0f
-                        SectionOptions(
-                            options = options,
-                            xOffset = xOffset,
-                            modifier = Modifier.align(Alignment.BottomStart),
-                            onOptionClick = { optionName ->
-                                selectedSubOption = optionName
-                                Log.d("SectionOptions", "Clicked: $optionName")
-                            }
-                        )
-                    }
-                }
+                // --- *** REMOVED SectionOptions *** ---
+
+                // --- (FAB Menu logic is unchanged) ...
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(Dimens.SpacingXLarge), // *** FIXED PADDING ***
+                        .padding(Dimens.SpacingXLarge),
                     horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge) // *** FIXED PADDING ***
+                    verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge)
                 ) {
                     AnimatedVisibility(
                         visible = isFabMenuExpanded && isFabVisible && selectedIconSection == "home",
@@ -482,40 +413,13 @@ fun YardlyApp(
                 }
             }
 
-            // --- (SectionNavigation is unchanged) ---
+            // --- *** SIMPLIFIED SectionNavigation *** ---
             if (showHeaderAndNav) {
                 SectionNavigation(
                     selectedSection = selectedNavSection,
                     onSectionSelected = { section ->
                         selectedNavSection = section
-                        selectedSubOption = null
-                        showRehomeInAquaSwap = false
-
-                        if (section == "rehome" ||
-                            section == "clothing" ||
-                            section == "sneaker" ||
-                            section == "electronics" ||
-                            section == "gaming"
-                        ) {
-                            selectedSectionOptions = null
-                        } else {
-                            selectedSectionOptions = if (sectionOptions.containsKey(section) && selectedSectionOptions != section) section else null
-                        }
-                    },
-                    onButtonPositioned = { key, x ->
-                        buttonCoordinates[key] = x
-                    },
-                    onLongPress = { section ->
-                        if (section == "rehome") {
-                            showRehomeInAquaSwap = true
-                            selectedSectionOptions = section
-                            selectedSubOption = "Rehome"
-                        }
-                    },
-                    onDoubleClick = onSectionDoubleClick,
-                    showRehomeInAquaSwap = showRehomeInAquaSwap,
-                    onRehomeStateChange = { newState ->
-                        showRehomeInAquaSwap = newState
+                        // --- *** REMOVED ALL OTHER LOGIC *** ---
                     }
                 )
             }
@@ -525,11 +429,11 @@ fun YardlyApp(
                 selectedSection = selectedIconSection,
                 onSectionSelected = { section ->
                     selectedIconSection = section
-                    selectedSectionOptions = null
+                    // --- *** REMOVED selectedSectionOptions = null *** ---
 
                     if (section == "home") {
                         selectedNavSection = "home-default"
-                        selectedSubOption = null
+                        // --- *** REMOVED selectedSubOption = null *** ---
                     }
 
                     // Reset profile state if navigating away
@@ -585,7 +489,7 @@ fun YardlyApp(
 }
 
 
-// --- (TopBar composable) ---
+// --- (TopBar composable is unchanged) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar() {
@@ -606,7 +510,6 @@ fun TopBar() {
                     MaterialTheme.colorScheme.background,
                     RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
                 )
-                // *** FIXED PADDING ***
                 .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingLarge),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
@@ -618,7 +521,7 @@ fun TopBar() {
                     contentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 shape = RoundedCornerShape(20.dp),
-                contentPadding = PaddingValues(horizontal = Dimens.SpacingLarge) // *** FIXED PADDING ***
+                contentPadding = PaddingValues(horizontal = Dimens.SpacingLarge)
             ) {
                 Text(
                     text = "Notification",
@@ -630,17 +533,12 @@ fun TopBar() {
 }
 
 
-// --- (SectionNavigation composable) ---
+// --- *** SIMPLIFIED SectionNavigation composable *** ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
     selectedSection: String,
-    onSectionSelected: (String) -> Unit,
-    onButtonPositioned: (String, Float) -> Unit,
-    onLongPress: (String) -> Unit = {},
-    onDoubleClick: (String) -> Unit,
-    showRehomeInAquaSwap: Boolean,
-    onRehomeStateChange: (Boolean) -> Unit
+    onSectionSelected: (String) -> Unit
 ) {
     val sections = listOf(
         "rehome" to "Rehome",
@@ -660,13 +558,14 @@ fun SectionNavigation(
         "electronics" to BtnNeonAzure,
         "gaming" to BtnMagentaShock
     )
-    val hapticFeedback = LocalHapticFeedback.current
+    // --- *** REMOVED hapticFeedback *** ---
+
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(Dimens.SpacingMedium), // *** FIXED PADDING ***
-        horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall), // *** FIXED PADDING ***
-        contentPadding = PaddingValues(horizontal = Dimens.SpacingMedium) // *** FIXED PADDING ***
+            .padding(Dimens.SpacingMedium),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall),
+        contentPadding = PaddingValues(horizontal = Dimens.SpacingMedium)
     ) {
         items(sections.size) { index ->
             val (sectionKey, sectionName) = sections[index]
@@ -683,9 +582,7 @@ fun SectionNavigation(
                 modifier = Modifier
                     .width(110.dp)
                     .height(44.dp)
-                    .onGloballyPositioned {
-                        onButtonPositioned(sectionKey, it.positionInParent().x)
-                    }
+                    // --- *** REMOVED onGloballyPositioned *** ---
                     .border(
                         width = 3.dp,
                         color = animatedBorderColor,
@@ -695,27 +592,11 @@ fun SectionNavigation(
                         color = Color.Transparent,
                         shape = RoundedCornerShape(20.dp)
                     )
-                    .combinedClickable(
-                        onClick = {
-                            if (sectionKey == "rehome") {
-                                onRehomeStateChange(false)
-                            }
-                            onSectionSelected(sectionKey)
-                        },
-                        onLongClick = {
-                            if (sectionKey == "rehome") {
-                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                onLongPress(sectionKey)
-                            }
-                        },
-                        onDoubleClick = {
-                            if (sectionKey == "rehome") {
-                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                onDoubleClick(sectionKey)
-                            }
-                        }
-                    )
-                    .padding(Dimens.SpacingLarge), // *** FIXED PADDING ***
+                    // --- *** REPLACED combinedClickable with simple clickable *** ---
+                    .clickable {
+                        onSectionSelected(sectionKey)
+                    }
+                    .padding(Dimens.SpacingLarge),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -731,7 +612,7 @@ fun SectionNavigation(
     }
 }
 
-// --- (BottomIconNavigation composable) ---
+// --- (BottomIconNavigation composable is unchanged) ---
 @Composable
 fun BottomIconNavigation(
     selectedSection: String,
@@ -752,9 +633,8 @@ fun BottomIconNavigation(
                 RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
             .navigationBarsPadding()
-            // *** FIXED PADDING ***
             .padding(vertical = Dimens.SpacingLarge, horizontal = Dimens.SpacingMedium),
-        horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium), // *** FIXED PADDING ***
+        horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically
     ) {
         sections.forEach { (sectionKey, sectionName) ->
@@ -769,7 +649,7 @@ fun BottomIconNavigation(
                     contentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 shape = RoundedCornerShape(20.dp),
-                contentPadding = PaddingValues(horizontal = Dimens.SpacingSmall) // *** FIXED PADDING ***
+                contentPadding = PaddingValues(horizontal = Dimens.SpacingSmall)
             ) {
                 Text(
                     text = sectionName,
@@ -783,86 +663,10 @@ fun BottomIconNavigation(
     }
 }
 
-// --- (SectionOptions composable) ...
-@Composable
-fun SectionOptions(
-    options: List<String>,
-    xOffset: Float,
-    modifier: Modifier = Modifier,
-    onOptionClick: (String) -> Unit
-) {
-    val density = LocalDensity.current
-    val xOffsetDp = with(density) { xOffset.toDp() }
-    var selectedOption by remember { mutableStateOf<String?>(null) }
+// --- *** REMOVED SectionOptions composable *** ---
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            // *** FIXED PADDING ***
-            .padding(start = xOffsetDp, bottom = Dimens.SpacingXLarge),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium) // *** FIXED PADDING ***
-    ) {
-        options.forEach { name ->
-            val isSelected = selectedOption == name || name == "Rehome"
-            val animationSpec = tween<Color>(300)
 
-            val animatedBackgroundColor by animateColorAsState(
-                targetValue = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
-                label = "backgroundColor",
-                animationSpec = animationSpec
-            )
-
-            val animatedBorderColor by animateColorAsState(
-                targetValue = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.primary,
-                label = "borderColor",
-                animationSpec = animationSpec
-            )
-
-            val animatedContentColor by animateColorAsState(
-                targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
-                label = "contentColor",
-                animationSpec = animationSpec
-            )
-
-            Box(
-                modifier = Modifier
-                    .width(110.dp)
-                    .height(44.dp)
-                    .border(
-                        width = 2.dp,
-                        color = animatedBorderColor,
-                        shape = RoundedCornerShape(20.dp)
-                    )
-                    .background(
-                        color = animatedBackgroundColor,
-                        shape = RoundedCornerShape(20.dp)
-                    )
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onTap = {
-                                selectedOption = name
-                                onOptionClick(name)
-                            }
-                        )
-                    }
-                    .padding(Dimens.SpacingLarge), // *** FIXED PADDING ***
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = name,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    color = animatedContentColor
-                )
-            }
-        }
-    }
-}
-
-// --- (ContentArea composable) ---
+// --- (ContentArea composable is unchanged) ---
 @Composable
 fun ContentArea(
     userPosts: List<UserPost>,
@@ -902,7 +706,6 @@ fun ContentArea(
                 columns = GridCells.Fixed(2),
                 state = gridState,
                 modifier = Modifier.fillMaxSize(),
-                // *** FIXED PADDING ***
                 verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge),
                 horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge),
                 contentPadding = PaddingValues(
@@ -941,7 +744,6 @@ fun ContentArea(
                 }
             }
         }
-        // --- The "yardly" case has been removed ---
         "watchlist" -> {
             WatchlistScreen(
                 onBackClick = onBackClick,
@@ -993,7 +795,6 @@ fun ContentArea(
                 )
             }
         }
-        // This case is now triggered by the new nav button
         "messenger" -> {
             MessengerScreen(
                 onBackClick = onBackClick
