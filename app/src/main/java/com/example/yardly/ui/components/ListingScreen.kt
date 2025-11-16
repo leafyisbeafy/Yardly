@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
 // Dummy list of categories
@@ -80,7 +81,8 @@ fun ListingScreen() {
                         color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 16.dp)
+                            // *** FIXED PADDING ***
+                            .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingXLarge)
                     )
                 }
                 items(categories) { categoryName ->
@@ -94,7 +96,7 @@ fun ListingScreen() {
             onClick = { /* TODO: Add post action */ },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp),
+                .padding(Dimens.SpacingXLarge), // *** FIXED PADDING ***
             shape = CircleShape,
             containerColor = MaterialTheme.colorScheme.primary, // Black
             contentColor = MaterialTheme.colorScheme.onPrimary // White
@@ -117,7 +119,8 @@ private fun CategoryRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp), // Padding for the row
+                // *** FIXED PADDING ***
+                .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingXLarge),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -129,7 +132,6 @@ private fun CategoryRow(
             )
             // No icon or arrow
         }
-        // *** DIVIDER REMOVED FROM HERE ***
     }
 }
 
@@ -154,7 +156,8 @@ private fun ListingTopBar() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 12.dp),
+                // *** FIXED PADDING ***
+                .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingLarge),
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextField(

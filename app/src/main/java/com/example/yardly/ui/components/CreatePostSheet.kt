@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,19 +38,14 @@ import com.example.yardly.ui.theme.YardlyTheme
 fun CreatePostSheet(
     showModal: Boolean,
     onDismiss: () -> Unit,
-    // --- *** CHANGE 1: Added 'price' to the callback *** ---
     onPostListing: (title: String, desc: String, category: String, location: String, price: String) -> Unit
 ) {
     // Internal state for the sheet's fields
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    // --- *** CHANGE 2: Add state for price *** ---
     var price by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("Electronics") } // Mocked default as requested
     var location by remember { mutableStateOf("Central Campus, Your City") } // Mocked location
-
-    // --- *** CHANGE 3: Removed 'isTitleInEditMode' state *** ---
-    // var isTitleInEditMode by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -66,17 +62,18 @@ fun CreatePostSheet(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 16.dp)
+                    // *** FIXED PADDING ***
+                    .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingXLarge)
                     .navigationBarsPadding() // Add padding for nav bar
             ) {
                 // 1. Avatar / User Row
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge) // *** FIXED PADDING ***
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(Dimens.SpacingXXXLarge) // *** FIXED PADDING ***
                             .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
                     )
                     Text(
@@ -87,9 +84,7 @@ fun CreatePostSheet(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // --- *** CHANGE 4: Simplified the Title/Desc/Price section *** ---
+                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
 
                 // 2. Title Field
                 Row(
@@ -117,7 +112,6 @@ fun CreatePostSheet(
                             disabledIndicatorColor = Color.Transparent
                         ),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                        // Removed keyboard action
                         textStyle = TextStyle(
                             fontSize = 20.sp, // Larger font size
                             fontWeight = FontWeight.Medium
@@ -187,11 +181,8 @@ fun CreatePostSheet(
                     )
                 )
 
-                // --- *** END OF CHANGE 4 *** ---
-
-
                 // 5. Media Bar
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
@@ -214,7 +205,7 @@ fun CreatePostSheet(
                 }
 
                 // 6. Geo / Map Placeholder
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -237,18 +228,15 @@ fun CreatePostSheet(
                 }
 
                 // 7. Post Button
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacingXXLarge)) // *** FIXED PADDING ***
                 Button(
                     onClick = {
-                        // --- *** CHANGE 5: Pass new 'price' and clear it *** ---
-                        // Hoist the state
                         onPostListing(title, description, category, location, price)
 
                         // Clear fields and dismiss
                         title = ""
                         description = ""
                         price = ""
-                        // isTitleInEditMode = true (No longer needed)
                         onDismiss()
                     },
                     modifier = Modifier

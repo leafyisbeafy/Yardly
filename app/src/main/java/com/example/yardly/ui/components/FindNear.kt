@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.yardly.ui.theme.Dimens
 
 @Composable
 fun FindNear(
@@ -30,7 +31,7 @@ fun FindNear(
         FloatingActionButton(
             onClick = onClick, // <-- USED IT HERE
             modifier = Modifier
-                .padding(16.dp), // Padding inside the wrapper
+                .padding(Dimens.SpacingXLarge), // *** FIXED PADDING ***
             shape = CircleShape,
             containerColor = MaterialTheme.colorScheme.primary, // Black
             contentColor = MaterialTheme.colorScheme.onPrimary // White

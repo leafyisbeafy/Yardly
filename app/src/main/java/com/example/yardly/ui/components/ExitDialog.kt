@@ -15,7 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.yardly.ui.theme.YardlyTheme // <-- *** THIS IS THE MISSING IMPORT ***
+import com.example.yardly.ui.theme.Dimens
+import com.example.yardly.ui.theme.YardlyTheme
 
 @Composable
 fun ExitDialog(
@@ -44,7 +45,7 @@ fun ExitDialog(
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall) // *** FIXED PADDING ***
             ) {
                 // "Log out" (Red) Button
                 TextButton(
@@ -73,7 +74,6 @@ fun ExitDialog(
 @Preview
 @Composable
 fun ExitDialogPreview() {
-    // This preview function needs the YardlyTheme import to work
     YardlyTheme(isDarkMode = false) {
         ExitDialog(onDismiss = {})
     }

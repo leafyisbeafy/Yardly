@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,26 +31,24 @@ fun ChooseCornerSheet(
     if (showModal) {
         ModalBottomSheet(
             onDismissRequest = onDismiss,
-            // --- *** CHANGE 1: Removed skipPartiallyExpanded = true *** ---
             sheetState = rememberModalBottomSheetState(),
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             containerColor = MaterialTheme.colorScheme.surface,
             scrimColor = Color.Black.copy(alpha = 0.4f),
             dragHandle = null,
-            // --- *** CHANGE 2: Removed .fillMaxHeight(0.95f) modifier *** ---
         ) {
             Column(
                 modifier = Modifier
-                    // --- *** CHANGE 3: Removed .fillMaxSize() and added padding *** ---
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(bottom = 32.dp) // Add padding so content isn't at screen bottom
+                    .padding(bottom = Dimens.SpacingXXXLarge) // *** FIXED PADDING ***
             ) {
                 // 1. Top Bar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        // *** FIXED PADDING ***
+                        .padding(horizontal = Dimens.SpacingXLarge, vertical = Dimens.SpacingLarge),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -75,14 +74,14 @@ fun ChooseCornerSheet(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
 
                 // 2. Map Placeholder
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(250.dp)
-                        .padding(horizontal = 20.dp)
+                        .padding(horizontal = Dimens.ScreenPaddingHorizontal) // *** FIXED PADDING ***
                         .background(
                             MaterialTheme.colorScheme.surfaceVariant,
                             RoundedCornerShape(12.dp)
@@ -101,7 +100,8 @@ fun ChooseCornerSheet(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 16.dp)
+                        // *** FIXED PADDING ***
+                        .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingXLarge)
                 ) {
                     Text(
                         text = "SW, Cedar Rapids, Iowa",
@@ -122,16 +122,17 @@ fun ChooseCornerSheet(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(horizontal = 20.dp)
+                    modifier = Modifier.padding(horizontal = Dimens.ScreenPaddingHorizontal) // *** FIXED PADDING ***
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacingLarge)) // *** FIXED PADDING ***
 
                 // 5. County Options
                 val counties = listOf("Linn", "Johnson", "Benton", "Jones")
                 LazyRow(
-                    contentPadding = PaddingValues(horizontal = 20.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    // *** FIXED PADDING ***
+                    contentPadding = PaddingValues(horizontal = Dimens.ScreenPaddingHorizontal),
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium)
                 ) {
                     items(counties) { countyName ->
                         Button(

@@ -18,7 +18,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton // <-- *** THIS IS THE FIX ***
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
 @Composable
@@ -67,8 +68,9 @@ fun EditProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                // *** FIXED PADDING ***
+                .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingXXLarge),
+            verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge) // *** FIXED PADDING ***
         ) {
             // Name Field
             OutlinedTextField(
@@ -111,7 +113,7 @@ private fun EditProfileTopBar(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding(horizontal = 8.dp, vertical = 8.dp),
+            .padding(Dimens.SpacingMedium), // *** FIXED PADDING ***
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

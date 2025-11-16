@@ -22,10 +22,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.ui.res.painterResource
 import com.example.yardly.R
-import com.example.yardly.ui.components.WatchlistCard // <-- *** 1. ADD IMPORT ***
+import com.example.yardly.ui.components.WatchlistCard
 
 // The ModalBottomSheet logic has been moved to ProfilePopup.kt
 
@@ -37,7 +38,7 @@ fun ProfileContent(
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
     onMenuClick: () -> Unit,
-    onDummyListingClick: () -> Unit // <-- *** 2. ADD PARAMETER ***
+    onDummyListingClick: () -> Unit
 ) {
     var isEditMode by remember { mutableStateOf(false) }
 
@@ -49,7 +50,6 @@ fun ProfileContent(
             .fillMaxWidth()
             .fillMaxHeight(0.95f) // This allows the sheet to be expandable
     ) {
-        // --- (TopProfileBar is unchanged) ---
         TopProfileBar(
             onBackClick = onBackClick,
             onEditClick = {
@@ -63,9 +63,9 @@ fun ProfileContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 16.dp)
+                // *** FIXED PADDING ***
+                .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingXLarge)
         ) {
-            // --- (University Header is unchanged) ---
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -116,12 +116,13 @@ fun ProfileContent(
                         modifier = Modifier
                             .size(24.dp)
                             .align(Alignment.BottomEnd)
-                            .offset(x = 4.dp, y = 4.dp)
+                            // *** FIXED PADDING ***
+                            .offset(x = Dimens.SpacingSmall, y = Dimens.SpacingSmall)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(Dimens.ScreenPaddingVertical)) // *** FIXED PADDING ***
 
             // --- (Bio is unchanged) ---
             Text(
@@ -131,7 +132,7 @@ fun ProfileContent(
                 lineHeight = 20.sp
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
 
             // --- (Channel Button is unchanged) ---
             Surface(
@@ -140,7 +141,7 @@ fun ProfileContent(
                 color = Color.Transparent
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    modifier = Modifier.padding(horizontal = Dimens.SpacingLarge, vertical = Dimens.SpacingMedium), // *** FIXED PADDING ***
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -152,7 +153,7 @@ fun ProfileContent(
             }
 
             // --- (TAB ROW UI is unchanged) ---
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacingXXLarge)) // *** FIXED PADDING ***
 
             TabRow(
                 selectedTabIndex = tabs.indexOf(selectedTab),
@@ -182,12 +183,11 @@ fun ProfileContent(
                 }
             }
 
-            // --- *** 3. THIS IS THE CHANGE *** ---
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(vertical = 16.dp),
+                    .padding(vertical = Dimens.SpacingXLarge), // *** FIXED PADDING ***
                 contentAlignment = Alignment.TopCenter
             ) {
                 // Show content based on the selected tab
@@ -228,7 +228,7 @@ fun ProfileContent(
     }
 }
 
-// --- (TopProfileBar composable is unchanged) ---
+// --- (TopProfileBar composable) ---
 @Composable
 fun TopProfileBar(
     onBackClick: () -> Unit,
@@ -239,7 +239,7 @@ fun TopProfileBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 8.dp),
+            .padding(Dimens.SpacingMedium), // *** FIXED PADDING ***
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -295,7 +295,7 @@ fun ProfileContentPreview() {
             onBackClick = {},
             onEditClick = {},
             onMenuClick = {},
-            onDummyListingClick = {} // <-- *** 4. ADD PREVIEW PARAM ***
+            onDummyListingClick = {}
         )
     }
 }

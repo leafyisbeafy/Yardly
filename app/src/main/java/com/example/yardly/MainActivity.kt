@@ -76,6 +76,7 @@ import com.example.yardly.ui.theme.BtnNeonAzure
 import com.example.yardly.ui.theme.BtnSlateEmber
 import com.example.yardly.ui.theme.BtnTealPulse
 import com.example.yardly.ui.theme.BtnTerracotta
+import com.example.yardly.ui.theme.Dimens // <-- *** IMPORT THE DIMENSIONS ***
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -409,9 +410,9 @@ fun YardlyApp(
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(16.dp),
+                        .padding(Dimens.SpacingXLarge), // *** FIXED PADDING ***
                     horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge) // *** FIXED PADDING ***
                 ) {
                     AnimatedVisibility(
                         visible = isFabMenuExpanded && isFabVisible && selectedIconSection == "home",
@@ -519,7 +520,7 @@ fun YardlyApp(
                 )
             }
 
-            // --- *** 1. THIS IS THE CHANGE (Part 1) *** ---
+            // --- (BottomIconNavigation is unchanged) ---
             BottomIconNavigation(
                 selectedSection = selectedIconSection,
                 onSectionSelected = { section ->
@@ -584,7 +585,7 @@ fun YardlyApp(
 }
 
 
-// --- (TopBar composable is unchanged from last step) ---
+// --- (TopBar composable) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar() {
@@ -605,7 +606,8 @@ fun TopBar() {
                     MaterialTheme.colorScheme.background,
                     RoundedCornerShape(bottomStart = 30.dp, bottomEnd = 30.dp)
                 )
-                .padding(horizontal = 20.dp, vertical = 10.dp),
+                // *** FIXED PADDING ***
+                .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingLarge),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
@@ -616,7 +618,7 @@ fun TopBar() {
                     contentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 shape = RoundedCornerShape(20.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp)
+                contentPadding = PaddingValues(horizontal = Dimens.SpacingLarge) // *** FIXED PADDING ***
             ) {
                 Text(
                     text = "Notification",
@@ -628,7 +630,7 @@ fun TopBar() {
 }
 
 
-// --- (SectionNavigation composable is unchanged) ---
+// --- (SectionNavigation composable) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
@@ -662,9 +664,9 @@ fun SectionNavigation(
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        contentPadding = PaddingValues(horizontal = 8.dp)
+            .padding(Dimens.SpacingMedium), // *** FIXED PADDING ***
+        horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall), // *** FIXED PADDING ***
+        contentPadding = PaddingValues(horizontal = Dimens.SpacingMedium) // *** FIXED PADDING ***
     ) {
         items(sections.size) { index ->
             val (sectionKey, sectionName) = sections[index]
@@ -713,7 +715,7 @@ fun SectionNavigation(
                             }
                         }
                     )
-                    .padding(12.dp),
+                    .padding(Dimens.SpacingLarge), // *** FIXED PADDING ***
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -729,13 +731,12 @@ fun SectionNavigation(
     }
 }
 
-// --- *** 2. THIS IS THE CHANGE (Part 2) *** ---
+// --- (BottomIconNavigation composable) ---
 @Composable
 fun BottomIconNavigation(
     selectedSection: String,
     onSectionSelected: (String) -> Unit
 ) {
-    // Changed "yardly" to "messenger" and "Market" to "Messenger"
     val sections = listOf(
         "home" to "Home",
         "messenger" to "Messenger",
@@ -751,8 +752,9 @@ fun BottomIconNavigation(
                 RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
             .navigationBarsPadding()
-            .padding(vertical = 10.dp, horizontal = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+            // *** FIXED PADDING ***
+            .padding(vertical = Dimens.SpacingLarge, horizontal = Dimens.SpacingMedium),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium), // *** FIXED PADDING ***
         verticalAlignment = Alignment.CenterVertically
     ) {
         sections.forEach { (sectionKey, sectionName) ->
@@ -767,7 +769,7 @@ fun BottomIconNavigation(
                     contentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 shape = RoundedCornerShape(20.dp),
-                contentPadding = PaddingValues(horizontal = 4.dp)
+                contentPadding = PaddingValues(horizontal = Dimens.SpacingSmall) // *** FIXED PADDING ***
             ) {
                 Text(
                     text = sectionName,
@@ -781,7 +783,7 @@ fun BottomIconNavigation(
     }
 }
 
-// --- (SectionOptions composable is unchanged) ...
+// --- (SectionOptions composable) ...
 @Composable
 fun SectionOptions(
     options: List<String>,
@@ -796,9 +798,10 @@ fun SectionOptions(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = xOffsetDp, bottom = 16.dp),
+            // *** FIXED PADDING ***
+            .padding(start = xOffsetDp, bottom = Dimens.SpacingXLarge),
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium) // *** FIXED PADDING ***
     ) {
         options.forEach { name ->
             val isSelected = selectedOption == name || name == "Rehome"
@@ -843,7 +846,7 @@ fun SectionOptions(
                             }
                         )
                     }
-                    .padding(12.dp),
+                    .padding(Dimens.SpacingLarge), // *** FIXED PADDING ***
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -859,7 +862,7 @@ fun SectionOptions(
     }
 }
 
-// --- *** 3. THIS IS THE CHANGE (Part 3) *** ---
+// --- (ContentArea composable) ---
 @Composable
 fun ContentArea(
     userPosts: List<UserPost>,
@@ -899,9 +902,13 @@ fun ContentArea(
                 columns = GridCells.Fixed(2),
                 state = gridState,
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 20.dp)
+                // *** FIXED PADDING ***
+                verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge),
+                contentPadding = PaddingValues(
+                    horizontal = Dimens.ScreenPaddingHorizontal,
+                    vertical = Dimens.ScreenPaddingVertical
+                )
             ) {
                 // --- (items blocks are unchanged) ...
                 items(userPosts, key = { it.id }) { post ->

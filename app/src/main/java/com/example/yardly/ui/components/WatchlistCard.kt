@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.PriceDropRed1
 import com.example.yardly.ui.theme.PriceDropRed2
 import com.example.yardly.ui.theme.YardlyTheme
@@ -84,7 +85,8 @@ fun WatchlistCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                    // *** FIXED PADDING ***
+                    .padding(horizontal = Dimens.SpacingMedium, vertical = Dimens.SpacingSmall),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -99,7 +101,7 @@ fun WatchlistCard(
                 // *** NEW: Save Count and Button ***
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall) // *** FIXED PADDING ***
                 ) {
                     AnimatedVisibility(
                         visible = saveCount > 0,
@@ -115,7 +117,7 @@ fun WatchlistCard(
                     }
                     IconButton(
                         onClick = onSaveClick,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(Dimens.SpacingXXXLarge) // *** FIXED PADDING ***
                     ) {
                         Icon(
                             imageVector = if (isSaved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkAdd,
@@ -129,9 +131,10 @@ fun WatchlistCard(
 
             // 3. Price Row
             Row(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                // *** FIXED PADDING ***
+                modifier = Modifier.padding(horizontal = Dimens.SpacingMedium, vertical = Dimens.SpacingSmall),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall) // *** FIXED PADDING ***
             ) {
                 // Pulsing Red Icon
                 val infiniteTransition = rememberInfiniteTransition(label = "pulse")
@@ -147,7 +150,7 @@ fun WatchlistCard(
                     imageVector = Icons.Default.ArrowDownward,
                     contentDescription = "Price Drop",
                     tint = pulseColor,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(Dimens.SpacingXLarge) // *** FIXED PADDING ***
                 )
                 // Price
                 Text(
@@ -157,7 +160,7 @@ fun WatchlistCard(
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacingSmall)) // *** FIXED PADDING ***
         }
     }
 }

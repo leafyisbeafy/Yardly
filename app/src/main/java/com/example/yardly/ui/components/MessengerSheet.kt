@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -34,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
 /**
@@ -53,9 +53,10 @@ fun MessengerScreen(
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(vertical = Dimens.SpacingMedium), // *** FIXED PADDING ***
+            // *** FIXED PADDING ***
+            contentPadding = PaddingValues(horizontal = Dimens.ScreenPaddingHorizontal),
+            horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium) // *** FIXED PADDING ***
         ) {
             items(channels) { channelName ->
                 Button(
@@ -76,9 +77,10 @@ fun MessengerScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp),
+                // *** FIXED PADDING ***
+                .padding(Dimens.ScreenPaddingHorizontal),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge) // *** FIXED PADDING ***
         ) {
             // Placeholder Avatar
             Box(
@@ -119,7 +121,7 @@ private fun MessengerTopBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
+                .padding(Dimens.SpacingMedium), // *** FIXED PADDING ***
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
@@ -141,7 +143,7 @@ private fun MessengerTopBar(
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
 
             // Title
             Text(

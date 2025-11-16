@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.ui.text.style.TextOverflow
 
@@ -51,7 +52,7 @@ fun AdCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp)
+                .padding(Dimens.SpacingLarge) // *** FIXED PADDING ***
                 .clickable(onClick = onAdClick)  // Entire card is clickable
         ) {
             Text(
@@ -66,7 +67,7 @@ fun AdCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacingMedium)) // *** FIXED PADDING ***
 
             Box(
                 modifier = Modifier
@@ -86,11 +87,11 @@ fun AdCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacingMedium)) // *** FIXED PADDING ***
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium), // *** FIXED PADDING ***
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
@@ -98,11 +99,11 @@ fun AdCard(
                         .weight(1f)
                         .clickable(onClick = onUserClick),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium) // *** FIXED PADDING ***
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(Dimens.SpacingXXXLarge) // *** FIXED PADDING ***
                             .background(
                                 color = MaterialTheme.colorScheme.surfaceVariant,
                                 shape = CircleShape
@@ -118,7 +119,7 @@ fun AdCard(
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall) // *** FIXED PADDING ***
                 ) {
                     AnimatedVisibility(
                         visible = saveCount > 0,
@@ -136,7 +137,7 @@ fun AdCard(
                     IconButton(
                         onClick = onSaveClick,
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(Dimens.SpacingXXXLarge) // *** FIXED PADDING ***
                             .padding(end = 0.dp)
                     ) {
                         Icon(
@@ -156,7 +157,7 @@ fun AdCard(
 @Composable
 fun AdCardPreview() {
     YardlyTheme(isDarkMode = false) {
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge)) { // *** FIXED PADDING ***
             AdCard(
                 advertisementName = "Short Name",
                 saveCount = 1,

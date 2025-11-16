@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,15 +18,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yardly.UserPost
+import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 import com.example.yardly.ui.components.WatchlistCard
 
-// Dummy data class for the grid
+// --- (Dummy data is unchanged) ---
 private data class WatchlistItem(val id: Int, val name: String, val price: String)
-
-// This list now acts as the "database" of all possible items
 private val dummyItems = listOf(
-    // Original Items
     WatchlistItem(1, "Air Force 1", "$291.28"),
     WatchlistItem(2, "iPhone 13", "$299.99"),
     WatchlistItem(3, "PlayStation 4", "$300.00"),
@@ -36,8 +33,6 @@ private val dummyItems = listOf(
     WatchlistItem(6, "Razer Gaming Chair", "$222.00"),
     WatchlistItem(7, "Laptop", "$190.00"),
     WatchlistItem(8, "Monitor", "$200.00"),
-
-    // Lease, Yard Sale, Aqua Swap Items
     WatchlistItem(9, "Sublet: 1-Bed Room", "$500.00"),
     WatchlistItem(10, "Shared Room Downtown", "$350.00"),
     WatchlistItem(11, "Moving Sale: Everything Must Go", "$1.00"),
@@ -46,23 +41,15 @@ private val dummyItems = listOf(
     WatchlistItem(14, "Zoanthid Frag", "$20.00"),
     WatchlistItem(15, "Goldfish needs home", "$0.00"),
     WatchlistItem(16, "Rare Coin Auction", "$1000.00"),
-
-    // NEW Clothing Items
     WatchlistItem(17, "Vintage T-Shirt", "$45.00"),
     WatchlistItem(18, "Designer Jeans", "$120.00"),
     WatchlistItem(19, "Winter Coat", "$80.00"),
-
-    // NEW Sneaker Items
     WatchlistItem(20, "Jordan 1s", "$250.00"),
     WatchlistItem(21, "Yeezy 350", "$220.00"),
     WatchlistItem(22, "New Balance 550", "$110.00"),
-
-    // NEW Electronics Items
     WatchlistItem(23, "Sony Headphones", "$150.00"),
     WatchlistItem(24, "Dell Monitor", "$200.00"),
     WatchlistItem(25, "GoPro Hero 8", "$180.00"),
-
-    // NEW Gaming Items
     WatchlistItem(26, "Nintendo Switch", "$280.00"),
     WatchlistItem(27, "PS5 Controller", "$60.00"),
     WatchlistItem(28, "Logitech Mouse", "$40.00")
@@ -98,9 +85,10 @@ fun WatchlistScreen(
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            // *** FIXED PADDING ***
+            contentPadding = PaddingValues(Dimens.ScreenPaddingHorizontal),
+            verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge),
+            horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge)
         ) {
             // We now use the new 'dynamicallySavedItems' list
             items(dynamicallySavedItems) { item ->
@@ -134,7 +122,7 @@ private fun WatchlistTopBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
+                .padding(Dimens.SpacingMedium), // *** FIXED PADDING ***
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
@@ -156,7 +144,7 @@ private fun WatchlistTopBar(
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
 
             // Title
             Text(

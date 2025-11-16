@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,7 +39,7 @@ fun AdLoginSheet(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp),
+                    .padding(Dimens.SpacingXXLarge), // *** FIXED PADDING ***
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Circle placeholder
@@ -51,7 +52,7 @@ fun AdLoginSheet(
                         )
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
 
                 // Get Started text
                 Text(
@@ -62,7 +63,7 @@ fun AdLoginSheet(
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacingXXXLarge)) // *** FIXED PADDING ***
 
                 // Continue with Apple button
                 Button(
@@ -82,7 +83,7 @@ fun AdLoginSheet(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacingMedium)) // *** FIXED PADDING ***
 
                 // Continue with Google button
                 OutlinedButton(
@@ -101,7 +102,7 @@ fun AdLoginSheet(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacingMedium)) // *** FIXED PADDING ***
 
                 // Continue with Email button
                 Button(
@@ -121,7 +122,7 @@ fun AdLoginSheet(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
 
                 // Terms footer
                 Text(

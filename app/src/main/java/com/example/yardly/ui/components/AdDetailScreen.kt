@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.example.yardly.R // Assuming R.drawable.placeholder_large exists
 import com.example.yardly.ui.theme.AppBlack
 import com.example.yardly.ui.theme.DarkAccent
+import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
 @Composable
@@ -51,7 +52,7 @@ fun AdDetailScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
+                .padding(Dimens.SpacingMedium), // *** FIXED PADDING ***
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Back Button
@@ -88,8 +89,9 @@ fun AdDetailScreen(
         // 2. Scrollable Content
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            // *** FIXED PADDING ***
+            contentPadding = PaddingValues(Dimens.ScreenPaddingHorizontal),
+            verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge)
         ) {
             // Title
             item {
@@ -162,8 +164,8 @@ fun AdDetailScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp), // Add some space above
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        .padding(top = Dimens.SpacingMedium), // *** FIXED PADDING ***
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge) // *** FIXED PADDING ***
                 ) {
                     // Save Button
                     IconButton(onClick = onSaveClick) {

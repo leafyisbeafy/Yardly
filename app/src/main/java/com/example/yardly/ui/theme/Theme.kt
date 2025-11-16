@@ -5,6 +5,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp // <-- ADDED DP IMPORT
 
 private val LightColorScheme = lightColorScheme(
     primary = AppBlack,
@@ -22,7 +23,6 @@ private val LightColorScheme = lightColorScheme(
     outline = DarkDivider // Use dark divider for light theme too
 )
 
-// *** NEW: Dark Color Scheme ***
 private val DarkColorScheme = darkColorScheme(
     primary = DarkAccent,             // Accent color for main buttons
     onPrimary = DarkMainText,         // Text on accent buttons
@@ -41,11 +41,10 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun YardlyTheme(
-    isDarkMode: Boolean, // <-- CHANGED
+    isDarkMode: Boolean,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    // *** NEW: Logic to switch themes ***
     val colorScheme = if (isDarkMode) {
         DarkColorScheme
     } else {
@@ -57,4 +56,24 @@ fun YardlyTheme(
         typography = Typography,
         content = content
     )
+}
+
+// --- *** NEW: DIMENSIONS OBJECT ADDED HERE *** ---
+
+/**
+ * A central object to hold all standard spacing dimensions for the app.
+ * This ensures a consistent look and feel across all screens.
+ */
+object Dimens {
+    // Standard horizontal and vertical padding for main screen content
+    val ScreenPaddingHorizontal = 20.dp
+    val ScreenPaddingVertical = 20.dp
+
+    // Standard spacing scale
+    val SpacingSmall = 4.dp
+    val SpacingMedium = 8.dp
+    val SpacingLarge = 12.dp
+    val SpacingXLarge = 16.dp
+    val SpacingXXLarge = 24.dp
+    val SpacingXXXLarge = 32.dp
 }
