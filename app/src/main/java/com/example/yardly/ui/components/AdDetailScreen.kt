@@ -1,7 +1,6 @@
 package com.example.yardly.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -20,13 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.yardly.R // Assuming R.drawable.placeholder_large exists
 import com.example.yardly.ui.theme.AppBlack
 import com.example.yardly.ui.theme.DarkAccent
 import com.example.yardly.ui.theme.Dimens
@@ -47,7 +43,7 @@ fun AdDetailScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // 1. Top Bar
+        // 1. Top Bar (Avatar has been removed from here)
         Spacer(modifier = Modifier.statusBarsPadding())
         Row(
             modifier = Modifier
@@ -72,24 +68,11 @@ fun AdDetailScreen(
                     modifier = Modifier.size(28.dp)
                 )
             }
-
-            Spacer(Modifier.weight(1f))
-
-            // Avatar Icon
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .clickable { onUserClick() }
-            )
-            // TODO: Add Painter for user's profile pic
         }
 
         // 2. Scrollable Content
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            // *** FIXED PADDING ***
             contentPadding = PaddingValues(Dimens.ScreenPaddingHorizontal),
             verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge)
         ) {
@@ -122,31 +105,37 @@ fun AdDetailScreen(
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
-                    // Fallback icon if R.drawable.placeholder_large is not found
+                    // Fallback icon
                     Icon(
                         imageVector = Icons.Default.ImageNotSupported,
                         contentDescription = "Image placeholder",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(48.dp)
                     )
-                    // Per request:
-                    // Image(
-                    //     painter = painterResource(id = R.drawable.placeholder_large),
-                    //     contentDescription = "Ad Image",
-                    //     modifier = Modifier.fillMaxSize(),
-                    //     contentScale = ContentScale.Crop
-                    // )
                 }
             }
 
-            // Button Row
+            // Button and Avatar Row
             item {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = Dimens.SpacingMedium), // *** FIXED PADDING ***
-                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge) // *** FIXED PADDING ***
+                        .padding(top = Dimens.SpacingMedium),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Avatar Icon (Moved here)
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable { onUserClick() }
+                    )
+                    // TODO: Add Painter for user's profile pic
+
+                    // This Spacer pushes the buttons to the right
+                    Spacer(Modifier.weight(1f))
+
                     // Save Button
                     IconButton(onClick = onSaveClick) {
                         Icon(
@@ -156,6 +145,8 @@ fun AdDetailScreen(
                             modifier = Modifier.size(28.dp)
                         )
                     }
+
+                    Spacer(modifier = Modifier.width(Dimens.SpacingMedium))
 
                     // Share Button
                     IconButton(onClick = onShareClick) {
