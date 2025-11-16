@@ -68,9 +68,8 @@ fun EditProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                // *** FIXED PADDING ***
-                .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingXXLarge),
-            verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge) // *** FIXED PADDING ***
+                .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingXLarge),
+            verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge)
         ) {
             // Name Field
             OutlinedTextField(
@@ -113,7 +112,7 @@ private fun EditProfileTopBar(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding(Dimens.SpacingMedium), // *** FIXED PADDING ***
+            .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingMedium),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

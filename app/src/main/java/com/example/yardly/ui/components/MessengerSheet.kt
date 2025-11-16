@@ -6,14 +6,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -21,14 +17,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,12 +50,9 @@ fun MessengerScreen(
 
         // 2. Channel Buttons
         LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = Dimens.SpacingMedium), // *** FIXED PADDING ***
-            // *** FIXED PADDING ***
-            contentPadding = PaddingValues(horizontal = Dimens.ScreenPaddingHorizontal),
-            horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium) // *** FIXED PADDING ***
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingMedium),
+            horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium)
         ) {
             items(channels) { channelName ->
                 Button(
@@ -77,10 +73,9 @@ fun MessengerScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                // *** FIXED PADDING ***
-                .padding(Dimens.ScreenPaddingHorizontal),
+                .padding(horizontal = Dimens.ScreenPaddingHorizontal),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge) // *** FIXED PADDING ***
+            horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge)
         ) {
             // Placeholder Avatar
             Box(
@@ -106,54 +101,33 @@ fun MessengerScreen(
 /**
  * Simple top bar for the Messenger screen with a back button and title.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MessengerTopBar(
     onBackClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(Dimens.SpacingMedium), // *** FIXED PADDING ***
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
-        ) {
-            // Back Arrow
-            Button(
-                onClick = onBackClick,
-                shape = CircleShape,
-                modifier = Modifier.size(40.dp),
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = MaterialTheme.colorScheme.onBackground
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
-
-            // Title
+    TopAppBar(
+        title = {
             Text(
                 text = "Messenger",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
-        }
-    }
+        },
+        navigationIcon = {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background
+        )
+    )
 }
 
 // --- Previews ---
@@ -171,5 +145,13 @@ private fun MessengerScreenPreviewLight() {
 private fun MessengerScreenPreviewDark() {
     YardlyTheme(isDarkMode = true) {
         MessengerScreen(onBackClick = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MessengerTopBarPreview() {
+    YardlyTheme(isDarkMode = false) {
+        MessengerTopBar(onBackClick = {})
     }
 }

@@ -52,7 +52,7 @@ fun AdDetailScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(Dimens.SpacingMedium), // *** FIXED PADDING ***
+                .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingMedium),
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Back Button
