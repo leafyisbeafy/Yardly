@@ -10,11 +10,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable // *** CHANGED ***
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -69,16 +73,39 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-// --- (All data classes and mock data are unchanged) ---
+// --- (All data classes and mock data) ---
 data class Ad(val name: String, val user: String)
+
+// *** UPDATED: 20+ Items for the Home Screen ***
 private val defaultAds = listOf(
     Ad("Air Force 1", "User 1"),
     Ad("iPhone 13", "User 2"),
     Ad("PlayStation 4", "User 3"),
     Ad("Macbook Air 13", "User 4"),
     Ad("Denim Jacket", "User 5"),
-    Ad("Razer Gaming Chair", "User 6")
+    Ad("Razer Gaming Chair", "User 6"),
+    Ad("Calculus Textbook", "User 7"),
+    Ad("Mini Fridge (Black)", "User 8"),
+    Ad("IKEA Desk - White", "User 9"),
+    Ad("Microwave", "User 10"),
+    Ad("Study Lamp", "User 11"),
+    Ad("Futon Sofa Bed", "User 12"),
+    Ad("4K Monitor 27\"", "User 13"),
+    Ad("Bose Speakers", "User 14"),
+    Ad("Winter Boots (Size 10)", "User 15"),
+    Ad("TI-84 Calculator", "User 16"),
+    Ad("Keurig Coffee Maker", "User 17"),
+    Ad("Wooden Bookshelf", "User 18"),
+    Ad("Office Chair", "User 19"),
+    Ad("Dining Table Set", "User 20"),
+    Ad("Floor Lamp", "User 21"),
+    Ad("Area Rug 5x7", "User 22"),
+    Ad("Ninja Blender", "User 23"),
+    Ad("Toaster Oven", "User 24"),
+    Ad("Queen Bed Frame", "User 25"),
+    Ad("TV Stand", "User 26")
 )
+
 private val allLeaseAds = mapOf(
     "Room" to listOf(Ad("Sublet: 1-Bed Room", "User A"), Ad("Shared Room Downtown", "User B")),
     "Car" to listOf(Ad("Toyota Camry 2018", "User C"), Ad("Honda Civic Lease", "User D")),
@@ -179,10 +206,7 @@ fun YardlyApp(
 ) {
     var selectedIconSection by remember { mutableStateOf("home") }
     var selectedNavSection by remember { mutableStateOf("home-default") }
-    // --- *** REMOVED selectedSectionOptions *** ---
-    // --- *** REMOVED selectedSubOption *** ---
-    // --- *** REMOVED buttonCoordinates *** ---
-    // --- *** REMOVED showRehomeInAquaSwap *** ---
+
     var showAdLoginModal by remember { mutableStateOf(false) }
     var showProfileSheet by remember { mutableStateOf(false) }
     var showChooseCornerSheet by remember { mutableStateOf(false) }
@@ -192,8 +216,30 @@ fun YardlyApp(
     val savedItems = remember { mutableStateMapOf<String, Boolean>() }
     val showHeaderAndNav = selectedIconSection == "home"
     val gridState = rememberLazyGridState()
-    var previousIndex by remember(gridState) { mutableStateOf(gridState.firstVisibleItemIndex) }
-    var previousOffset by remember(gridState) { mutableStateOf(gridState.firstVisibleItemScrollOffset) }
+
+    // --- Scroll Detection Logic ---
+    var previousIndex by remember(gridState) { mutableIntStateOf(0) }
+    var previousOffset by remember(gridState) { mutableIntStateOf(0) }
+
+    // isControlsVisible is True when scrolling UP, False when scrolling DOWN
+    val isControlsVisible by remember {
+        derivedStateOf {
+            val currentIndex = gridState.firstVisibleItemIndex
+            val currentOffset = gridState.firstVisibleItemScrollOffset
+            val isScrollingUp = if (currentIndex != previousIndex) {
+                currentIndex < previousIndex
+            } else {
+                currentOffset < previousOffset
+            }
+            previousIndex = currentIndex
+            previousOffset = currentOffset
+            // Always show if at the very top
+            isScrollingUp || currentIndex == 0
+        }
+    }
+
+    var isFabMenuExpanded by remember { mutableStateOf(false) }
+
     var userPosts by remember { mutableStateOf<List<UserPost>>(emptyList()) }
     val coroutineScope = rememberCoroutineScope()
 
@@ -222,23 +268,6 @@ fun YardlyApp(
         }
     }
 
-    // --- (isFabVisible logic is unchanged) ---
-    val isFabVisible by remember {
-        derivedStateOf {
-            val currentIndex = gridState.firstVisibleItemIndex
-            val currentOffset = gridState.firstVisibleItemScrollOffset
-            val isScrollingUp = if (currentIndex != previousIndex) {
-                currentIndex < previousIndex
-            } else {
-                currentOffset < previousOffset
-            }
-            previousIndex = currentIndex
-            previousOffset = currentOffset
-            isScrollingUp || currentIndex == 0
-        }
-    }
-    var isFabMenuExpanded by remember { mutableStateOf(false) }
-
     // --- (navigation lambdas are unchanged) ---
     val navigateToSettings = {
         showProfileSheet = false
@@ -256,9 +285,6 @@ fun YardlyApp(
         savedItems[adName] = true
     }
 
-    // --- (sectionOptions removed) ---
-
-    // --- *** SIMPLIFIED dynamicAdList *** ---
     val dynamicAdList = remember(selectedNavSection) {
         when (selectedNavSection) {
             "home-default" -> defaultAds
@@ -273,7 +299,6 @@ fun YardlyApp(
         }
     } ?: defaultAds
 
-    // --- (onSectionDoubleClick removed) ---
 
     Box(
         modifier = Modifier
@@ -288,7 +313,7 @@ fun YardlyApp(
                 TopBar()
             }
 
-            // Content Area and Section Options Overlap
+            // Content Area
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -335,9 +360,7 @@ fun YardlyApp(
                     }
                 )
 
-                // --- *** REMOVED SectionOptions *** ---
-
-                // --- (FAB Menu logic is unchanged) ...
+                // --- FABs ---
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -346,7 +369,7 @@ fun YardlyApp(
                     verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge)
                 ) {
                     AnimatedVisibility(
-                        visible = isFabMenuExpanded && isFabVisible && selectedIconSection == "home",
+                        visible = isFabMenuExpanded && isControlsVisible && selectedIconSection == "home",
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
@@ -366,7 +389,7 @@ fun YardlyApp(
                         }
                     }
                     AnimatedVisibility(
-                        visible = isFabMenuExpanded && isFabVisible && selectedIconSection == "home",
+                        visible = isFabMenuExpanded && isControlsVisible && selectedIconSection == "home",
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
@@ -386,7 +409,7 @@ fun YardlyApp(
                         }
                     }
                     AnimatedVisibility(
-                        visible = isFabVisible && selectedIconSection == "home",
+                        visible = isControlsVisible && selectedIconSection == "home",
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
@@ -413,35 +436,41 @@ fun YardlyApp(
                 }
             }
 
-            // --- *** SIMPLIFIED SectionNavigation *** ---
+            // --- SectionNavigation (Category Bar) ---
+            // This sits ABOVE the Bottom Bar. When Bottom Bar hides, this drops down.
             if (showHeaderAndNav) {
                 SectionNavigation(
                     selectedSection = selectedNavSection,
                     onSectionSelected = { section ->
                         selectedNavSection = section
-                        // --- *** REMOVED ALL OTHER LOGIC *** ---
                     }
                 )
             }
 
-            // --- (BottomIconNavigation is unchanged) ---
-            BottomIconNavigation(
-                selectedSection = selectedIconSection,
-                onSectionSelected = { section ->
-                    selectedIconSection = section
-                    // --- *** REMOVED selectedSectionOptions = null *** ---
+            // --- BottomIconNavigation (Main Tabs) ---
+            // *** UPDATED: Hides on Scroll Down ***
+            AnimatedVisibility(
+                // Show if NOT on home (e.g. profile) OR if controls are visible (scrolling up/at top)
+                visible = (selectedIconSection != "home") || isControlsVisible,
+                enter = slideInVertically(initialOffsetY = { it }) + expandVertically(),
+                exit = slideOutVertically(targetOffsetY = { it }) + shrinkVertically()
+            ) {
+                BottomIconNavigation(
+                    selectedSection = selectedIconSection,
+                    onSectionSelected = { section ->
+                        selectedIconSection = section
 
-                    if (section == "home") {
-                        selectedNavSection = "home-default"
-                        // --- *** REMOVED selectedSubOption = null *** ---
-                    }
+                        if (section == "home") {
+                            selectedNavSection = "home-default"
+                        }
 
-                    // Reset profile state if navigating away
-                    if (section != "profile") {
-                        profileScreenState = ProfileScreenState.Profile
+                        // Reset profile state if navigating away
+                        if (section != "profile") {
+                            profileScreenState = ProfileScreenState.Profile
+                        }
                     }
-                }
-            )
+                )
+            }
         }
 
         // --- (Modals are unchanged) ---
@@ -533,7 +562,7 @@ fun TopBar() {
 }
 
 
-// --- *** SIMPLIFIED SectionNavigation composable *** ---
+// --- SectionNavigation composable ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
@@ -558,7 +587,6 @@ fun SectionNavigation(
         "electronics" to BtnNeonAzure,
         "gaming" to BtnMagentaShock
     )
-    // --- *** REMOVED hapticFeedback *** ---
 
     LazyRow(
         modifier = Modifier
@@ -582,7 +610,6 @@ fun SectionNavigation(
                 modifier = Modifier
                     .width(110.dp)
                     .height(44.dp)
-                    // --- *** REMOVED onGloballyPositioned *** ---
                     .border(
                         width = 3.dp,
                         color = animatedBorderColor,
@@ -592,7 +619,6 @@ fun SectionNavigation(
                         color = Color.Transparent,
                         shape = RoundedCornerShape(20.dp)
                     )
-                    // --- *** REPLACED combinedClickable with simple clickable *** ---
                     .clickable {
                         onSectionSelected(sectionKey)
                     }
@@ -612,7 +638,7 @@ fun SectionNavigation(
     }
 }
 
-// --- (BottomIconNavigation composable is unchanged) ---
+// --- BottomIconNavigation composable ---
 @Composable
 fun BottomIconNavigation(
     selectedSection: String,
@@ -662,8 +688,6 @@ fun BottomIconNavigation(
         }
     }
 }
-
-// --- *** REMOVED SectionOptions composable *** ---
 
 
 // --- (ContentArea composable is unchanged) ---
