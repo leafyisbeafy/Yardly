@@ -1,8 +1,13 @@
 package com.example.yardly.ui.components
 
 import android.widget.Toast
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -19,6 +24,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -30,6 +36,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.theme.Category
 import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
@@ -44,16 +51,18 @@ fun CreatePostSheet(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("Electronics") } // Mocked default as requested
-    var location by remember { mutableStateOf("Central Campus, Your City") } // Mocked location
 
+    // *** UPDATED: Use Category object for selection ***
+    var selectedCategory by remember { mutableStateOf<Category>(Category.Electronics) }
+
+    var location by remember { mutableStateOf("Central Campus, Your City") }
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
     if (showModal) {
         ModalBottomSheet(
             onDismissRequest = onDismiss,
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false), // Standard sheet
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             containerColor = MaterialTheme.colorScheme.surface,
             scrimColor = Color.Black.copy(alpha = 0.4f),
@@ -62,29 +71,28 @@ fun CreatePostSheet(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    // *** FIXED PADDING ***
                     .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingXLarge)
-                    .navigationBarsPadding() // Add padding for nav bar
+                    .navigationBarsPadding()
             ) {
                 // 1. Avatar / User Row
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge) // *** FIXED PADDING ***
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(Dimens.SpacingXXXLarge) // *** FIXED PADDING ***
+                            .size(Dimens.SpacingXXXLarge)
                             .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
                     )
                     Text(
-                        text = "Jordan Lee", // Mocked user as requested
+                        text = "Jordan Lee",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
-                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
+                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
 
                 // 2. Title Field
                 Row(
@@ -97,8 +105,8 @@ fun CreatePostSheet(
                         modifier = Modifier.weight(1f),
                         placeholder = {
                             Text(
-                                "What's selling?", // New placeholder
-                                fontSize = 20.sp, // Larger font size
+                                "What's selling?",
+                                fontSize = 20.sp,
                                 fontWeight = FontWeight.Medium,
                                 fontStyle = FontStyle.Italic
                             )
@@ -113,11 +121,10 @@ fun CreatePostSheet(
                         ),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         textStyle = TextStyle(
-                            fontSize = 20.sp, // Larger font size
+                            fontSize = 20.sp,
                             fontWeight = FontWeight.Medium
                         )
                     )
-                    // "Grok" Button
                     IconButton(onClick = {
                         Toast.makeText(context, "Grok Suggestions: 'Mint Condition iPhone!'", Toast.LENGTH_SHORT).show()
                     }) {
@@ -132,8 +139,8 @@ fun CreatePostSheet(
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "What's the description? Need help with Grok?", // New placeholder
-                            fontSize = 14.sp // 14sp
+                            "What's the description? Need help with Grok?",
+                            fontSize = 14.sp
                         )
                     },
                     colors = TextFieldDefaults.colors(
@@ -150,15 +157,15 @@ fun CreatePostSheet(
                     )
                 )
 
-                // 4. Price Field (NEW)
+                // 4. Price Field
                 TextField(
                     value = price,
                     onValueChange = { price = it },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = {
                         Text(
-                            "What is the price?", // New placeholder
-                            fontSize = 14.sp // 14sp
+                            "What is the price?",
+                            fontSize = 14.sp
                         )
                     },
                     colors = TextFieldDefaults.colors(
@@ -171,7 +178,7 @@ fun CreatePostSheet(
                     ),
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done,
-                        keyboardType = KeyboardType.Number // Set keyboard for price
+                        keyboardType = KeyboardType.Number
                     ),
                     keyboardActions = KeyboardActions(onDone = {
                         keyboardController?.hide()
@@ -181,8 +188,63 @@ fun CreatePostSheet(
                     )
                 )
 
+                // *** NEW: Category Selector Pills ***
+                Spacer(modifier = Modifier.height(Dimens.SpacingMedium))
+                Text(
+                    text = "Select Category:",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(Dimens.SpacingSmall))
+
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall)
+                ) {
+                    items(Category.all) { category ->
+                        val isSelected = selectedCategory == category
+                        val containerColor by animateColorAsState(
+                            if (isSelected) category.color else Color.Transparent,
+                            label = "bg"
+                        )
+                        val contentColor by animateColorAsState(
+                            if (isSelected) category.onColor else MaterialTheme.colorScheme.onSurfaceVariant,
+                            label = "text"
+                        )
+                        val borderColor by animateColorAsState(
+                            if (isSelected) Color.Transparent else category.color,
+                            label = "border"
+                        )
+
+                        Box(
+                            modifier = Modifier
+                                .height(32.dp)
+                                .border(
+                                    width = if (isSelected) 0.dp else 1.dp,
+                                    color = borderColor,
+                                    shape = RoundedCornerShape(50)
+                                )
+                                .background(
+                                    color = containerColor,
+                                    shape = RoundedCornerShape(50)
+                                )
+                                .clip(RoundedCornerShape(50))
+                                .clickable { selectedCategory = category }
+                                .padding(horizontal = 12.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = category.label,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = contentColor
+                            )
+                        }
+                    }
+                }
+
                 // 5. Media Bar
-                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
+                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
@@ -205,11 +267,11 @@ fun CreatePostSheet(
                 }
 
                 // 6. Geo / Map Placeholder
-                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
+                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp) // 200.dp height as requested
+                        .height(150.dp)
                         .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
@@ -218,7 +280,7 @@ fun CreatePostSheet(
                             imageVector = Icons.Default.Map,
                             contentDescription = "Map Placeholder",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(80.dp)
+                            modifier = Modifier.size(60.dp)
                         )
                         Text(
                             text = location,
@@ -228,10 +290,11 @@ fun CreatePostSheet(
                 }
 
                 // 7. Post Button
-                Spacer(modifier = Modifier.height(Dimens.SpacingXXLarge)) // *** FIXED PADDING ***
+                Spacer(modifier = Modifier.height(Dimens.SpacingXXLarge))
                 Button(
                     onClick = {
-                        onPostListing(title, description, category, location, price)
+                        // Pass the Label of the selected category
+                        onPostListing(title, description, selectedCategory.label, location, price)
 
                         // Clear fields and dismiss
                         title = ""
@@ -243,11 +306,11 @@ fun CreatePostSheet(
                         .fillMaxWidth()
                         .height(48.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary, // Primary color
+                        containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
-                    Text("Create Listing") // "Create Listing" text
+                    Text("Create Listing")
                 }
             }
         }

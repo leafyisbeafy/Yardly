@@ -9,7 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,6 +25,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,6 +37,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,39 +45,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
-import com.example.yardly.ui.components.AccessibilityScreen
-import com.example.yardly.ui.components.AdCard
-import com.example.yardly.ui.components.AdDetailScreen
-import com.example.yardly.ui.components.AdLoginSheet
-import com.example.yardly.ui.components.ChooseCornerSheet
-import com.example.yardly.ui.components.CreatePostSheet
-import com.example.yardly.ui.components.DarkModeScreen
-import com.example.yardly.ui.components.EditProfileScreen
-import com.example.yardly.ui.components.MessengerScreen
-import com.example.yardly.ui.components.PostStorage
-import com.example.yardly.ui.components.ProfileContent
-import com.example.yardly.ui.components.ProfilePopup
-import com.example.yardly.ui.components.SettingsScreen
-import com.example.yardly.ui.components.WatchlistScreen
-import com.example.yardly.ui.theme.YardlyTheme
-import androidx.compose.material3.ExperimentalMaterial3Api
-import com.example.yardly.ui.theme.BtnElectricLime
-import com.example.yardly.ui.theme.BtnForestGlow
-import com.example.yardly.ui.theme.BtnMagentaShock
-import com.example.yardly.ui.theme.BtnNeonAzure
-import com.example.yardly.ui.theme.BtnSlateEmber
-import com.example.yardly.ui.theme.BtnTealPulse
-import com.example.yardly.ui.theme.BtnTerracotta
-import com.example.yardly.ui.theme.Dimens
+import com.example.yardly.ui.components.*
+import com.example.yardly.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
 // --- (All data classes and mock data) ---
 data class Ad(val name: String, val user: String)
 
-// *** UPDATED: 20+ Items for the Home Screen ***
 private val defaultAds = listOf(
     Ad("Air Force 1", "User 1"),
     Ad("iPhone 13", "User 2"),
@@ -296,16 +273,17 @@ fun YardlyApp(
         savedItems[adName] = true
     }
 
+    // *** UPDATED: Now uses Category IDs for the When block ***
     val dynamicAdList = remember(selectedNavSection) {
         when (selectedNavSection) {
             "home-default" -> defaultAds
-            "clothing" -> allClothingAds
-            "sneaker" -> allSneakerAds
-            "electronics" -> allElectronicsAds
-            "gaming" -> allGamingAds
-            "lease" -> allLeaseAds.values.flatten()
-            "yard-sales" -> allYardSaleAds.values.flatten()
-            "rehome" -> allAquaSwapAds.values.flatten()
+            Category.Clothing.id -> allClothingAds
+            Category.Sneaker.id -> allSneakerAds
+            Category.Electronics.id -> allElectronicsAds
+            Category.Gaming.id -> allGamingAds
+            Category.Lease.id -> allLeaseAds.values.flatten()
+            Category.YardSales.id -> allYardSaleAds.values.flatten()
+            Category.Rehome.id -> allAquaSwapAds.values.flatten()
             else -> defaultAds
         }
     } ?: defaultAds
@@ -369,13 +347,13 @@ fun YardlyApp(
                     onEditClick = navigateToEditProfile,
                     onUserClick = { showProfileSheet = true },
                     onMenuClick = navigateToSettings,
-                    // *** PASSING THE PARAMETERS FOR ERROR 2 & 3 ***
+
                     onAccessibilityClick = { profileScreenState = ProfileScreenState.Accessibility },
                     onDarkModeClick = { profileScreenState = ProfileScreenState.DarkMode },
 
                     onDarkModeToggle = onDarkModeToggle,
                     onSaveClick = onSaveClick,
-                    // *** PASSING THE RENAMED PARAMETER FOR ERROR 1 ***
+
                     onPostClick = { post ->
                         selectedPost = post
                         profileScreenState = ProfileScreenState.AdDetail
@@ -523,7 +501,6 @@ fun YardlyApp(
             onBackClick = { showProfileSheet = false },
             onEditClick = navigateToEditProfile,
             onMenuClick = navigateToSettings,
-            // *** UPDATED: Now passing the specific navigation function ***
             onNavigateToAdDetail = { post ->
                 showProfileSheet = false
                 selectedPost = post
@@ -556,7 +533,7 @@ fun YardlyApp(
 }
 
 
-// --- (TopBar, SectionNavigation, BottomIconNavigation unchanged) ---
+// --- (TopBar) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar() {
@@ -599,7 +576,7 @@ fun TopBar() {
     }
 }
 
-
+// --- *** UPDATED SectionNavigation using Category Object *** ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
@@ -607,69 +584,59 @@ fun SectionNavigation(
     onSectionSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val sections = listOf(
-        "rehome" to "Rehome",
-        "lease" to "Lease",
-        "yard-sales" to "Yardly",
-        "clothing" to "Clothing",
-        "sneaker" to "Sneaker",
-        "electronics" to "Electronics",
-        "gaming" to "Gaming"
-    )
-    val buttonAccentColors = mapOf(
-        "rehome" to BtnTealPulse,
-        "lease" to BtnSlateEmber,
-        "yard-sales" to BtnForestGlow,
-        "clothing" to BtnTerracotta,
-        "sneaker" to BtnElectricLime,
-        "electronics" to BtnNeonAzure,
-        "gaming" to BtnMagentaShock
-    )
+    // Retrieve the list from Category object
+    val categories = Category.all
 
     LazyRow(
         modifier = modifier
             .fillMaxWidth()
-            .padding(Dimens.SpacingMedium),
+            .padding(vertical = Dimens.SpacingMedium),
         horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall),
-        contentPadding = PaddingValues(horizontal = Dimens.SpacingMedium)
+        contentPadding = PaddingValues(horizontal = Dimens.ScreenPaddingHorizontal)
     ) {
-        items(sections.size) { index ->
-            val (sectionKey, sectionName) = sections[index]
-            val isSelected = selectedSection == sectionKey
-            val animationSpec = tween<Color>(300)
+        items(categories) { category ->
+            val isSelected = selectedSection == category.id
 
-            val animatedBorderColor by animateColorAsState(
-                targetValue = if (isSelected) buttonAccentColors[sectionKey] ?: Color.Transparent else Color.Transparent,
-                label = "borderColor",
-                animationSpec = animationSpec
+            // 1. Animate Background
+            val containerColor by animateColorAsState(
+                targetValue = if (isSelected) category.color else Color.Transparent,
+                label = "containerColor"
+            )
+
+            // 2. Animate Text
+            val contentColor by animateColorAsState(
+                targetValue = if (isSelected) category.onColor else MaterialTheme.colorScheme.onBackground,
+                label = "contentColor"
+            )
+
+            // 3. Animate Border
+            val borderColor by animateColorAsState(
+                targetValue = if (isSelected) Color.Transparent else category.color,
+                label = "borderColor"
             )
 
             Box(
                 modifier = Modifier
-                    .width(110.dp)
-                    .height(44.dp)
+                    .height(40.dp)
                     .border(
-                        width = 3.dp,
-                        color = animatedBorderColor,
-                        shape = RoundedCornerShape(20.dp)
+                        width = if (isSelected) 0.dp else 2.dp,
+                        color = borderColor,
+                        shape = RoundedCornerShape(50)
                     )
                     .background(
-                        color = Color.Transparent,
-                        shape = RoundedCornerShape(20.dp)
+                        color = containerColor,
+                        shape = RoundedCornerShape(50)
                     )
-                    .clickable {
-                        onSectionSelected(sectionKey)
-                    }
-                    .padding(Dimens.SpacingLarge),
+                    .clip(RoundedCornerShape(50))
+                    .clickable { onSectionSelected(category.id) }
+                    .padding(horizontal = Dimens.SpacingXLarge),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = sectionName,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    color = MaterialTheme.colorScheme.onBackground
+                    text = category.label,
+                    fontSize = 14.sp,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                    color = contentColor
                 )
             }
         }
@@ -727,7 +694,12 @@ fun BottomIconNavigation(
 }
 
 
-// --- (ContentArea UPDATED) ---
+// --- (ContentArea unchanged, included via import in MainActivity context usually, but if you need it inside this file, keep it as defined in your previous file upload) ---
+// Note: If you kept ContentArea in a separate file, the above is complete. If it was in MainActivity, make sure to keep the previous ContentArea code.
+// Based on your uploads, ContentArea was inside MainActivity.kt.
+// I will include it here for completeness to ensure the file works as a single copy-paste unit if needed, or relies on the imports if you separated it.
+// Assuming it is part of MainActivity based on the "type: uploaded file fileName: MainActivity.kt" context:
+
 @Composable
 fun ContentArea(
     userPosts: List<UserPost>,
@@ -830,8 +802,8 @@ fun ContentArea(
                 )
                 ProfileScreenState.Settings -> SettingsScreen(
                     onBackClick = onSettingsBackClick,
-                    onAccessibilityClick = onAccessibilityClick, // Pass the fix
-                    onDarkModeClick = onDarkModeClick // Pass the fix
+                    onAccessibilityClick = onAccessibilityClick,
+                    onDarkModeClick = onDarkModeClick
                 )
                 ProfileScreenState.Accessibility -> AccessibilityScreen(
                     onBackClick = onAccessibilityBackClick,
@@ -881,7 +853,7 @@ fun ContentArea(
     }
 }
 
-// --- (Previews are unchanged) ---
+// --- (Previews) ---
 @Preview(showBackground = true)
 @Composable
 fun YardlyAppPreview() {
