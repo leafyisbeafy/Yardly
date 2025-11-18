@@ -247,8 +247,19 @@ fun YardlyApp(
     var profileUsername by remember { mutableStateOf("peyton") }
     var profileBio by remember { mutableStateOf("just another broke college student trying to make some extra cash by selling off my old books, clothes I totally don’t wear anymore, and a few electronics that are just collecting dust. Honestly, it’s wild how much stuff we accumulate over time!") }
 
-    BackHandler(enabled = selectedIconSection != "home") {
-        selectedIconSection = "home"
+    // --- UPDATED BACK HANDLER LOGIC ---
+    // Handles both Tab switching (Profile -> Home) AND Category switching (Lease -> Default)
+    val isHome = selectedIconSection == "home"
+    val isDefaultHome = selectedNavSection == "home-default"
+
+    BackHandler(enabled = !isHome || !isDefaultHome) {
+        if (!isHome) {
+            selectedIconSection = "home"
+            // Optional: Reset nav section when coming back to home tab
+            // selectedNavSection = "home-default"
+        } else if (!isDefaultHome) {
+            selectedNavSection = "home-default"
+        }
     }
 
     // --- (LaunchedEffects are unchanged) ---
@@ -448,9 +459,9 @@ fun YardlyApp(
             }
 
             // --- BottomIconNavigation (Main Tabs) ---
-            // *** UPDATED: Hides on Scroll Down ***
+            // Logic: Visible if NOT on home (e.g. Profile) OR if controls are visible (scrolling up/at top)
+            // This applies to BOTH Default Home and Category Feeds
             AnimatedVisibility(
-                // Show if NOT on home (e.g. profile) OR if controls are visible (scrolling up/at top)
                 visible = (selectedIconSection != "home") || isControlsVisible,
                 enter = slideInVertically(initialOffsetY = { it }) + expandVertically(),
                 exit = slideOutVertically(targetOffsetY = { it }) + shrinkVertically()
@@ -483,6 +494,7 @@ fun YardlyApp(
             name = profileName,
             username = profileUsername,
             bio = profileBio,
+            userPosts = userPosts, // Added UserPosts
             showModal = showProfileSheet,
             onDismiss = { showProfileSheet = false },
             onBackClick = { showProfileSheet = false },
@@ -492,7 +504,8 @@ fun YardlyApp(
                 showProfileSheet = false
                 selectedIconSection = "profile"
                 profileScreenState = ProfileScreenState.AdDetail
-            }
+            },
+            onSaveClick = onSaveClick // Added SaveClick
         )
 
         ChooseCornerSheet(
@@ -783,10 +796,12 @@ fun ContentArea(
                     name = profileName,
                     username = profileUsername,
                     bio = profileBio,
+                    userPosts = userPosts, // Added UserPosts
                     onBackClick = onBackClick,
                     onEditClick = onEditClick,
                     onMenuClick = onMenuClick,
-                    onDummyListingClick = onDummyListingClick
+                    onDummyListingClick = onDummyListingClick,
+                    onSaveClick = onSaveClick // Added SaveClick
                 )
                 ProfileScreenState.Settings -> SettingsScreen(
                     onBackClick = onSettingsBackClick,
