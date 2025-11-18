@@ -208,12 +208,15 @@ fun YardlyApp(
     var selectedNavSection by remember { mutableStateOf("home-default") }
 
     // --- APP STATE ---
-    var isLoggedIn by remember { mutableStateOf(false) } // <--- THE FAKE LOGIN STATE
+    var isLoggedIn by remember { mutableStateOf(false) }
     var showAdLoginModal by remember { mutableStateOf(false) }
     var showProfileSheet by remember { mutableStateOf(false) }
     var showChooseCornerSheet by remember { mutableStateOf(false) }
     var showCreatePostSheet by remember { mutableStateOf(false) }
     var profileScreenState by remember { mutableStateOf<ProfileScreenState>(ProfileScreenState.Profile) }
+
+    var selectedPost by remember { mutableStateOf<UserPost?>(null) }
+
     val saveCounts = remember { mutableStateMapOf<String, Int>() }
     val savedItems = remember { mutableStateMapOf<String, Boolean>() }
     val showHeaderAndNav = selectedIconSection == "home"
@@ -223,7 +226,6 @@ fun YardlyApp(
     var previousIndex by remember(gridState) { mutableIntStateOf(0) }
     var previousOffset by remember(gridState) { mutableIntStateOf(0) }
 
-    // isControlsVisible is True when scrolling UP, False when scrolling DOWN
     val isControlsVisible by remember {
         derivedStateOf {
             val currentIndex = gridState.firstVisibleItemIndex
@@ -235,7 +237,6 @@ fun YardlyApp(
             }
             previousIndex = currentIndex
             previousOffset = currentOffset
-            // Always show if at the very top
             isScrollingUp || currentIndex == 0
         }
     }
@@ -261,7 +262,7 @@ fun YardlyApp(
         }
     }
 
-    // --- (LaunchedEffects are unchanged) ---
+    // --- (LaunchedEffects) ---
     LaunchedEffect(Unit) {
         coroutineScope.launch(Dispatchers.IO) {
             val loadedPosts = postStorage.loadPosts()
@@ -278,16 +279,16 @@ fun YardlyApp(
         }
     }
 
-    // --- (navigation lambdas are unchanged) ---
+    // --- (navigation lambdas) ---
     val navigateToSettings = {
         showProfileSheet = false
         selectedIconSection = "profile"
         profileScreenState = ProfileScreenState.Settings
     }
     val navigateToEditProfile = {
-        showProfileSheet = false // Close the popup
+        showProfileSheet = false
         selectedIconSection = "profile"
-        profileScreenState = ProfileScreenState.EditProfile // Set new state
+        profileScreenState = ProfileScreenState.EditProfile
     }
     val onSaveClick: (String) -> Unit = { adName ->
         val currentCount = saveCounts.getOrDefault(adName, 0)
@@ -318,7 +319,7 @@ fun YardlyApp(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Top Bar (Header)
+            // Top Bar
             if (showHeaderAndNav) {
                 TopBar()
             }
@@ -339,6 +340,7 @@ fun YardlyApp(
                     isDarkMode = isDarkMode,
                     saveCounts = saveCounts,
                     savedItems = savedItems,
+                    selectedPost = selectedPost,
 
                     profileName = profileName,
                     profileUsername = profileUsername,
@@ -347,15 +349,13 @@ fun YardlyApp(
                         profileName = newName
                         profileUsername = newUsername
                         profileBio = newBio
-                        profileScreenState = ProfileScreenState.Profile // Navigate back
+                        profileScreenState = ProfileScreenState.Profile
                     },
 
-                    // *** GATED ACTION: Only show login modal if not logged in ***
                     onAdClick = {
                         if (!isLoggedIn) {
                             showAdLoginModal = true
                         } else {
-                            // TODO: Navigate to details or handle click
                             Log.d("YardlyApp", "User is logged in, proceeding...")
                         }
                     },
@@ -369,11 +369,15 @@ fun YardlyApp(
                     onEditClick = navigateToEditProfile,
                     onUserClick = { showProfileSheet = true },
                     onMenuClick = navigateToSettings,
+                    // *** PASSING THE PARAMETERS FOR ERROR 2 & 3 ***
                     onAccessibilityClick = { profileScreenState = ProfileScreenState.Accessibility },
                     onDarkModeClick = { profileScreenState = ProfileScreenState.DarkMode },
+
                     onDarkModeToggle = onDarkModeToggle,
                     onSaveClick = onSaveClick,
-                    onDummyListingClick = {
+                    // *** PASSING THE RENAMED PARAMETER FOR ERROR 1 ***
+                    onPostClick = { post ->
+                        selectedPost = post
                         profileScreenState = ProfileScreenState.AdDetail
                     }
                 )
@@ -393,7 +397,6 @@ fun YardlyApp(
                     ) {
                         FloatingActionButton(
                             onClick = {
-                                // *** GATED ACTION ***
                                 if (!isLoggedIn) {
                                     showAdLoginModal = true
                                 } else {
@@ -459,27 +462,23 @@ fun YardlyApp(
                 }
             }
 
-            // --- Determine Bottom Bar Visibility Logic ---
-            // This is calculated HERE so we can pass it to SectionNavigation
+            // --- Navigation Logic ---
             val isBottomNavVisible = if (selectedIconSection != "home") {
                 true
             } else {
                 (selectedNavSection == "home-default") && isControlsVisible
             }
 
-            // --- SectionNavigation (Category Bar) ---
             if (showHeaderAndNav) {
                 SectionNavigation(
                     selectedSection = selectedNavSection,
                     onSectionSelected = { section ->
                         selectedNavSection = section
                     },
-                    // *** THE FIX IS HERE: Apply padding only if bottom bar is hidden ***
                     modifier = if (!isBottomNavVisible) Modifier.navigationBarsPadding() else Modifier
                 )
             }
 
-            // --- BottomIconNavigation (Main Tabs) ---
             AnimatedVisibility(
                 visible = isBottomNavVisible,
                 enter = slideInVertically(initialOffsetY = { it }) + expandVertically(),
@@ -517,13 +516,17 @@ fun YardlyApp(
             username = profileUsername,
             bio = profileBio,
             userPosts = userPosts,
+            saveCounts = saveCounts,
+            savedItems = savedItems,
             showModal = showProfileSheet,
             onDismiss = { showProfileSheet = false },
             onBackClick = { showProfileSheet = false },
             onEditClick = navigateToEditProfile,
             onMenuClick = navigateToSettings,
-            onDummyListingClick = {
+            // *** UPDATED: Now passing the specific navigation function ***
+            onNavigateToAdDetail = { post ->
                 showProfileSheet = false
+                selectedPost = post
                 selectedIconSection = "profile"
                 profileScreenState = ProfileScreenState.AdDetail
             },
@@ -553,7 +556,7 @@ fun YardlyApp(
 }
 
 
-// --- (TopBar composable is unchanged) ---
+// --- (TopBar, SectionNavigation, BottomIconNavigation unchanged) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar() {
@@ -597,13 +600,12 @@ fun TopBar() {
 }
 
 
-// --- SectionNavigation composable (UPDATED) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
     selectedSection: String,
     onSectionSelected: (String) -> Unit,
-    modifier: Modifier = Modifier // <--- ADDED MODIFIER PARAMETER
+    modifier: Modifier = Modifier
 ) {
     val sections = listOf(
         "rehome" to "Rehome",
@@ -625,7 +627,7 @@ fun SectionNavigation(
     )
 
     LazyRow(
-        modifier = modifier // <--- APPLIED EXTERNAL MODIFIER FIRST
+        modifier = modifier
             .fillMaxWidth()
             .padding(Dimens.SpacingMedium),
         horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall),
@@ -674,7 +676,6 @@ fun SectionNavigation(
     }
 }
 
-// --- BottomIconNavigation composable ---
 @Composable
 fun BottomIconNavigation(
     selectedSection: String,
@@ -726,7 +727,7 @@ fun BottomIconNavigation(
 }
 
 
-// --- (ContentArea composable is unchanged) ---
+// --- (ContentArea UPDATED) ---
 @Composable
 fun ContentArea(
     userPosts: List<UserPost>,
@@ -738,6 +739,7 @@ fun ContentArea(
     isDarkMode: Boolean,
     saveCounts: Map<String, Int>,
     savedItems: Map<String, Boolean>,
+    selectedPost: UserPost?,
 
     profileName: String,
     profileUsername: String,
@@ -758,7 +760,7 @@ fun ContentArea(
     onDarkModeClick: () -> Unit = {},
     onDarkModeToggle: (Boolean) -> Unit,
     onSaveClick: (String) -> Unit,
-    onDummyListingClick: () -> Unit
+    onPostClick: (UserPost) -> Unit
 ) {
     when (selectedIconSection) {
         "home" -> {
@@ -773,14 +775,12 @@ fun ContentArea(
                     vertical = Dimens.ScreenPaddingVertical
                 )
             ) {
-                // --- (items blocks are unchanged) ...
                 items(userPosts, key = { it.id }) { post ->
                     val saveCount = saveCounts.getOrDefault(post.title, 0)
                     val isSaved = savedItems.getOrDefault(post.title, false)
                     AdCard(
                         advertisementName = post.title,
                         userName = post.userName,
-                        // price = post.price, // AdCard doesn't support price yet
                         saveCount = saveCount,
                         isSaved = isSaved,
                         onAdClick = onAdClick,
@@ -819,16 +819,19 @@ fun ContentArea(
                     name = profileName,
                     username = profileUsername,
                     bio = profileBio,
-                    userPosts = userPosts, // Added UserPosts
+                    userPosts = userPosts,
+                    saveCounts = saveCounts,
+                    savedItems = savedItems,
                     onBackClick = onBackClick,
                     onEditClick = onEditClick,
                     onMenuClick = onMenuClick,
-                    onDummyListingClick = onDummyListingClick,
-                    onSaveClick = onSaveClick // Added SaveClick
+                    onNavigateToAdDetail = onPostClick,
+                    onSaveClick = onSaveClick
                 )
                 ProfileScreenState.Settings -> SettingsScreen(
                     onBackClick = onSettingsBackClick,
-                    onAccessibilityClick = onAccessibilityClick
+                    onAccessibilityClick = onAccessibilityClick, // Pass the fix
+                    onDarkModeClick = onDarkModeClick // Pass the fix
                 )
                 ProfileScreenState.Accessibility -> AccessibilityScreen(
                     onBackClick = onAccessibilityBackClick,
@@ -846,15 +849,21 @@ fun ContentArea(
                     onBackClick = onEditProfileBackClick,
                     onSaveClick = onSaveProfile
                 )
-                ProfileScreenState.AdDetail -> AdDetailScreen(
-                    title = "My Dummy Listing",
-                    description = "This is the description for the dummy listing clicked from the profile screen. It's a great item, buy it now!",
-                    isSaved = savedItems.getOrDefault("My Dummy Listing", false),
-                    onBackClick = onAdDetailBackClick,
-                    onUserClick = { /* Stay on profile */ },
-                    onSaveClick = { onSaveClick("My Dummy Listing") },
-                    onShareClick = { /* TODO */ }
-                )
+                ProfileScreenState.AdDetail -> {
+                    if (selectedPost != null) {
+                        AdDetailScreen(
+                            title = selectedPost.title,
+                            description = selectedPost.description + "\n\nPrice: " + selectedPost.price + "\nLocation: " + selectedPost.location,
+                            isSaved = savedItems.getOrDefault(selectedPost.title, false),
+                            onBackClick = onAdDetailBackClick,
+                            onUserClick = { /* Stay on profile */ },
+                            onSaveClick = { onSaveClick(selectedPost.title) },
+                            onShareClick = { /* TODO */ }
+                        )
+                    } else {
+                        Text("No post selected")
+                    }
+                }
             }
         }
         "messenger" -> {

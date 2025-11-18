@@ -32,12 +32,14 @@ fun ProfileContent(
     name: String,
     username: String,
     bio: String,
-    userPosts: List<UserPost>, // <--- NEW: The list arrives here
+    userPosts: List<UserPost>,
+    saveCounts: Map<String, Int>,
+    savedItems: Map<String, Boolean>,
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
     onMenuClick: () -> Unit,
-    onDummyListingClick: () -> Unit,
-    onSaveClick: (String) -> Unit // <--- NEW: Save action arrives here
+    onNavigateToAdDetail: (UserPost) -> Unit, // <--- RENAMED TO FIX ERROR 1
+    onSaveClick: (String) -> Unit
 ) {
     var isEditMode by remember { mutableStateOf(false) }
 
@@ -47,7 +49,7 @@ fun ProfileContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.95f) // This allows the sheet to be expandable
+            .fillMaxHeight(0.95f)
     ) {
         TopProfileBar(
             onBackClick = onBackClick,
@@ -59,7 +61,6 @@ fun ProfileContent(
             isEditMode = isEditMode
         )
 
-        // We use LazyColumn for the whole content so it scrolls as one unit
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingXLarge),
@@ -73,10 +74,7 @@ fun ProfileContent(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Left side - Title and username
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = name,
                                 fontSize = 24.sp,
@@ -90,11 +88,7 @@ fun ProfileContent(
                             )
                         }
 
-                        // Right side - Logo with verified checkmark
-                        Box(
-                            modifier = Modifier.size(80.dp)
-                        ) {
-                            // University logo placeholder
+                        Box(modifier = Modifier.size(80.dp)) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -103,14 +97,12 @@ fun ProfileContent(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = name.take(1), // Initials
+                                    text = name.take(1),
                                     fontSize = 32.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
                             }
-
-                            // Verified checkmark
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
                                 contentDescription = "Verified",
@@ -153,7 +145,6 @@ fun ProfileContent(
 
                     Spacer(modifier = Modifier.height(Dimens.SpacingXXLarge))
 
-                    // TAB ROW
                     TabRow(
                         selectedTabIndex = tabs.indexOf(selectedTab),
                         containerColor = Color.Transparent,
@@ -202,14 +193,17 @@ fun ProfileContent(
                         }
                     }
                 } else {
-                    // Dynamic List of Posts
                     items(userPosts) { post ->
+                        val saveCount = saveCounts.getOrDefault(post.title, 0)
+                        val isSaved = savedItems.getOrDefault(post.title, false)
+
                         WatchlistCard(
                             itemName = post.title,
                             price = "$${post.price}",
-                            isSaved = false, // Logic can be added later
-                            saveCount = 0,
-                            onItemClick = onDummyListingClick,
+                            isSaved = isSaved,
+                            saveCount = saveCount,
+                            // Using the renamed function here
+                            onItemClick = { onNavigateToAdDetail(post) },
                             onSaveClick = { onSaveClick(post.title) }
                         )
                         Spacer(modifier = Modifier.height(Dimens.SpacingMedium))
@@ -272,22 +266,4 @@ fun TopProfileBar(
             containerColor = MaterialTheme.colorScheme.background
         )
     )
-}
-
-@Preview(showBackground = true, heightDp = 800)
-@Composable
-fun ProfileContentPreview() {
-    YardlyTheme(isDarkMode = false) {
-        ProfileContent(
-            name = "Peyton Venzeee",
-            username = "peyton",
-            bio = "This is a preview bio.",
-            userPosts = emptyList(),
-            onBackClick = {},
-            onEditClick = {},
-            onMenuClick = {},
-            onDummyListingClick = {},
-            onSaveClick = {}
-        )
-    }
 }

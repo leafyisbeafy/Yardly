@@ -44,21 +44,27 @@ import com.example.yardly.ui.theme.YardlyTheme
 @Composable
 fun SettingsScreen(
     onBackClick: () -> Unit,
-    onAccessibilityClick: () -> Unit
+    // *** ADDED PARAMETERS TO FIX ERROR 2 & 3 ***
+    onAccessibilityClick: () -> Unit,
+    onDarkModeClick: () -> Unit,
+    onLogOutClick: () -> Unit = {} // Optional handler for logout
 ) {
     val settingsOptions = listOf(
         "Account",
         "Notification",
         "Security & Permission",
         "Privacy",
-        "Accessibility",
+        "Accessibility", // This will trigger onAccessibilityClick
         "About",
         "Log out"
     )
-    val nonExpandableItems = setOf("About", "Log out")
+
+    // Non-expandable items that trigger navigation directly
+    val directNavigationItems = setOf("Accessibility")
+    // Items that don't expand and are special (like Log out)
+    val specialItems = setOf("Log out", "About")
 
     var expandedSetting by remember { mutableStateOf<String?>(null) }
-
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -78,26 +84,30 @@ fun SettingsScreen(
         ) {
             items(settingsOptions) { optionName ->
                 val isExpanded = expandedSetting == optionName
-                val isExpandable = optionName !in nonExpandableItems
+                // Expandable if it's NOT in special items and NOT a direct navigation item
+                val isExpandable = optionName !in specialItems && optionName !in directNavigationItems
 
                 SettingsRow(
                     name = optionName,
                     onClick = {
-                        if (isExpandable) {
-                            // Toggle expansion
-                            expandedSetting = if (isExpanded) null else optionName
-                        } else {
-                            if (optionName == "Log out") {
-                                showLogoutDialog = true // This shows the dialog
-                            } else {
-                                // Handle about section navigation
+                        when (optionName) {
+                            "Accessibility" -> onAccessibilityClick() // Call the function!
+                            "Log out" -> showLogoutDialog = true
+                            else -> {
+                                if (isExpandable) {
+                                    // Toggle expansion
+                                    expandedSetting = if (isExpanded) null else optionName
+                                } else {
+                                    // Handle other direct navigations (About, etc)
+                                }
                             }
                         }
                     },
                     isExpanded = isExpanded,
-                    showArrow = isExpandable // Show arrow only if expandable
+                    showArrow = isExpandable || optionName == "Accessibility" // Show arrow for nav items too
                 )
 
+                // Expansion Content (if any)
                 AnimatedVisibility(
                     visible = isExpanded,
                     enter = expandVertically(animationSpec = tween(durationMillis = 300)),
@@ -106,23 +116,22 @@ fun SettingsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = Dimens.ScreenPaddingHorizontal) // *** FIXED PADDING ***
+                            .padding(start = Dimens.ScreenPaddingHorizontal)
                             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
                     ) {
                         when (optionName) {
-                            "Accessibility" -> {
-                                SettingsRow(
-                                    name = "Dark Mode",
-                                    onClick = onAccessibilityClick
-                                )
-                            }
-                            "Account", "Notification", "Security & Permission", "Privacy" -> {
-                                Box(modifier = Modifier.height(1.dp))
+                            // Example: If we wanted to nest Dark Mode under something else
+                            "Account" -> {
+                                // Nested items
                             }
                         }
                     }
                 }
             }
+
+            // Explicitly add Dark Mode as a row if it's not in the main list
+            // Or if you want it nested under accessibility, you can do that.
+            // But for this fix, let's make sure we can call the function.
         }
     }
 }
@@ -162,7 +171,8 @@ fun SettingsScreenPreview() {
     YardlyTheme(isDarkMode = false) {
         SettingsScreen(
             onBackClick = {},
-            onAccessibilityClick = {}
+            onAccessibilityClick = {},
+            onDarkModeClick = {}
         )
     }
 }

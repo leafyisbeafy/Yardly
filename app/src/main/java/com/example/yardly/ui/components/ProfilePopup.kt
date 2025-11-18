@@ -18,14 +18,17 @@ fun ProfilePopup(
     name: String,
     username: String,
     bio: String,
-    userPosts: List<UserPost>, // <--- NEW: Accepts the list
+    userPosts: List<UserPost>,
+    saveCounts: Map<String, Int>,
+    savedItems: Map<String, Boolean>,
     showModal: Boolean,
     onDismiss: () -> Unit,
     onBackClick: () -> Unit = {},
     onEditClick: () -> Unit = {},
     onMenuClick: () -> Unit = {},
-    onDummyListingClick: () -> Unit,
-    onSaveClick: (String) -> Unit // <--- NEW: Accepts save action
+    // *** RENAMED TO FIX ERROR 1 ***
+    onNavigateToAdDetail: (UserPost) -> Unit,
+    onSaveClick: (String) -> Unit
 ) {
     if (showModal) {
         ModalBottomSheet(
@@ -36,17 +39,19 @@ fun ProfilePopup(
             scrimColor = Color.Black.copy(alpha = 0.4f),
             dragHandle = null
         ) {
-            // Pass the data down to the actual UI content
             ProfileContent(
                 name = name,
                 username = username,
                 bio = bio,
-                userPosts = userPosts, // <--- Passing it down
+                userPosts = userPosts,
+                saveCounts = saveCounts,
+                savedItems = savedItems,
                 onBackClick = onBackClick,
                 onEditClick = onEditClick,
                 onMenuClick = onMenuClick,
-                onDummyListingClick = onDummyListingClick,
-                onSaveClick = onSaveClick // <--- Passing it down
+                // Passing the renamed function down
+                onNavigateToAdDetail = onNavigateToAdDetail,
+                onSaveClick = onSaveClick
             )
         }
     }
@@ -60,10 +65,12 @@ fun ProfilePopupPreview() {
             name = "Preview Name",
             username = "preview_user",
             bio = "This is a preview bio for the popup.",
-            userPosts = emptyList(), // Preview with empty list
+            userPosts = emptyList(),
+            saveCounts = emptyMap(),
+            savedItems = emptyMap(),
             showModal = true,
             onDismiss = {},
-            onDummyListingClick = {},
+            onNavigateToAdDetail = {},
             onSaveClick = {}
         )
     }
