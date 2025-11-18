@@ -247,7 +247,7 @@ fun YardlyApp(
     var profileUsername by remember { mutableStateOf("peyton") }
     var profileBio by remember { mutableStateOf("just another broke college student trying to make some extra cash by selling off my old books, clothes I totally don’t wear anymore, and a few electronics that are just collecting dust. Honestly, it’s wild how much stuff we accumulate over time!") }
 
-    // --- UPDATED BACK HANDLER LOGIC ---
+    // --- BACK HANDLER LOGIC ---
     // Handles both Tab switching (Profile -> Home) AND Category switching (Lease -> Default)
     val isHome = selectedIconSection == "home"
     val isDefaultHome = selectedNavSection == "home-default"
@@ -255,9 +255,10 @@ fun YardlyApp(
     BackHandler(enabled = !isHome || !isDefaultHome) {
         if (!isHome) {
             selectedIconSection = "home"
-            // Optional: Reset nav section when coming back to home tab
+            // Reset nav section when coming back to home tab if desired
             // selectedNavSection = "home-default"
         } else if (!isDefaultHome) {
+            // If we are in "Lease" or "Rehome", back button takes us to Default Home
             selectedNavSection = "home-default"
         }
     }
@@ -459,10 +460,19 @@ fun YardlyApp(
             }
 
             // --- BottomIconNavigation (Main Tabs) ---
-            // Logic: Visible if NOT on home (e.g. Profile) OR if controls are visible (scrolling up/at top)
-            // This applies to BOTH Default Home and Category Feeds
+            // Logic Update:
+            // 1. If NOT on Home Tab -> Always Visible
+            // 2. If ON Home Tab ->
+            //    - Visible ONLY if category is "home-default" AND controls are visible (scrolling up)
+            //    - If category is ANYTHING ELSE ("rehome", "lease", etc.), it is HIDDEN.
+            val isBottomNavVisible = if (selectedIconSection != "home") {
+                true // Always show for Profile, Watchlist, etc.
+            } else {
+                (selectedNavSection == "home-default") && isControlsVisible
+            }
+
             AnimatedVisibility(
-                visible = (selectedIconSection != "home") || isControlsVisible,
+                visible = isBottomNavVisible,
                 enter = slideInVertically(initialOffsetY = { it }) + expandVertically(),
                 exit = slideOutVertically(targetOffsetY = { it }) + shrinkVertically()
             ) {
