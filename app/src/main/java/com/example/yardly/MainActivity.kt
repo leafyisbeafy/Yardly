@@ -248,17 +248,13 @@ fun YardlyApp(
     var profileBio by remember { mutableStateOf("just another broke college student trying to make some extra cash by selling off my old books, clothes I totally don’t wear anymore, and a few electronics that are just collecting dust. Honestly, it’s wild how much stuff we accumulate over time!") }
 
     // --- BACK HANDLER LOGIC ---
-    // Handles both Tab switching (Profile -> Home) AND Category switching (Lease -> Default)
     val isHome = selectedIconSection == "home"
     val isDefaultHome = selectedNavSection == "home-default"
 
     BackHandler(enabled = !isHome || !isDefaultHome) {
         if (!isHome) {
             selectedIconSection = "home"
-            // Reset nav section when coming back to home tab if desired
-            // selectedNavSection = "home-default"
         } else if (!isDefaultHome) {
-            // If we are in "Lease" or "Rehome", back button takes us to Default Home
             selectedNavSection = "home-default"
         }
     }
@@ -448,29 +444,27 @@ fun YardlyApp(
                 }
             }
 
+            // --- Determine Bottom Bar Visibility Logic ---
+            // This is calculated HERE so we can pass it to SectionNavigation
+            val isBottomNavVisible = if (selectedIconSection != "home") {
+                true
+            } else {
+                (selectedNavSection == "home-default") && isControlsVisible
+            }
+
             // --- SectionNavigation (Category Bar) ---
-            // This sits ABOVE the Bottom Bar. When Bottom Bar hides, this drops down.
             if (showHeaderAndNav) {
                 SectionNavigation(
                     selectedSection = selectedNavSection,
                     onSectionSelected = { section ->
                         selectedNavSection = section
-                    }
+                    },
+                    // *** THE FIX IS HERE: Apply padding only if bottom bar is hidden ***
+                    modifier = if (!isBottomNavVisible) Modifier.navigationBarsPadding() else Modifier
                 )
             }
 
             // --- BottomIconNavigation (Main Tabs) ---
-            // Logic Update:
-            // 1. If NOT on Home Tab -> Always Visible
-            // 2. If ON Home Tab ->
-            //    - Visible ONLY if category is "home-default" AND controls are visible (scrolling up)
-            //    - If category is ANYTHING ELSE ("rehome", "lease", etc.), it is HIDDEN.
-            val isBottomNavVisible = if (selectedIconSection != "home") {
-                true // Always show for Profile, Watchlist, etc.
-            } else {
-                (selectedNavSection == "home-default") && isControlsVisible
-            }
-
             AnimatedVisibility(
                 visible = isBottomNavVisible,
                 enter = slideInVertically(initialOffsetY = { it }) + expandVertically(),
@@ -485,7 +479,6 @@ fun YardlyApp(
                             selectedNavSection = "home-default"
                         }
 
-                        // Reset profile state if navigating away
                         if (section != "profile") {
                             profileScreenState = ProfileScreenState.Profile
                         }
@@ -504,7 +497,7 @@ fun YardlyApp(
             name = profileName,
             username = profileUsername,
             bio = profileBio,
-            userPosts = userPosts, // Added UserPosts
+            userPosts = userPosts,
             showModal = showProfileSheet,
             onDismiss = { showProfileSheet = false },
             onBackClick = { showProfileSheet = false },
@@ -515,7 +508,7 @@ fun YardlyApp(
                 selectedIconSection = "profile"
                 profileScreenState = ProfileScreenState.AdDetail
             },
-            onSaveClick = onSaveClick // Added SaveClick
+            onSaveClick = onSaveClick
         )
 
         ChooseCornerSheet(
@@ -585,12 +578,13 @@ fun TopBar() {
 }
 
 
-// --- SectionNavigation composable ---
+// --- SectionNavigation composable (UPDATED) ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
     selectedSection: String,
-    onSectionSelected: (String) -> Unit
+    onSectionSelected: (String) -> Unit,
+    modifier: Modifier = Modifier // <--- ADDED MODIFIER PARAMETER
 ) {
     val sections = listOf(
         "rehome" to "Rehome",
@@ -612,7 +606,7 @@ fun SectionNavigation(
     )
 
     LazyRow(
-        modifier = Modifier
+        modifier = modifier // <--- APPLIED EXTERNAL MODIFIER FIRST
             .fillMaxWidth()
             .padding(Dimens.SpacingMedium),
         horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall),
