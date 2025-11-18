@@ -207,6 +207,8 @@ fun YardlyApp(
     var selectedIconSection by remember { mutableStateOf("home") }
     var selectedNavSection by remember { mutableStateOf("home-default") }
 
+    // --- APP STATE ---
+    var isLoggedIn by remember { mutableStateOf(false) } // <--- THE FAKE LOGIN STATE
     var showAdLoginModal by remember { mutableStateOf(false) }
     var showProfileSheet by remember { mutableStateOf(false) }
     var showChooseCornerSheet by remember { mutableStateOf(false) }
@@ -348,7 +350,15 @@ fun YardlyApp(
                         profileScreenState = ProfileScreenState.Profile // Navigate back
                     },
 
-                    onAdClick = { showAdLoginModal = true },
+                    // *** GATED ACTION: Only show login modal if not logged in ***
+                    onAdClick = {
+                        if (!isLoggedIn) {
+                            showAdLoginModal = true
+                        } else {
+                            // TODO: Navigate to details or handle click
+                            Log.d("YardlyApp", "User is logged in, proceeding...")
+                        }
+                    },
                     onBackClick = { selectedIconSection = "home" },
                     onSettingsBackClick = { profileScreenState = ProfileScreenState.Profile },
                     onAccessibilityBackClick = { profileScreenState = ProfileScreenState.Settings },
@@ -383,8 +393,13 @@ fun YardlyApp(
                     ) {
                         FloatingActionButton(
                             onClick = {
-                                showCreatePostSheet = true
-                                isFabMenuExpanded = false
+                                // *** GATED ACTION ***
+                                if (!isLoggedIn) {
+                                    showAdLoginModal = true
+                                } else {
+                                    showCreatePostSheet = true
+                                    isFabMenuExpanded = false
+                                }
                             },
                             shape = CircleShape,
                             containerColor = MaterialTheme.colorScheme.secondary,
@@ -487,10 +502,14 @@ fun YardlyApp(
             }
         }
 
-        // --- (Modals are unchanged) ---
+        // --- (Modals) ---
         AdLoginSheet(
             showModal = showAdLoginModal,
-            onDismiss = { showAdLoginModal = false }
+            onDismiss = { showAdLoginModal = false },
+            onLoginSuccess = {
+                isLoggedIn = true
+                showAdLoginModal = false
+            }
         )
 
         ProfilePopup(
