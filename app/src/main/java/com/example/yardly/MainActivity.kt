@@ -1,10 +1,12 @@
 package com.example.yardly
 
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
@@ -45,11 +47,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
+import com.canhub.cropper.CropImageOptions
 import com.example.yardly.ui.components.*
 import com.example.yardly.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 // --- (All data classes and mock data) ---
 data class Ad(val name: String, val user: String)
@@ -201,6 +207,14 @@ fun YardlyApp(
     var showChooseCornerSheet by remember { mutableStateOf(false) }
     var showCreatePostSheet by remember { mutableStateOf(false) }
     var profileScreenState by remember { mutableStateOf<ProfileScreenState>(ProfileScreenState.Profile) }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+
+    val cropImage = rememberLauncherForActivityResult(CropImageContract()) { result ->
+        if (result.isSuccessful) {
+            imageUri = result.uriContent
+        }
+    }
 
     var selectedPost by remember { mutableStateOf<UserPost?>(null) }
 
@@ -356,7 +370,8 @@ fun YardlyApp(
                                 category = "General",
                                 location = "Campus",
                                 price = "Contact for Price",
-                                userName = ad.user
+                                userName = ad.user,
+                                imageUriString = null // Mocked image for ad
                             )
                             selectedPost = newPost
                             selectedIconSection = "profile" // Route to where detail view lives
@@ -545,16 +560,31 @@ fun YardlyApp(
         CreatePostSheet(
             showModal = showCreatePostSheet,
             onDismiss = { showCreatePostSheet = false },
-            onPostListing = { title, desc, category, location, price ->
+            onPostListing = { title, desc, category, location, price, imageUriString ->
                 val newPost = UserPost(
                     title = title,
                     description = desc,
                     category = category,
                     location = location,
-                    price = price
+                    price = price,
+                    imageUriString = imageUriString // Store the image URI string
                 )
                 userPosts = listOf(newPost) + userPosts
                 Log.d("CreatePostSheet", "New Post Saved: $newPost")
+                // CRITICAL: Save posts immediately after adding a new one
+                coroutineScope.launch(Dispatchers.IO) {
+                    postStorage.savePosts(userPosts)
+                }
+                imageUri = null
+            },
+            imageUri = imageUri,
+            onSelectImageClick = {
+                cropImage.launch(
+                    CropImageContractOptions(
+                        uri = null,
+                        cropImageOptions = CropImageOptions()
+                    )
+                )
             }
         )
     }

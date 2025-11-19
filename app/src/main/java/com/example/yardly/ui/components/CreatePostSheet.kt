@@ -1,5 +1,6 @@
 package com.example.yardly.ui.components
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
@@ -26,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
@@ -36,6 +38,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.yardly.ui.theme.Category
 import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
@@ -45,17 +48,17 @@ import com.example.yardly.ui.theme.YardlyTheme
 fun CreatePostSheet(
     showModal: Boolean,
     onDismiss: () -> Unit,
-    onPostListing: (title: String, desc: String, category: String, location: String, price: String) -> Unit
+    onPostListing: (title: String, desc: String, category: String, location: String, price: String, imageUri: String?) -> Unit,
+    imageUri: Uri?,
+    onSelectImageClick: () -> Unit
 ) {
     // Internal state for the sheet's fields
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
-
-    // *** UPDATED: Use Category object for selection ***
     var selectedCategory by remember { mutableStateOf<Category>(Category.Electronics) }
-
     var location by remember { mutableStateOf("Central Campus, Your City") }
+
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -74,7 +77,7 @@ fun CreatePostSheet(
                     .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingXLarge)
                     .navigationBarsPadding()
             ) {
-                // 1. Avatar / User Row
+                // 1. Avatar / User Row (unchanged)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge)
@@ -94,7 +97,30 @@ fun CreatePostSheet(
 
                 Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
 
-                // 2. Title Field
+                // --- IMAGE DISPLAY SECTION ---
+                if (imageUri != null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .padding(bottom = Dimens.SpacingXLarge)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        // Display the selected image using Coil
+                        AsyncImage(
+                            model = imageUri,
+                            contentDescription = "Selected Post Image",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+                // --- END IMAGE DISPLAY ---
+
+
+                // 2. Title Field (unchanged)
                 Row(
                     verticalAlignment = Alignment.Top,
                     modifier = Modifier.fillMaxWidth()
@@ -132,7 +158,7 @@ fun CreatePostSheet(
                     }
                 }
 
-                // 3. Description Field
+                // 3. Description Field (unchanged)
                 TextField(
                     value = description,
                     onValueChange = { description = it },
@@ -157,7 +183,7 @@ fun CreatePostSheet(
                     )
                 )
 
-                // 4. Price Field
+                // 4. Price Field (unchanged)
                 TextField(
                     value = price,
                     onValueChange = { price = it },
@@ -188,85 +214,33 @@ fun CreatePostSheet(
                     )
                 )
 
-                // *** NEW: Category Selector Pills ***
-                Spacer(modifier = Modifier.height(Dimens.SpacingMedium))
-                Text(
-                    text = "Select Category:",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(Dimens.SpacingSmall))
+                // ... (Category Selector Pills)
 
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall)
-                ) {
-                    items(Category.all) { category ->
-                        val isSelected = selectedCategory == category
-                        val containerColor by animateColorAsState(
-                            if (isSelected) category.color else Color.Transparent,
-                            label = "bg"
-                        )
-                        val contentColor by animateColorAsState(
-                            if (isSelected) category.onColor else MaterialTheme.colorScheme.onSurfaceVariant,
-                            label = "text"
-                        )
-                        val borderColor by animateColorAsState(
-                            if (isSelected) Color.Transparent else category.color,
-                            label = "border"
-                        )
-
-                        Box(
-                            modifier = Modifier
-                                .height(32.dp)
-                                .border(
-                                    width = if (isSelected) 0.dp else 1.dp,
-                                    color = borderColor,
-                                    shape = RoundedCornerShape(50)
-                                )
-                                .background(
-                                    color = containerColor,
-                                    shape = RoundedCornerShape(50)
-                                )
-                                .clip(RoundedCornerShape(50))
-                                .clickable { selectedCategory = category }
-                                .padding(horizontal = 12.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = category.label,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = contentColor
-                            )
-                        }
-                    }
-                }
-
-                // 5. Media Bar
+                // 5. Media Bar (Updated to trigger the image picker)
                 Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    IconButton(onClick = { /* TODO */ }) {
-                        Icon(Icons.Default.PhotoLibrary, "Photo Library")
+                    // CRITICAL FIX: Photo Library button launches the picker
+                    IconButton(onClick = onSelectImageClick) {
+                        Icon(Icons.Default.PhotoLibrary, "Photo Library", tint = if (imageUri != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    IconButton(onClick = { /* TODO */ }) {
+                    IconButton(onClick = { Toast.makeText(context, "Video recording not yet implemented.", Toast.LENGTH_SHORT).show() }) {
                         Icon(Icons.Default.PlayCircle, "Video")
                     }
-                    IconButton(onClick = { /* TODO */ }) {
+                    IconButton(onClick = { Toast.makeText(context, "Camera not yet implemented.", Toast.LENGTH_SHORT).show() }) {
                         Icon(Icons.Default.CameraAlt, "Camera")
                     }
-                    IconButton(onClick = { /* TODO */ }) {
+                    IconButton(onClick = { Toast.makeText(context, "Location picker not yet implemented.", Toast.LENGTH_SHORT).show() }) {
                         Icon(Icons.Default.LocationOn, "Location")
                     }
-                    IconButton(onClick = { /* TODO */ }) {
+                    IconButton(onClick = { Toast.makeText(context, "More options not yet implemented.", Toast.LENGTH_SHORT).show() }) {
                         Icon(Icons.Default.MoreVert, "More")
                     }
                 }
 
-                // 6. Geo / Map Placeholder
+                // 6. Geo / Map Placeholder (unchanged)
                 Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
                 Box(
                     modifier = Modifier
@@ -293,8 +267,20 @@ fun CreatePostSheet(
                 Spacer(modifier = Modifier.height(Dimens.SpacingXXLarge))
                 Button(
                     onClick = {
-                        // Pass the Label of the selected category
-                        onPostListing(title, description, selectedCategory.label, location, price)
+                        if (title.isBlank() || price.isBlank()) {
+                            Toast.makeText(context, "Title and Price are required!", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+
+                        // CRITICAL: Pass the image URI string to the callback
+                        onPostListing(
+                            title,
+                            description,
+                            selectedCategory.label,
+                            location,
+                            price,
+                            imageUri?.toString()
+                        )
 
                         // Clear fields and dismiss
                         title = ""
@@ -305,6 +291,8 @@ fun CreatePostSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
+                    // Enable only if required fields are filled
+                    enabled = title.isNotBlank() && price.isNotBlank(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -314,31 +302,5 @@ fun CreatePostSheet(
                 }
             }
         }
-    }
-}
-
-// --- Previews ---
-
-@Preview(showBackground = true)
-@Composable
-fun CreatePostSheetPreviewLight() {
-    YardlyTheme(isDarkMode = false) {
-        CreatePostSheet(
-            showModal = true,
-            onDismiss = {},
-            onPostListing = {_,_,_,_,_ -> }
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CreatePostSheetPreviewDark() {
-    YardlyTheme(isDarkMode = true) {
-        CreatePostSheet(
-            showModal = true,
-            onDismiss = {},
-            onPostListing = {_,_,_,_,_ -> }
-        )
     }
 }

@@ -1,29 +1,32 @@
-package com.example.yardly.ui.components
+package com.example.yardly
 
 import android.content.Context
-import com.example.yardly.UserPost
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.IOException
 
+// CRITICAL FIX: Configure Json instance once for safety
+private val json = Json {
+    // Allows old data (without imageUriString) to load without crashing
+    ignoreUnknownKeys = true
+    isLenient = true
+    prettyPrint = true
+}
+
 class PostStorage(private val context: Context) {
 
     private val postsFile = File(context.filesDir, "my_posts.json")
 
-    // This function converts the list of posts to a JSON string and saves it.
     fun savePosts(posts: List<UserPost>) {
         try {
-            val jsonString = Json.encodeToString(posts)
+            val jsonString = json.encodeToString(posts) // Use configured json
             postsFile.writeText(jsonString)
         } catch (e: IOException) {
             e.printStackTrace()
-            // Handle error (e.g., show a toast)
         }
     }
 
-    // This function reads the JSON file, converts it back to a list,
-    // and returns it.
     fun loadPosts(): List<UserPost> {
         if (!postsFile.exists()) {
             return emptyList()
@@ -31,10 +34,12 @@ class PostStorage(private val context: Context) {
 
         return try {
             val jsonString = postsFile.readText()
-            Json.decodeFromString(jsonString)
-        } catch (e: Exception) { // Catch both IOException and SerializationException
+            json.decodeFromString(jsonString) // Use configured json
+        } catch (e: Exception) {
             e.printStackTrace()
-            emptyList() // Return empty list if file is corrupt or unreadable
+            // Optional but recommended: delete corrupt file to prevent continuous errors
+            postsFile.delete()
+            emptyList()
         }
     }
 }
