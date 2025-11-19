@@ -83,27 +83,44 @@ private val defaultAds = listOf(
     Ad("TV Stand", "User 26")
 )
 
-private val allLeaseAds = mapOf(
+private val allSubleaseAds = mapOf(
     "Room" to listOf(Ad("Sublet: 1-Bed Room", "User A"), Ad("Shared Room Downtown", "User B")),
     "Car" to listOf(Ad("Toyota Camry 2018", "User C"), Ad("Honda Civic Lease", "User D")),
     "Retail Store" to listOf(Ad("Pop-up Shop Space", "User E"), Ad("Small Retail Front", "User F"))
 )
-private val allYardSaleAds = mapOf(
-    "Move Out" to listOf(Ad("Moving Sale: Everything Must Go", "User G"), Ad("Couch for Sale", "User H")),
-    "Garage Sale" to listOf(Ad("Neighborhood Garage Sale", "User I"), Ad("Antique Sale", "User J"))
+
+private val allTextbookAds = listOf(
+    Ad("Calculus Early Transcendentals", "User G"),
+    Ad("Organic Chemistry 3rd Ed", "User H"),
+    Ad("Psychology 101", "User I"),
+    Ad("Intro to Java Programming", "User J"),
+    Ad("Microeconomics", "User K"),
+    Ad("Physics for Scientists", "User L")
 )
+
+// *** NEW: Moving Out Ads ***
+private val allMovingOutAds = listOf(
+    Ad("Moving Sale: Everything Must Go", "User M"),
+    Ad("Couch for Sale", "User N"),
+    Ad("Dining Table", "User O"),
+    Ad("Queen Bed Frame", "User P")
+)
+
+// *** NEW: Garage Sale Ads ***
+private val allGarageSaleAds = listOf(
+    Ad("Neighborhood Garage Sale", "User Q"),
+    Ad("Antique Sale", "User R"),
+    Ad("Box of Vinyl Records", "User S"),
+    Ad("Old Tools Bundle", "User T")
+)
+
 private val allAquaSwapAds = mapOf(
     "Equipment" to listOf(Ad("Used 50g Filter", "User K"), Ad("Heater", "User L")),
     "Coral" to listOf(Ad("Zoanthid Frag", "User M"), Ad("Hammer Coral", "User N")),
     "Tank" to listOf(Ad("40 Gallon Tank", "User O"), Ad("10g Betta Tank", "User P")),
     "Rehome" to listOf(Ad("Goldfish needs home", "User Q"), Ad("Betta Fish (Free)", "User R"))
 )
-private val allAuctionAds = listOf(Ad("Rare Coin Auction", "User S"), Ad("Vintage Watch", "User T"))
-private val allClothingAds = listOf(
-    Ad("Vintage T-Shirt", "User U"),
-    Ad("Designer Jeans", "User V"),
-    Ad("Winter Coat", "User W")
-)
+
 private val allSneakerAds = listOf(
     Ad("Jordan 1s", "User X"),
     Ad("Yeezy 350", "User Y"),
@@ -113,11 +130,6 @@ private val allElectronicsAds = listOf(
     Ad("Sony Headphones", "User AA"),
     Ad("Dell Monitor", "User BB"),
     Ad("GoPro Hero 8", "User CC")
-)
-private val allGamingAds = listOf(
-    Ad("Nintendo Switch", "User DD"),
-    Ad("PS5 Controller", "User EE"),
-    Ad("Logitech Mouse", "User FF")
 )
 
 sealed class ProfileScreenState {
@@ -268,23 +280,25 @@ fun YardlyApp(
         profileScreenState = ProfileScreenState.EditProfile
     }
 
-    // *** UPDATED LOGIC HERE: Always Increment (Infinite Claps) ***
+    // Save Logic: Always Increment
     val onSaveClick: (String) -> Unit = { adName ->
         val currentCount = saveCounts.getOrDefault(adName, 0)
         saveCounts[adName] = currentCount + 1
         savedItems[adName] = true
     }
 
+    // *** UPDATED WHEN BLOCK ***
     val dynamicAdList = remember(selectedNavSection) {
         when (selectedNavSection) {
             "home-default" -> defaultAds
-            Category.Clothing.id -> allClothingAds
+            // Rehome, Sublease, Textbook, Moving Out, Garage Sale, Sneaker, Electronics
+            Category.Rehome.id -> allAquaSwapAds.values.flatten()
+            Category.Sublease.id -> allSubleaseAds.values.flatten()
+            Category.Textbook.id -> allTextbookAds
+            Category.MovingOut.id -> allMovingOutAds // <--- NEW
+            Category.GarageSale.id -> allGarageSaleAds // <--- NEW
             Category.Sneaker.id -> allSneakerAds
             Category.Electronics.id -> allElectronicsAds
-            Category.Gaming.id -> allGamingAds
-            Category.Lease.id -> allLeaseAds.values.flatten()
-            Category.YardSales.id -> allYardSaleAds.values.flatten()
-            Category.Rehome.id -> allAquaSwapAds.values.flatten()
             else -> defaultAds
         }
     } ?: defaultAds

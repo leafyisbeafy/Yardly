@@ -20,31 +20,39 @@ sealed class Category(
         onColor = Color.White
     )
 
-    // 2. Lease (Slate - White Text)
-    data object Lease : Category(
-        id = "lease",
-        label = "Lease",
+    // 2. Sublease (Slate - White Text)
+    data object Sublease : Category(
+        id = "sublease",
+        label = "Sublease",
         color = BtnSlateEmber,
         onColor = Color.White
     )
 
-    // 3. Yardly (Forest - White Text)
-    data object YardSales : Category(
-        id = "yard-sales",
-        label = "Yardly",
+    // 3. Textbook (Forest - White Text)
+    data object Textbook : Category(
+        id = "textbook",
+        label = "Textbook",
         color = BtnForestGlow,
         onColor = Color.White
     )
 
-    // 4. Clothing (Terracotta - White Text)
-    data object Clothing : Category(
-        id = "clothing",
-        label = "Clothing",
-        color = BtnTerracotta,
+    // 4. Moving Out (Terracotta - White Text) - *** NEW 4TH POSITION ***
+    data object MovingOut : Category(
+        id = "moving_out",
+        label = "Moving Out",
+        color = BtnTerracotta, // Repurposed color
         onColor = Color.White
     )
 
-    // 5. Sneaker (Electric Lime - BLACK Text)
+    // 5. Garage Sale (Dark Orange - White Text) - *** NEW 5TH POSITION ***
+    data object GarageSale : Category(
+        id = "garage_sale",
+        label = "Garage Sale",
+        color = BtnDarkOrange, // Repurposed color
+        onColor = Color.White
+    )
+
+    // 6. Sneaker (Electric Lime - BLACK Text)
     data object Sneaker : Category(
         id = "sneaker",
         label = "Sneaker",
@@ -52,7 +60,7 @@ sealed class Category(
         onColor = Color.Black
     )
 
-    // 6. Electronics (Neon Azure - White Text)
+    // 7. Electronics (Neon Azure - White Text)
     data object Electronics : Category(
         id = "electronics",
         label = "Electronics",
@@ -60,21 +68,13 @@ sealed class Category(
         onColor = Color.White
     )
 
-    // 7. Gaming (Magenta - White Text)
-    data object Gaming : Category(
-        id = "gaming",
-        label = "Gaming",
-        color = BtnMagentaShock,
-        onColor = Color.White
-    )
-
     companion object {
         // The list used to generate UI buttons
         val all = listOf(
-            Rehome, Lease, YardSales, Clothing, Sneaker, Electronics, Gaming
+            Rehome, Sublease, Textbook, MovingOut, GarageSale, Sneaker, Electronics
         )
 
-        // Helper to safely get a category label by ID, useful for filtering if needed
+        // Helper to safely get a category label by ID
         fun getLabelById(id: String): String {
             return all.find { it.id == id }?.label ?: "Home"
         }
