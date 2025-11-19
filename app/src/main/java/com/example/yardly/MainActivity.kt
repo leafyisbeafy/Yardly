@@ -267,17 +267,12 @@ fun YardlyApp(
         selectedIconSection = "profile"
         profileScreenState = ProfileScreenState.EditProfile
     }
+
+    // *** UPDATED LOGIC HERE: Always Increment (Infinite Claps) ***
     val onSaveClick: (String) -> Unit = { adName ->
         val currentCount = saveCounts.getOrDefault(adName, 0)
-        if (savedItems.getOrDefault(adName, false)) {
-            // Unsaving: decrease count
-            saveCounts[adName] = if (currentCount > 0) currentCount - 1 else 0
-            savedItems[adName] = false
-        } else {
-            // Saving: increase count
-            saveCounts[adName] = currentCount + 1
-            savedItems[adName] = true
-        }
+        saveCounts[adName] = currentCount + 1
+        savedItems[adName] = true
     }
 
     val dynamicAdList = remember(selectedNavSection) {
