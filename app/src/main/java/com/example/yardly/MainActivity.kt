@@ -228,19 +228,13 @@ fun YardlyApp(
         }
     }
 
-    // *** BEHAVIOR 3: EXIT FOCUS MODE LOGIC ***
-    // Detect if we are at the very top of the grid
+    // Exit Focus Mode Logic
     val isAtTop by remember { derivedStateOf { gridState.firstVisibleItemIndex == 0 } }
-
-    // Watch for scroll changes. If we hit the top while in Focus Mode (not home-default),
-    // reset back to home-default. We check `isScrollInProgress` to ensure this is a user action,
-    // preventing immediate resets if a category happens to load at the top.
     LaunchedEffect(isAtTop, gridState.isScrollInProgress) {
         if (isAtTop && selectedNavSection != "home-default" && gridState.isScrollInProgress) {
             selectedNavSection = "home-default"
         }
     }
-    // *** END EXIT FOCUS LOGIC ***
 
     var isFabMenuExpanded by remember { mutableStateOf(false) }
 
@@ -249,7 +243,7 @@ fun YardlyApp(
 
     var profileName by remember { mutableStateOf("Peyton Venzeee") }
     var profileUsername by remember { mutableStateOf("peyton") }
-    var profileBio by remember { mutableStateOf("just another broke college student trying to make some extra cash by selling off my old books, clothes I totally don’t wear anymore, and a few electronics that are just collecting dust. Honestly, it’s wild how much stuff we accumulate over time!") }
+    var profileBio by remember { mutableStateOf("just another broke college student...") }
 
     // --- BACK HANDLER LOGIC ---
     val isHome = selectedIconSection == "home"
@@ -292,14 +286,12 @@ fun YardlyApp(
         profileScreenState = ProfileScreenState.EditProfile
     }
 
-    // Save Logic: Always Increment
     val onSaveClick: (String) -> Unit = { adName ->
         val currentCount = saveCounts.getOrDefault(adName, 0)
         saveCounts[adName] = currentCount + 1
         savedItems[adName] = true
     }
 
-    // *** DYNAMIC AD LIST ***
     val dynamicAdList = remember(selectedNavSection) {
         when (selectedNavSection) {
             "home-default" -> defaultAds
@@ -323,12 +315,10 @@ fun YardlyApp(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Top Bar (Always Visible per requirements)
             if (showHeaderAndNav) {
                 TopBar()
             }
 
-            // Content Area
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -356,11 +346,23 @@ fun YardlyApp(
                         profileScreenState = ProfileScreenState.Profile
                     },
 
-                    onAdClick = {
-                        if (!isLoggedIn) {
-                            showAdLoginModal = true
+                    // *** IMPLEMENTED LOGIC HERE ***
+                    onAdClick = { ad ->
+                        if (isLoggedIn) {
+                            // Create UserPost from Ad and navigate
+                            val newPost = UserPost(
+                                title = ad.name,
+                                description = "Description for ${ad.name}",
+                                category = "General",
+                                location = "Campus",
+                                price = "Contact for Price",
+                                userName = ad.user
+                            )
+                            selectedPost = newPost
+                            selectedIconSection = "profile" // Route to where detail view lives
+                            profileScreenState = ProfileScreenState.AdDetail
                         } else {
-                            Log.d("YardlyApp", "User is logged in, proceeding...")
+                            showAdLoginModal = true
                         }
                     },
                     onBackClick = { selectedIconSection = "home" },
@@ -468,14 +470,9 @@ fun YardlyApp(
 
             // --- Navigation Logic ---
             val isBottomNavVisible = if (selectedIconSection != "home") {
-                // Not on home tab (Profile/Watchlist/etc) -> Always Visible
                 true
             } else {
-                // On Home Tab:
-                // 1. If default home: follow scroll controls (Behavior 1)
-                // 2. If Focus Mode (category selected): HIDDEN (Behavior 2),
-                //    until reset by scroll-to-top logic above.
-                (selectedNavSection == "home-default") && isControlsVisible
+                isControlsVisible
             }
 
             if (showHeaderAndNav) {
@@ -739,7 +736,8 @@ fun ContentArea(
     profileBio: String,
     onSaveProfile: (String, String, String) -> Unit,
 
-    onAdClick: () -> Unit = {},
+    // *** CHANGED SIGNATURE TO ACCEPT Ad OBJECT ***
+    onAdClick: (Ad) -> Unit = {},
     onBackClick: () -> Unit = {},
     onSettingsBackClick: () -> Unit = {},
     onAccessibilityBackClick: () -> Unit = {},
@@ -776,7 +774,9 @@ fun ContentArea(
                         userName = post.userName,
                         saveCount = saveCount,
                         isSaved = isSaved,
-                        onAdClick = onAdClick,
+                        // We pass a mock Ad object here since UserPost has similar data,
+                        // or you could overload onAdClick. For now, mapping manually.
+                        onAdClick = { onAdClick(Ad(post.title, post.userName)) },
                         onUserClick = onUserClick,
                         onSaveClick = { onSaveClick(post.title) }
                     )
@@ -790,7 +790,8 @@ fun ContentArea(
                         userName = ad.user,
                         saveCount = saveCount,
                         isSaved = isSaved,
-                        onAdClick = onAdClick,
+                        // *** PASSING THE CLICK WITH AD DATA ***
+                        onAdClick = { onAdClick(ad) },
                         onUserClick = onUserClick,
                         onSaveClick = { onSaveClick(ad.name) }
                     )

@@ -35,6 +35,7 @@ fun AdCard(
     saveCount: Int,
     isSaved: Boolean,
     onSaveClick: () -> Unit = {},
+    // 1. Updated Parameter to handle click
     onAdClick: () -> Unit = {},
     onUserClick: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -42,18 +43,19 @@ fun AdCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .wrapContentHeight(),
+            .wrapContentHeight()
+            // 2. Added Clickable Modifier to the root Card
+            .clickable(onClick = onAdClick),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface // Clean white background
+            containerColor = MaterialTheme.colorScheme.surface
         ),
-        shape = RoundedCornerShape(16.dp),  // Rounded corners for modern feel
-        elevation = CardDefaults.cardElevation(0.dp)  // Flat design - no shadows
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(Dimens.SpacingLarge) // *** FIXED PADDING ***
-                .clickable(onClick = onAdClick)  // Entire card is clickable
+                .padding(Dimens.SpacingLarge)
         ) {
             Text(
                 text = advertisementName,
@@ -67,7 +69,7 @@ fun AdCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(Dimens.SpacingMedium)) // *** FIXED PADDING ***
+            Spacer(modifier = Modifier.height(Dimens.SpacingMedium))
 
             Box(
                 modifier = Modifier
@@ -87,11 +89,11 @@ fun AdCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(Dimens.SpacingMedium)) // *** FIXED PADDING ***
+            Spacer(modifier = Modifier.height(Dimens.SpacingMedium))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium), // *** FIXED PADDING ***
+                horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
@@ -99,11 +101,11 @@ fun AdCard(
                         .weight(1f)
                         .clickable(onClick = onUserClick),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium) // *** FIXED PADDING ***
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium)
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(Dimens.SpacingXXXLarge) // *** FIXED PADDING ***
+                            .size(Dimens.SpacingXXXLarge)
                             .background(
                                 color = MaterialTheme.colorScheme.surfaceVariant,
                                 shape = CircleShape
@@ -119,7 +121,7 @@ fun AdCard(
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall) // *** FIXED PADDING ***
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall)
                 ) {
                     AnimatedVisibility(
                         visible = saveCount > 0,
@@ -137,7 +139,7 @@ fun AdCard(
                     IconButton(
                         onClick = onSaveClick,
                         modifier = Modifier
-                            .size(Dimens.SpacingXXXLarge) // *** FIXED PADDING ***
+                            .size(Dimens.SpacingXXXLarge)
                             .padding(end = 0.dp)
                     ) {
                         Icon(
@@ -157,14 +159,9 @@ fun AdCard(
 @Composable
 fun AdCardPreview() {
     YardlyTheme(isDarkMode = false) {
-        Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge)) { // *** FIXED PADDING ***
+        Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge)) {
             AdCard(
                 advertisementName = "Short Name",
-                saveCount = 1,
-                isSaved = true
-            )
-            AdCard(
-                advertisementName = "This is a Very Long Advertisement Name That Wraps to Two Lines",
                 saveCount = 1,
                 isSaved = true
             )
