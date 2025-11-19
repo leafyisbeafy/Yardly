@@ -1,5 +1,8 @@
 package com.example.yardly.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -33,6 +36,7 @@ fun AdDetailScreen(
     title: String,
     description: String,
     isSaved: Boolean,
+    saveCount: Int, // <--- NEW PARAMETER ADDED HERE
     onBackClick: () -> Unit,
     onUserClick: () -> Unit,
     onSaveClick: () -> Unit,
@@ -43,7 +47,7 @@ fun AdDetailScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // 1. Top Bar (Avatar has been removed from here)
+        // 1. Top Bar
         Spacer(modifier = Modifier.statusBarsPadding())
         Row(
             modifier = Modifier
@@ -100,12 +104,11 @@ fun AdDetailScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(16f / 9f) // Standard aspect ratio
+                        .aspectRatio(16f / 9f)
                         .clip(RoundedCornerShape(12.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
-                    // Fallback icon
                     Icon(
                         imageVector = Icons.Default.ImageNotSupported,
                         contentDescription = "Image placeholder",
@@ -123,7 +126,7 @@ fun AdDetailScreen(
                         .padding(top = Dimens.SpacingMedium),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Avatar Icon (Moved here)
+                    // Avatar Icon
                     Box(
                         modifier = Modifier
                             .size(40.dp)
@@ -131,10 +134,24 @@ fun AdDetailScreen(
                             .background(MaterialTheme.colorScheme.surfaceVariant)
                             .clickable { onUserClick() }
                     )
-                    // TODO: Add Painter for user's profile pic
 
-                    // This Spacer pushes the buttons to the right
+                    // Spacer pushes the buttons to the right
                     Spacer(Modifier.weight(1f))
+
+                    // *** NEW LOGIC: SAVE COUNT DISPLAY ***
+                    AnimatedVisibility(
+                        visible = saveCount > 0,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        Text(
+                            text = saveCount.toString(),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(end = Dimens.SpacingSmall)
+                        )
+                    }
 
                     // Save Button
                     IconButton(onClick = onSaveClick) {
@@ -169,24 +186,9 @@ fun AdDetailScreenPreviewLight() {
     YardlyTheme(isDarkMode = false) {
         AdDetailScreen(
             title = "Vintage T-Shirt",
-            description = "This is a very long description for the vintage t-shirt. It's from the 90s and has a cool band logo on it. Barely worn, in mint condition. No stains or tears. From a smoke-free home. Must pick up near campus.",
+            description = "This is a description.",
             isSaved = true,
-            onBackClick = {},
-            onUserClick = {},
-            onSaveClick = {},
-            onShareClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AdDetailScreenPreviewDark() {
-    YardlyTheme(isDarkMode = true) {
-        AdDetailScreen(
-            title = "Vintage T-Shirt",
-            description = "This is a very long description for the vintage t-shirt. It's from the 90s and has a cool band logo on it. Barely worn, in mint condition. No stains or tears. From a smoke-free home. Must pick up near campus.",
-            isSaved = false,
+            saveCount = 12, // Previewing with count
             onBackClick = {},
             onUserClick = {},
             onSaveClick = {},

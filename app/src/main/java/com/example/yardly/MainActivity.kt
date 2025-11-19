@@ -269,11 +269,17 @@ fun YardlyApp(
     }
     val onSaveClick: (String) -> Unit = { adName ->
         val currentCount = saveCounts.getOrDefault(adName, 0)
-        saveCounts[adName] = currentCount + 1
-        savedItems[adName] = true
+        if (savedItems.getOrDefault(adName, false)) {
+            // Unsaving: decrease count
+            saveCounts[adName] = if (currentCount > 0) currentCount - 1 else 0
+            savedItems[adName] = false
+        } else {
+            // Saving: increase count
+            saveCounts[adName] = currentCount + 1
+            savedItems[adName] = true
+        }
     }
 
-    // *** UPDATED: Now uses Category IDs for the When block ***
     val dynamicAdList = remember(selectedNavSection) {
         when (selectedNavSection) {
             "home-default" -> defaultAds
@@ -576,7 +582,7 @@ fun TopBar() {
     }
 }
 
-// --- *** UPDATED SectionNavigation using Category Object *** ---
+// --- SectionNavigation ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionNavigation(
@@ -584,7 +590,6 @@ fun SectionNavigation(
     onSectionSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Retrieve the list from Category object
     val categories = Category.all
 
     LazyRow(
@@ -597,19 +602,16 @@ fun SectionNavigation(
         items(categories) { category ->
             val isSelected = selectedSection == category.id
 
-            // 1. Animate Background
             val containerColor by animateColorAsState(
                 targetValue = if (isSelected) category.color else Color.Transparent,
                 label = "containerColor"
             )
 
-            // 2. Animate Text
             val contentColor by animateColorAsState(
                 targetValue = if (isSelected) category.onColor else MaterialTheme.colorScheme.onBackground,
                 label = "contentColor"
             )
 
-            // 3. Animate Border
             val borderColor by animateColorAsState(
                 targetValue = if (isSelected) Color.Transparent else category.color,
                 label = "borderColor"
@@ -693,13 +695,7 @@ fun BottomIconNavigation(
     }
 }
 
-
-// --- (ContentArea unchanged, included via import in MainActivity context usually, but if you need it inside this file, keep it as defined in your previous file upload) ---
-// Note: If you kept ContentArea in a separate file, the above is complete. If it was in MainActivity, make sure to keep the previous ContentArea code.
-// Based on your uploads, ContentArea was inside MainActivity.kt.
-// I will include it here for completeness to ensure the file works as a single copy-paste unit if needed, or relies on the imports if you separated it.
-// Assuming it is part of MainActivity based on the "type: uploaded file fileName: MainActivity.kt" context:
-
+// --- ContentArea ---
 @Composable
 fun ContentArea(
     userPosts: List<UserPost>,
@@ -827,6 +823,7 @@ fun ContentArea(
                             title = selectedPost.title,
                             description = selectedPost.description + "\n\nPrice: " + selectedPost.price + "\nLocation: " + selectedPost.location,
                             isSaved = savedItems.getOrDefault(selectedPost.title, false),
+                            saveCount = saveCounts.getOrDefault(selectedPost.title, 0),
                             onBackClick = onAdDetailBackClick,
                             onUserClick = { /* Stay on profile */ },
                             onSaveClick = { onSaveClick(selectedPost.title) },
