@@ -38,11 +38,9 @@ fun ProfileContent(
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
     onMenuClick: () -> Unit,
-    onNavigateToAdDetail: (UserPost) -> Unit, // <--- RENAMED TO FIX ERROR 1
+    onNavigateToAdDetail: (UserPost) -> Unit,
     onSaveClick: (String) -> Unit
 ) {
-    var isEditMode by remember { mutableStateOf(false) }
-
     var selectedTab by remember { mutableStateOf("Available") }
     val tabs = listOf("Available", "Gone", "Pick it up")
 
@@ -53,12 +51,9 @@ fun ProfileContent(
     ) {
         TopProfileBar(
             onBackClick = onBackClick,
-            onEditClick = {
-                isEditMode = !isEditMode
-                onEditClick()
-            },
+            onEditClick = onEditClick, // Directly calls the navigation lambda
             onMenuClick = onMenuClick,
-            isEditMode = isEditMode
+            isEditMode = false
         )
 
         LazyColumn(
@@ -202,7 +197,6 @@ fun ProfileContent(
                             price = "$${post.price}",
                             isSaved = isSaved,
                             saveCount = saveCount,
-                            // Using the renamed function here
                             onItemClick = { onNavigateToAdDetail(post) },
                             onSaveClick = { onSaveClick(post.title) }
                         )
@@ -246,7 +240,7 @@ fun TopProfileBar(
         actions = {
             IconButton(onClick = onEditClick) {
                 Icon(
-                    imageVector = Icons.Default.Edit,
+                    imageVector = Icons.Filled.Edit,
                     contentDescription = "Edit",
                     tint = if (isEditMode) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.onBackground,

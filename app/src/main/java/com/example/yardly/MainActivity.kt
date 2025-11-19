@@ -403,20 +403,16 @@ fun YardlyApp(
                     ) {
                         FloatingActionButton(
                             onClick = {
-                                if (!isLoggedIn) {
-                                    showAdLoginModal = true
-                                } else {
-                                    showCreatePostSheet = true
-                                    isFabMenuExpanded = false
-                                }
+                                showChooseCornerSheet = true
+                                isFabMenuExpanded = false
                             },
                             shape = CircleShape,
                             containerColor = MaterialTheme.colorScheme.secondary,
                             contentColor = MaterialTheme.colorScheme.onSecondary
                         ) {
                             Icon(
-                                Icons.Filled.CameraAlt,
-                                contentDescription = "Create Post"
+                                Icons.Filled.LocationOn,
+                                contentDescription = "Choose Location"
                             )
                         }
                     }
@@ -427,16 +423,20 @@ fun YardlyApp(
                     ) {
                         FloatingActionButton(
                             onClick = {
-                                showChooseCornerSheet = true
-                                isFabMenuExpanded = false
+                                if (!isLoggedIn) {
+                                    showAdLoginModal = true
+                                } else {
+                                    showCreatePostSheet = true
+                                    isFabMenuExpanded = false
+                                }
                             },
                             shape = CircleShape,
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         ) {
                             Icon(
-                                Icons.Filled.LocationOn,
-                                contentDescription = "Choose Location"
+                                Icons.Filled.CameraAlt,
+                                contentDescription = "Create Post"
                             )
                         }
                     }

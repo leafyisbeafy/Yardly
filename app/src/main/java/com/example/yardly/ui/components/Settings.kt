@@ -5,17 +5,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -32,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,23 +37,24 @@ import com.example.yardly.ui.theme.YardlyTheme
 @Composable
 fun SettingsScreen(
     onBackClick: () -> Unit,
-    // *** ADDED PARAMETERS TO FIX ERROR 2 & 3 ***
     onAccessibilityClick: () -> Unit,
     onDarkModeClick: () -> Unit,
-    onLogOutClick: () -> Unit = {} // Optional handler for logout
+    onLogOutClick: () -> Unit = {}
 ) {
     val settingsOptions = listOf(
         "Account",
         "Notification",
         "Security & Permission",
         "Privacy",
-        "Accessibility", // This will trigger onAccessibilityClick
+        "Accessibility",
         "About",
         "Log out"
     )
 
     // Non-expandable items that trigger navigation directly
-    val directNavigationItems = setOf("Accessibility")
+    // *** UPDATED: Removed "Accessibility" so it can expand ***
+    val directNavigationItems = emptySet<String>()
+
     // Items that don't expand and are special (like Log out)
     val specialItems = setOf("Log out", "About")
 
@@ -91,7 +85,7 @@ fun SettingsScreen(
                     name = optionName,
                     onClick = {
                         when (optionName) {
-                            "Accessibility" -> onAccessibilityClick() // Call the function!
+                            // *** UPDATED: Removed "Accessibility" case here so it falls through to expansion logic ***
                             "Log out" -> showLogoutDialog = true
                             else -> {
                                 if (isExpandable) {
@@ -104,7 +98,7 @@ fun SettingsScreen(
                         }
                     },
                     isExpanded = isExpanded,
-                    showArrow = isExpandable || optionName == "Accessibility" // Show arrow for nav items too
+                    showArrow = isExpandable
                 )
 
                 // Expansion Content (if any)
@@ -120,18 +114,33 @@ fun SettingsScreen(
                             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
                     ) {
                         when (optionName) {
-                            // Example: If we wanted to nest Dark Mode under something else
                             "Account" -> {
-                                // Nested items
+                                // 1. Change Password
+                                SettingsRow(
+                                    name = "Change password",
+                                    onClick = { /* TODO: Handle Change Password */ },
+                                    showArrow = false
+                                )
+
+                                // 2. Deactivate Account
+                                SettingsRow(
+                                    name = "Deactivate account",
+                                    onClick = { /* TODO: Handle Deactivate Account */ },
+                                    showArrow = false
+                                )
+                            }
+                            // *** NEW: Accessibility Section ***
+                            "Accessibility" -> {
+                                SettingsRow(
+                                    name = "Dark Mode",
+                                    onClick = onDarkModeClick,
+                                    showArrow = false
+                                )
                             }
                         }
                     }
                 }
             }
-
-            // Explicitly add Dark Mode as a row if it's not in the main list
-            // Or if you want it nested under accessibility, you can do that.
-            // But for this fix, let's make sure we can call the function.
         }
     }
 }
