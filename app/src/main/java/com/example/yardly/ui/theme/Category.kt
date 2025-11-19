@@ -36,19 +36,19 @@ sealed class Category(
         onColor = Color.White
     )
 
-    // 4. Moving Out (Terracotta - White Text) - *** NEW 4TH POSITION ***
+    // 4. Moving Out (Terracotta - White Text)
     data object MovingOut : Category(
         id = "moving_out",
         label = "Moving Out",
-        color = BtnTerracotta, // Repurposed color
+        color = BtnTerracotta,
         onColor = Color.White
     )
 
-    // 5. Garage Sale (Dark Orange - White Text) - *** NEW 5TH POSITION ***
+    // 5. Garage Sale (Dark Orange - White Text)
     data object GarageSale : Category(
         id = "garage_sale",
         label = "Garage Sale",
-        color = BtnDarkOrange, // Repurposed color
+        color = BtnDarkOrange,
         onColor = Color.White
     )
 

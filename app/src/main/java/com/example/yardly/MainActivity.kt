@@ -98,7 +98,6 @@ private val allTextbookAds = listOf(
     Ad("Physics for Scientists", "User L")
 )
 
-// *** NEW: Moving Out Ads ***
 private val allMovingOutAds = listOf(
     Ad("Moving Sale: Everything Must Go", "User M"),
     Ad("Couch for Sale", "User N"),
@@ -106,7 +105,6 @@ private val allMovingOutAds = listOf(
     Ad("Queen Bed Frame", "User P")
 )
 
-// *** NEW: Garage Sale Ads ***
 private val allGarageSaleAds = listOf(
     Ad("Neighborhood Garage Sale", "User Q"),
     Ad("Antique Sale", "User R"),
@@ -230,6 +228,20 @@ fun YardlyApp(
         }
     }
 
+    // *** BEHAVIOR 3: EXIT FOCUS MODE LOGIC ***
+    // Detect if we are at the very top of the grid
+    val isAtTop by remember { derivedStateOf { gridState.firstVisibleItemIndex == 0 } }
+
+    // Watch for scroll changes. If we hit the top while in Focus Mode (not home-default),
+    // reset back to home-default. We check `isScrollInProgress` to ensure this is a user action,
+    // preventing immediate resets if a category happens to load at the top.
+    LaunchedEffect(isAtTop, gridState.isScrollInProgress) {
+        if (isAtTop && selectedNavSection != "home-default" && gridState.isScrollInProgress) {
+            selectedNavSection = "home-default"
+        }
+    }
+    // *** END EXIT FOCUS LOGIC ***
+
     var isFabMenuExpanded by remember { mutableStateOf(false) }
 
     var userPosts by remember { mutableStateOf<List<UserPost>>(emptyList()) }
@@ -287,16 +299,15 @@ fun YardlyApp(
         savedItems[adName] = true
     }
 
-    // *** UPDATED WHEN BLOCK ***
+    // *** DYNAMIC AD LIST ***
     val dynamicAdList = remember(selectedNavSection) {
         when (selectedNavSection) {
             "home-default" -> defaultAds
-            // Rehome, Sublease, Textbook, Moving Out, Garage Sale, Sneaker, Electronics
             Category.Rehome.id -> allAquaSwapAds.values.flatten()
             Category.Sublease.id -> allSubleaseAds.values.flatten()
             Category.Textbook.id -> allTextbookAds
-            Category.MovingOut.id -> allMovingOutAds // <--- NEW
-            Category.GarageSale.id -> allGarageSaleAds // <--- NEW
+            Category.MovingOut.id -> allMovingOutAds
+            Category.GarageSale.id -> allGarageSaleAds
             Category.Sneaker.id -> allSneakerAds
             Category.Electronics.id -> allElectronicsAds
             else -> defaultAds
@@ -312,7 +323,7 @@ fun YardlyApp(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Top Bar
+            // Top Bar (Always Visible per requirements)
             if (showHeaderAndNav) {
                 TopBar()
             }
@@ -457,8 +468,13 @@ fun YardlyApp(
 
             // --- Navigation Logic ---
             val isBottomNavVisible = if (selectedIconSection != "home") {
+                // Not on home tab (Profile/Watchlist/etc) -> Always Visible
                 true
             } else {
+                // On Home Tab:
+                // 1. If default home: follow scroll controls (Behavior 1)
+                // 2. If Focus Mode (category selected): HIDDEN (Behavior 2),
+                //    until reset by scroll-to-top logic above.
                 (selectedNavSection == "home-default") && isControlsVisible
             }
 
