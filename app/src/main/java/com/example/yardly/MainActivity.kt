@@ -102,14 +102,32 @@ private val allTextbookAds = listOf(
     Ad("Psychology 101", "User I"),
     Ad("Intro to Java Programming", "User J"),
     Ad("Microeconomics", "User K"),
-    Ad("Physics for Scientists", "User L")
+    Ad("Physics for Scientists", "User L"),
+    Ad("Data Strcutures and Alo", "User 22"),
+    Ad("World Religions", "User 33"),
+    Ad("RD Sharma", "User 34"),
+    Ad("Linear Algebra and its Applications (5th Ed)", "User 31"),
+    Ad("History of Western Art (10th Ed)", "User 32"),
+    Ad("Data Structures and Algorithms (Mint)", "User 33"),
+    Ad("Financial Accounting (Loose Leaf)", "User 34"),
+    Ad("Public Speaking Today", "User 35"),
+    Ad("Statistics for Beginners", "User 36"),
+    Ad("Nursing Fundamentals Textbook", "User 37"),
+    Ad("Engineering Mechanics: Statics", "User 38"),
+    Ad("World Religions (2nd Edition)", "User 39"),
 )
 
 private val allMovingOutAds = listOf(
     Ad("Moving Sale: Everything Must Go", "User M"),
     Ad("Couch for Sale", "User N"),
     Ad("Dining Table", "User O"),
-    Ad("Queen Bed Frame", "User P")
+    Ad("Queen Bed Frame", "User P"),
+    Ad("Patio Furniture Set (4 pieces)", "User 40"),
+    Ad("Free Moving Boxes (Tons)", "User 41"),
+    Ad("Toolbox and Starter Tools", "User 42"),
+    Ad("Brand New Curtains (Blackout)", "User 43"),
+    Ad("Box of Kitchen Utensils", "User 44"),
+    Ad("Vintage Bicycle (Needs work)", "User 45")
 )
 
 private val allGarageSaleAds = listOf(
