@@ -55,6 +55,7 @@ import com.example.yardly.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.util.UUID
 
 // --- (All data classes and mock data) ---
@@ -183,9 +184,31 @@ class MainActivity : ComponentActivity() {
                 YardlyApp(
                     isDarkMode = isDarkMode,
                     onDarkModeToggle = onDarkModeToggle,
-                    postStorage = postStorage
+                    postStorage = postStorage,
+                    // *** NEW: Pass the image saving logic down ***
+                    onSaveImagePermanently = ::saveImagePermanently
                 )
             }
+        }
+    }
+
+    // *** NEW HELPER: Persist image to internal storage to fix disappearance bug ***
+    private fun saveImagePermanently(tempUri: Uri): Uri? {
+        val contentResolver = applicationContext.contentResolver
+        // Create a unique file name
+        val fileName = "profile_image_${System.currentTimeMillis()}.jpg"
+        val destinationFile = File(applicationContext.filesDir, fileName)
+
+        return try {
+            contentResolver.openInputStream(tempUri)?.use { inputStream ->
+                destinationFile.outputStream().use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+            Uri.fromFile(destinationFile)
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Failed to save image permanently", e)
+            null
         }
     }
 }
@@ -195,7 +218,9 @@ class MainActivity : ComponentActivity() {
 fun YardlyApp(
     isDarkMode: Boolean,
     onDarkModeToggle: (Boolean) -> Unit,
-    postStorage: PostStorage
+    postStorage: PostStorage,
+    // *** NEW PARAMETER ***
+    onSaveImagePermanently: (Uri) -> Uri?
 ) {
     var selectedIconSection by remember { mutableStateOf("home") }
     var selectedNavSection by remember { mutableStateOf("home-default") }
@@ -212,7 +237,10 @@ fun YardlyApp(
 
     val cropImage = rememberLauncherForActivityResult(CropImageContract()) { result ->
         if (result.isSuccessful) {
-            imageUri = result.uriContent
+            // For creating posts, we also want to persist the image
+            // We can reuse the same logic passed in
+            val savedUri = onSaveImagePermanently(result.uriContent!!)
+            imageUri = savedUri
         }
     }
 
@@ -255,9 +283,12 @@ fun YardlyApp(
     var userPosts by remember { mutableStateOf<List<UserPost>>(emptyList()) }
     val coroutineScope = rememberCoroutineScope()
 
+    // --- PROFILE STATE ---
     var profileName by remember { mutableStateOf("Peyton Venzeee") }
     var profileUsername by remember { mutableStateOf("peyton") }
     var profileBio by remember { mutableStateOf("just another broke college student...") }
+    // *** NEW: Profile Image State ***
+    var profileImageUri by remember { mutableStateOf<Uri?>(null) }
 
     // --- BACK HANDLER LOGIC ---
     val isHome = selectedIconSection == "home"
@@ -353,17 +384,24 @@ fun YardlyApp(
                     profileName = profileName,
                     profileUsername = profileUsername,
                     profileBio = profileBio,
-                    onSaveProfile = { newName, newUsername, newBio ->
+                    // *** NEW: Pass profile image ***
+                    profileImageUri = profileImageUri,
+
+                    onSaveProfile = { newName, newUsername, newBio, newImageUri ->
                         profileName = newName
                         profileUsername = newUsername
                         profileBio = newBio
+                        // Update the image if a new one was selected (otherwise keep old)
+                        if (newImageUri != null) {
+                            profileImageUri = newImageUri
+                        }
                         profileScreenState = ProfileScreenState.Profile
                     },
+                    // *** NEW: Pass persistence function ***
+                    onSaveImagePermanently = onSaveImagePermanently,
 
-                    // *** IMPLEMENTED LOGIC HERE ***
                     onAdClick = { ad ->
                         if (isLoggedIn) {
-                            // Create UserPost from Ad and navigate
                             val newPost = UserPost(
                                 title = ad.name,
                                 description = "Description for ${ad.name}",
@@ -371,10 +409,10 @@ fun YardlyApp(
                                 location = "Campus",
                                 price = "Contact for Price",
                                 userName = ad.user,
-                                imageUriString = null // Mocked image for ad
+                                imageUriString = null
                             )
                             selectedPost = newPost
-                            selectedIconSection = "profile" // Route to where detail view lives
+                            selectedIconSection = "profile"
                             profileScreenState = ProfileScreenState.AdDetail
                         } else {
                             showAdLoginModal = true
@@ -536,6 +574,8 @@ fun YardlyApp(
             name = profileName,
             username = profileUsername,
             bio = profileBio,
+            // *** NEW: Pass Image ***
+            imageUri = profileImageUri,
             userPosts = userPosts,
             saveCounts = saveCounts,
             savedItems = savedItems,
@@ -567,11 +607,10 @@ fun YardlyApp(
                     category = category,
                     location = location,
                     price = price,
-                    imageUriString = imageUriString // Store the image URI string
+                    imageUriString = imageUriString
                 )
                 userPosts = listOf(newPost) + userPosts
                 Log.d("CreatePostSheet", "New Post Saved: $newPost")
-                // CRITICAL: Save posts immediately after adding a new one
                 coroutineScope.launch(Dispatchers.IO) {
                     postStorage.savePosts(userPosts)
                 }
@@ -764,9 +803,11 @@ fun ContentArea(
     profileName: String,
     profileUsername: String,
     profileBio: String,
-    onSaveProfile: (String, String, String) -> Unit,
+    // *** NEW: Accept profile image ***
+    profileImageUri: Uri?,
+    onSaveProfile: (String, String, String, Uri?) -> Unit, // Updated signature
+    onSaveImagePermanently: (Uri) -> Uri?, // New persistence func
 
-    // *** CHANGED SIGNATURE TO ACCEPT Ad OBJECT ***
     onAdClick: (Ad) -> Unit = {},
     onBackClick: () -> Unit = {},
     onSettingsBackClick: () -> Unit = {},
@@ -804,8 +845,6 @@ fun ContentArea(
                         userName = post.userName,
                         saveCount = saveCount,
                         isSaved = isSaved,
-                        // We pass a mock Ad object here since UserPost has similar data,
-                        // or you could overload onAdClick. For now, mapping manually.
                         onAdClick = { onAdClick(Ad(post.title, post.userName)) },
                         onUserClick = onUserClick,
                         onSaveClick = { onSaveClick(post.title) }
@@ -820,7 +859,6 @@ fun ContentArea(
                         userName = ad.user,
                         saveCount = saveCount,
                         isSaved = isSaved,
-                        // *** PASSING THE CLICK WITH AD DATA ***
                         onAdClick = { onAdClick(ad) },
                         onUserClick = onUserClick,
                         onSaveClick = { onSaveClick(ad.name) }
@@ -843,6 +881,7 @@ fun ContentArea(
                     name = profileName,
                     username = profileUsername,
                     bio = profileBio,
+                    imageUri = profileImageUri,
                     userPosts = userPosts,
                     saveCounts = saveCounts,
                     savedItems = savedItems,
@@ -850,7 +889,8 @@ fun ContentArea(
                     onEditClick = onEditClick,
                     onMenuClick = onMenuClick,
                     onNavigateToAdDetail = onPostClick,
-                    onSaveClick = onSaveClick
+                    onSaveClick = onSaveClick,
+                    isEditMode = false
                 )
                 ProfileScreenState.Settings -> SettingsScreen(
                     onBackClick = onSettingsBackClick,
@@ -870,8 +910,10 @@ fun ContentArea(
                     currentName = profileName,
                     currentUsername = profileUsername,
                     currentBio = profileBio,
+                    currentImageUri = profileImageUri,
                     onBackClick = onEditProfileBackClick,
-                    onSaveClick = onSaveProfile
+                    onSaveClick = onSaveProfile,
+                    onSaveImagePermanently = onSaveImagePermanently
                 )
                 ProfileScreenState.AdDetail -> {
                     if (selectedPost != null) {
@@ -915,20 +957,8 @@ fun YardlyAppPreview() {
         YardlyApp(
             isDarkMode = false,
             onDarkModeToggle = {},
-            postStorage = PostStorage(context)
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun YardlyAppPreviewDark() {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    YardlyTheme(isDarkMode = true) {
-        YardlyApp(
-            isDarkMode = true,
-            onDarkModeToggle = {},
-            postStorage = PostStorage(context)
+            postStorage = PostStorage(context),
+            onSaveImagePermanently = { it }
         )
     }
 }

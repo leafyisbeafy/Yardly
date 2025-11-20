@@ -52,21 +52,30 @@ fun EditProfileScreen(
     currentName: String,
     currentUsername: String,
     currentBio: String,
+    // *** NEW: Accept current image URI ***
+    currentImageUri: Uri?,
     onBackClick: () -> Unit,
-    onSaveClick: (name: String, username: String, bio: String) -> Unit
+    // *** UPDATED: Callback now includes Uri? ***
+    onSaveClick: (name: String, username: String, bio: String, imageUri: Uri?) -> Unit,
+    // *** NEW: Function to save image permanently ***
+    onSaveImagePermanently: (Uri) -> Uri?
 ) {
     var name by remember { mutableStateOf(currentName) }
     var username by remember { mutableStateOf(currentUsername) }
     var bio by remember { mutableStateOf(currentBio) }
 
     // State to hold the final cropped image URI
-    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(currentImageUri) }
 
     // 1. Define the Cropper Launcher
     val imageCropLauncher = rememberLauncherForActivityResult(CropImageContract()) { result ->
         if (result.isSuccessful) {
-            // Update the state with the cropped image
-            selectedImageUri = result.uriContent
+            val tempUri = result.uriContent
+            // *** CRITICAL FIX: Persist the image immediately ***
+            if (tempUri != null) {
+                val savedUri = onSaveImagePermanently(tempUri)
+                selectedImageUri = savedUri
+            }
         } else {
             // Handle error (optional)
             val exception = result.error
@@ -102,7 +111,7 @@ fun EditProfileScreen(
         // Top Bar
         EditProfileTopBar(
             onBackClick = onBackClick,
-            onDoneClick = { onSaveClick(name, username, bio) }
+            onDoneClick = { onSaveClick(name, username, bio, selectedImageUri) }
         )
 
         // Form Content
@@ -249,8 +258,10 @@ fun EditProfileScreenPreview() {
             currentName = "Osh",
             currentUsername = "oshonik.xd",
             currentBio = "This is a bio.",
+            currentImageUri = null,
             onBackClick = {},
-            onSaveClick = {_,_,_ ->}
+            onSaveClick = {_,_,_,_ ->},
+            onSaveImagePermanently = { it }
         )
     }
 }
