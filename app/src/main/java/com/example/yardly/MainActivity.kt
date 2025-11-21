@@ -91,9 +91,27 @@ private val defaultAds = listOf(
 )
 
 private val allSubleaseAds = mapOf(
-    "Room" to listOf(Ad("Sublet: 1-Bed Room", "User A"), Ad("Shared Room Downtown", "User B")),
-    "Car" to listOf(Ad("Toyota Camry 2018", "User C"), Ad("Honda Civic Lease", "User D")),
-    "Retail Store" to listOf(Ad("Pop-up Shop Space", "User E"), Ad("Small Retail Front", "User F"))
+    "Room" to listOf(
+        Ad("Sublet: 1-Bed Room Downtown", "User A"),
+        Ad("Shared Room Near Campus (Summer)", "User B"),
+        Ad("Furnished Master Bedroom w/ Private Bath", "SubletPro1"),
+        Ad("Short-term Room for May-July", "StudentSublet2"),
+        Ad("Quiet Room in 3-Bed Apartment", "GradStudent3"),
+        Ad("Loft-style Room Available Immediately", "UrbanDweller4"),
+        Ad("Basement Room with Separate Entrance", "Homeowner5")
+    ),
+    "Apartment" to listOf(
+        Ad("1-Bedroom Apartment Sublet (Full)", "LeaseHolder6"),
+        Ad("Studio Apartment Sublease - 6 months", "CityLiving7"),
+        Ad("2-Bed, 2-Bath Condo Sublet", "CondoOwner8"),
+        Ad("Modern Downtown Loft Sublease", "LoftLover9"),
+        Ad("Pet-Friendly 1-Bed Apt Sublet", "PetFriendly10")
+    ),
+    "Parking" to listOf(
+        Ad("Underground Parking Spot Near University", "Parker11"),
+        Ad("Covered Parking Spot for Rent", "Commuter12"),
+        Ad("Driveway Parking Space (Monthly)", "Homeowner13")
+    )
 )
 
 private val allTextbookAds = listOf(
@@ -118,16 +136,23 @@ private val allTextbookAds = listOf(
 )
 
 private val allMovingOutAds = listOf(
-    Ad("Moving Sale: Everything Must Go", "User M"),
-    Ad("Couch for Sale", "User N"),
-    Ad("Dining Table", "User O"),
-    Ad("Queen Bed Frame", "User P"),
+    Ad("Moving Sale: Everything Must Go!", "User M"),
+    Ad("L-Shaped Sectional Couch (Grey)", "User N"),
+    Ad("Solid Wood Dining Table w/ 4 Chairs", "User O"),
+    Ad("Queen Bed Frame and Mattress", "User P"),
+    Ad("IKEA Kallax Shelving Unit (White)", "StudentSeller1"),
+    Ad("Standing Desk (Electric)", "WFH_Professional2"),
+    Ad("Samsung 55\" 4K Smart TV", "Techie3"),
+    Ad("Mini Fridge - Perfect for Dorms", "DormDweller4"),
+    Ad("Bookshelf (5 shelves, dark wood)", "Bookworm5"),
+    Ad("Microwave and Toaster Oven Bundle", "KitchenSeller6"),
+    Ad("Dresser with 6 Drawers", "FurnitureFlipper7"),
+    Ad("Set of 4 Bar Stools", "Homeowner8"),
+    Ad("LG Washer and Dryer Set", "ApplianceSeller9"),
     Ad("Patio Furniture Set (4 pieces)", "User 40"),
     Ad("Free Moving Boxes (Tons)", "User 41"),
-    Ad("Toolbox and Starter Tools", "User 42"),
-    Ad("Brand New Curtains (Blackout)", "User 43"),
-    Ad("Box of Kitchen Utensils", "User 44"),
-    Ad("Vintage Bicycle (Needs work)", "User 45")
+    Ad("Full Kitchenware Set (Pots, Pans, Utensils)", "GraduatingSenior10"),
+    Ad("Floor Lamp with Adjustable Head", "LightingNeeds11")
 )
 
 private val allGarageSaleAds = listOf(
@@ -138,10 +163,47 @@ private val allGarageSaleAds = listOf(
 )
 
 private val allAquaSwapAds = mapOf(
-    "Equipment" to listOf(Ad("Used 50g Filter", "User K"), Ad("Heater", "User L")),
-    "Coral" to listOf(Ad("Zoanthid Frag", "User M"), Ad("Hammer Coral", "User N")),
-    "Tank" to listOf(Ad("40 Gallon Tank", "User O"), Ad("10g Betta Tank", "User P")),
-    "Rehome" to listOf(Ad("Goldfish needs home", "User Q"), Ad("Betta Fish (Free)", "User R"))
+    "Equipment" to listOf(
+        Ad("Used 50g Filter", "User K"),
+        Ad("Heater", "User L"),
+        Ad("AI Prime 16HD Reef Light", "ReefTanker1"),
+        Ad("Fluval FX6 Canister Filter", "CichlidFan2"),
+        Ad("RO/DI Unit - 4 Stage", "PureWater3"),
+        Ad("Eheim Jager Heater 150W", "HeaterSeller4"),
+        Ad("Hanna Salinity Checker", "SaltyDog5"),
+        Ad("BRS 2-Part Doser", "CalciumPro6")
+    ),
+    "Coral" to listOf(
+        Ad("Zoanthid Frag", "User M"),
+        Ad("Hammer Coral", "User N"),
+        Ad("GSP Frag (Green Star Polyp)", "CoralGrower7"),
+        Ad("Torch Coral (Indo Gold)", "LPSLover8"),
+        Ad("Acan Lord Colony", "AcanKing9"),
+        Ad("Montipora Digitata Frag", "SPSFreak10"),
+        Ad("Mushroom Coral Rock", "SoftieFan11")
+    ),
+    "Tank" to listOf(
+        Ad("40 Gallon Tank", "User O"),
+        Ad("10g Betta Tank", "User P"),
+        Ad("Waterbox 20 Gallon Cube", "NanoReefer12"),
+        Ad("75 Gallon with Stand & Sump", "BigTankBob13"),
+        Ad("Fluval Spec V Shrimp Tank", "ShrimpKeeper14")
+    ),
+    "Rehome" to listOf(
+        Ad("Goldfish needs home", "User Q"),
+        Ad("Betta Fish (Free)", "User R"),
+        Ad("Pair of Clownfish", "NemoFinder15"),
+        Ad("Bristlenose Pleco", "AlgaeEater16"),
+        Ad("Cherry Shrimp Colony (20+)", "ShrimpBreeder17"),
+        Ad("Pea Puffer Group (x5)", "PufferPal18")
+    ),
+    "Plants & Decor" to listOf(
+        Ad("Anubias Nana Petite", "PlantScaper19"),
+        Ad("Java Fern on Driftwood", "LowTechTank20"),
+        Ad("Dragon Stone Aquascape Rocks (10lbs)", "IwagumiLife21"),
+        Ad("Bag of CaribSea Sand", "SubstrateSwap22"),
+        Ad("Bucephalandra Pack", "RarePlantGuy23")
+    )
 )
 
 private val allSneakerAds = listOf(
@@ -285,14 +347,6 @@ fun YardlyApp(
             previousIndex = currentIndex
             previousOffset = currentOffset
             isScrollingUp || currentIndex == 0
-        }
-    }
-
-    // Exit Focus Mode Logic
-    val isAtTop by remember { derivedStateOf { gridState.firstVisibleItemIndex == 0 } }
-    LaunchedEffect(isAtTop, gridState.isScrollInProgress) {
-        if (isAtTop && selectedNavSection != "home-default" && gridState.isScrollInProgress) {
-            selectedNavSection = "home-default"
         }
     }
 
