@@ -46,6 +46,7 @@ import com.example.yardly.ui.theme.YardlyTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePostSheet(
+    userName: String,
     showModal: Boolean,
     onDismiss: () -> Unit,
     onPostListing: (title: String, desc: String, category: String, location: String, price: String, imageUri: String?) -> Unit,
@@ -65,7 +66,7 @@ fun CreatePostSheet(
     if (showModal) {
         ModalBottomSheet(
             onDismissRequest = onDismiss,
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             containerColor = MaterialTheme.colorScheme.surface,
             scrimColor = Color.Black.copy(alpha = 0.4f),
@@ -88,7 +89,7 @@ fun CreatePostSheet(
                             .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
                     )
                     Text(
-                        text = "Jordan Lee",
+                        text = userName,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface
@@ -133,8 +134,7 @@ fun CreatePostSheet(
                             Text(
                                 "What's selling?",
                                 fontSize = 20.sp,
-                                fontWeight = FontWeight.Medium,
-                                fontStyle = FontStyle.Italic
+                                fontWeight = FontWeight.Medium
                             )
                         },
                         colors = TextFieldDefaults.colors(
@@ -302,5 +302,20 @@ fun CreatePostSheet(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun CreatePostSheetPreview() {
+    YardlyTheme(isDarkMode = false) {
+        CreatePostSheet(
+            userName = "Preview User",
+            showModal = true,
+            onDismiss = {},
+            onPostListing = { _, _, _, _, _, _ -> },
+            imageUri = null,
+            onSelectImageClick = {}
+        )
     }
 }

@@ -91,7 +91,48 @@ private val defaultAds = listOf(
 )
 
 private val allSubleaseAds = mapOf(
-    "Room" to listOf(Ad("Sublet: 1-Bed Room", "User A"), Ad("Shared Room Downtown", "User B")),
+    "Room" to listOf(
+        Ad("Sublet: 1-Bed Room", "User A"),
+        Ad("Shared Room Downtown", "User B"),
+        Ad("Summer Sublet, 2BR", "User S1"),
+        Ad("Fall Semester Sublet", "User S2"),
+        Ad("Luxury Apartment Sublet", "User S3"),
+        Ad("Studio Near Campus", "User S4"),
+        Ad("Furnished Room for Rent", "User S5"),
+        Ad("Quiet Neighborhood Sublet", "User S6"),
+        Ad("Sublet with Parking", "User S7"),
+        Ad("Month-to-Month Sublet", "User S8"),
+        Ad("Sublet, Utilities Included", "User S9"),
+        Ad("Pet-Friendly Sublet", "User S10"),
+        Ad("Sublet with Gym Access", "User S11"),
+        Ad("Bright and Sunny Room", "User S12"),
+        Ad("Sublet close to transit", "User S13"),
+        Ad("4-Month Sublet available", "User S14"),
+        Ad("Renovated Apartment Sublet", "User S15"),
+        Ad("Spacious Room for Rent", "User S16"),
+        Ad("Sublet with Balcony", "User S17"),
+        Ad("Affordable Downtown Sublet", "User S18"),
+        Ad("Cozy Room in Shared House", "User S19"),
+        Ad("Sublet with Modern Kitchen", "User S20"),
+        Ad("Private Room and Bath", "User S21"),
+        Ad("Student Housing Sublet", "User S22"),
+        Ad("Short-Term Sublet", "User S23"),
+        Ad("Walk-in Closet Room", "User S24"),
+        Ad("All-Inclusive Sublet", "User S25"),
+        Ad("Rooftop Patio Access", "User S26"),
+        Ad("Sublet with a View", "User S27"),
+        Ad("Great for Commuters", "User S28"),
+        Ad("Clean and Tidy Sublet", "User S29"),
+        Ad("Secure Building Sublet", "User S30"),
+        Ad("Loft-Style Apartment", "User S31"),
+        Ad("Sublet in Historic Building", "User S32"),
+        Ad("Close to Parks and Trails", "User S33"),
+        Ad("Sublet with In-Suite Laundry", "User S34"),
+        Ad("Charming Sublet", "User S35"),
+        Ad("Large Window Room", "User S36"),
+        Ad("Student-Friendly Sublet", "User S37"),
+        Ad("Sublet with Bike Storage", "User S38")
+    ),
     "Car" to listOf(Ad("Toyota Camry 2018", "User C"), Ad("Honda Civic Lease", "User D")),
     "Retail Store" to listOf(Ad("Pop-up Shop Space", "User E"), Ad("Small Retail Front", "User F"))
 )
@@ -115,6 +156,44 @@ private val allTextbookAds = listOf(
     Ad("Nursing Fundamentals Textbook", "User 37"),
     Ad("Engineering Mechanics: Statics", "User 38"),
     Ad("World Religions (2nd Edition)", "User 39"),
+    Ad("The Art of Public Speaking", "User T1"),
+    Ad("Biology: A Global Approach", "User T2"),
+    Ad("Chemistry: The Central Science", "User T3"),
+    Ad("Campbell Biology", "User T4"),
+    Ad("Economics by Mankiw", "User T5"),
+    Ad("Fundamentals of Physics", "User T6"),
+    Ad("Introduction to Algorithms", "User T7"),
+    Ad("Marketing Management", "User T8"),
+    Ad("Principles of Marketing", "User T9"),
+    Ad("Psychology by Myers", "User T10"),
+    Ad("Sociology: A Brief Introduction", "User T11"),
+    Ad("The Norton Anthology of English Literature", "User T12"),
+    Ad("A People's History of the United States", "User T13"),
+    Ad("Calculus by Stewart", "User T14"),
+    Ad("Differential Equations", "User T15"),
+    Ad("Genki I: An Integrated Course in Elementary Japanese", "User T16"),
+    Ad("Gray's Anatomy for Students", "User T17"),
+    Ad("Harrison's Principles of Internal Medicine", "User T18"),
+    Ad("Janeway's Immunobiology", "User T19"),
+    Ad("Lehninger Principles of Biochemistry", "User T20"),
+    Ad("Molecular Biology of the Cell", "User T21"),
+    Ad("The C Programming Language", "User T22"),
+    Ad("The Clean Coder", "User T23"),
+    Ad("The Pragmatic Programmer", "User T24"),
+    Ad("Design Patterns: Elements of Reusable Object-Oriented Software", "User T25"),
+    Ad("Compilers: Principles, Techniques, and Tools", "User T26"),
+    Ad("Computer Networking: A Top-Down Approach", "User T27"),
+    Ad("Database System Concepts", "User T28"),
+    Ad("Modern Operating Systems", "User T29"),
+    Ad("Structure and Interpretation of Computer Programs", "User T30"),
+    Ad("The Lord of the Rings", "User T31"),
+    Ad("Pride and Prejudice", "User T32"),
+    Ad("The Great Gatsby", "User T33"),
+    Ad("To Kill a Mockingbird", "User T34"),
+    Ad("1984", "User T35"),
+    Ad("The Catcher in the Rye", "User T36"),
+    Ad("Brave New World", "User T37"),
+    Ad("The Hobbit", "User T38")
 )
 
 private val allMovingOutAds = listOf(
@@ -127,7 +206,45 @@ private val allMovingOutAds = listOf(
     Ad("Toolbox and Starter Tools", "User 42"),
     Ad("Brand New Curtains (Blackout)", "User 43"),
     Ad("Box of Kitchen Utensils", "User 44"),
-    Ad("Vintage Bicycle (Needs work)", "User 45")
+    Ad("Vintage Bicycle (Needs work)", "User 45"),
+    Ad("Desk Chair", "User M1"),
+    Ad("Bookshelf", "User M2"),
+    Ad("Dresser", "User M3"),
+    Ad("Nightstand", "User M4"),
+    Ad("Coffee Table", "User M5"),
+    Ad("TV Stand", "User M6"),
+    Ad("Lamps", "User M7"),
+    Ad("Microwave", "User M8"),
+    Ad("Toaster", "User M9"),
+    Ad("Blender", "User M10"),
+    Ad("Dish Set", "User M11"),
+    Ad("Silverware", "User M12"),
+    Ad("Pots and Pans", "User M13"),
+    Ad("Baking Sheets", "User M14"),
+    Ad("Mixing Bowls", "User M15"),
+    Ad("Measuring Cups", "User M16"),
+    Ad("Wall Art", "User M17"),
+    Ad("Throw Pillows", "User M18"),
+    Ad("Blankets", "User M19"),
+    Ad("Towels", "User M20"),
+    Ad("Shower Curtain", "User M21"),
+    Ad("Bathroom Rug", "User M22"),
+    Ad("Trash Cans", "User M23"),
+    Ad("Laundry Baskets", "User M24"),
+    Ad("Iron and Ironing Board", "User M25"),
+    Ad("Vacuum Cleaner", "User M26"),
+    Ad("Broom and Dustpan", "User M27"),
+    Ad("Mop and Bucket", "User M28"),
+    Ad("Cleaning Supplies", "User M29"),
+    Ad("Storage Bins", "User M30"),
+    Ad("Hangers", "User M31"),
+    Ad("Shoe Rack", "User M32"),
+    Ad("Full-Length Mirror", "User M33"),
+    Ad("House Plants", "User M34"),
+    Ad("Outdoor Chairs", "User M35"),
+    Ad("Grill", "User M36"),
+    Ad("Lawn Mower", "User M37"),
+    Ad("Garden Tools", "User M38")
 )
 
 private val allGarageSaleAds = listOf(
@@ -141,7 +258,48 @@ private val allAquaSwapAds = mapOf(
     "Equipment" to listOf(Ad("Used 50g Filter", "User K"), Ad("Heater", "User L")),
     "Coral" to listOf(Ad("Zoanthid Frag", "User M"), Ad("Hammer Coral", "User N")),
     "Tank" to listOf(Ad("40 Gallon Tank", "User O"), Ad("10g Betta Tank", "User P")),
-    "Rehome" to listOf(Ad("Goldfish needs home", "User Q"), Ad("Betta Fish (Free)", "User R"))
+    "Rehome" to listOf(
+        Ad("Goldfish needs home", "User Q"),
+        Ad("Betta Fish (Free)", "User R"),
+        Ad("Guppies for Sale", "User A1"),
+        Ad("Pleco needs new tank", "User A2"),
+        Ad("Corydoras Catfish", "User A3"),
+        Ad("Angelfish Pair", "User A4"),
+        Ad("Discus Fish", "User A5"),
+        Ad("German Blue Rams", "User A6"),
+        Ad("Kribensis Cichlids", "User A7"),
+        Ad("Electric Blue Acara", "User A8"),
+        Ad("Red Cherry Shrimp", "User A9"),
+        Ad("Amano Shrimp", "User A10"),
+        Ad("Nerite Snails", "User A11"),
+        Ad("Mystery Snails", "User A12"),
+        Ad("Java Fern", "User A13"),
+        Ad("Anubias Nana", "User A14"),
+        Ad("Amazon Sword", "User A15"),
+        Ad("Cryptocoryne Wendtii", "User A16"),
+        Ad("Java Moss", "User A17"),
+        Ad("Duckweed", "User A18"),
+        Ad("Water Wisteria", "User A19"),
+        Ad("Hornwort", "User A20"),
+        Ad("Driftwood", "User A21"),
+        Ad("Lava Rock", "User A22"),
+        Ad("Seiryu Stone", "User A23"),
+        Ad("Dragon Stone", "User A24"),
+        Ad("Aquarium Gravel", "User A25"),
+        Ad("Aquarium Sand", "User A26"),
+        Ad("Fish Food", "User A27"),
+        Ad("Water Conditioner", "User A28"),
+        Ad("Fertilizer", "User A29"),
+        Ad("CO2 System", "User A30"),
+        Ad("LED Light", "User A31"),
+        Ad("Canister Filter", "User A32"),
+        Ad("Sponge Filter", "User A33"),
+        Ad("Air Pump", "User A34"),
+        Ad("Heater", "User A35"),
+        Ad("Thermometer", "User A36"),
+        Ad("Fish Net", "User A37"),
+        Ad("Gravel Vacuum", "User A38")
+    )
 )
 
 private val allSneakerAds = listOf(
@@ -285,14 +443,6 @@ fun YardlyApp(
             previousIndex = currentIndex
             previousOffset = currentOffset
             isScrollingUp || currentIndex == 0
-        }
-    }
-
-    // Exit Focus Mode Logic
-    val isAtTop by remember { derivedStateOf { gridState.firstVisibleItemIndex == 0 } }
-    LaunchedEffect(isAtTop, gridState.isScrollInProgress) {
-        if (isAtTop && selectedNavSection != "home-default" && gridState.isScrollInProgress) {
-            selectedNavSection = "home-default"
         }
     }
 
@@ -616,6 +766,7 @@ fun YardlyApp(
             onDismiss = { showChooseCornerSheet = false }
         )
         CreatePostSheet(
+            userName = profileName,
             showModal = showCreatePostSheet,
             onDismiss = { showCreatePostSheet = false },
             onPostListing = { title, desc, category, location, price, imageUriString ->
