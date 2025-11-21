@@ -44,34 +44,10 @@ sealed class Category(
         onColor = Color.White
     )
 
-    // 5. Garage Sale (Dark Orange - White Text)
-    data object GarageSale : Category(
-        id = "garage_sale",
-        label = "Garage Sale",
-        color = BtnDarkOrange,
-        onColor = Color.White
-    )
-
-    // 6. Sneaker (Electric Lime - BLACK Text)
-    data object Sneaker : Category(
-        id = "sneaker",
-        label = "Sneaker",
-        color = BtnElectricLime,
-        onColor = Color.Black
-    )
-
-    // 7. Electronics (Neon Azure - White Text)
-    data object Electronics : Category(
-        id = "electronics",
-        label = "Electronics",
-        color = BtnNeonAzure,
-        onColor = Color.White
-    )
-
     companion object {
         // The list used to generate UI buttons
         val all = listOf(
-            Rehome, Sublease, Textbook, MovingOut, GarageSale, Sneaker, Electronics
+            Rehome, Sublease, Textbook, MovingOut,
         )
 
         // Helper to safely get a category label by ID

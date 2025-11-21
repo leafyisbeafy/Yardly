@@ -3,6 +3,7 @@ package com.example.yardly.ui.components
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,6 +24,8 @@ import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,7 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.yardly.ui.theme.Category
+import com.example.yardly.ui.theme.Category // Ensure this import is correct
 import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
@@ -57,7 +60,8 @@ fun CreatePostSheet(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf<Category>(Category.Electronics) }
+    // FIX: Initialize with an existing category from your Category.kt
+    var selectedCategory by remember { mutableStateOf<Category>(Category.Rehome) } // Changed from Category.Electronics
     var location by remember { mutableStateOf("Central Campus, Your City") }
 
     val context = LocalContext.current
@@ -214,9 +218,47 @@ fun CreatePostSheet(
                     )
                 )
 
-                // ... (Category Selector Pills)
+                // 5. Category Selector Pills (FIX: Added this section)
+                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
+                Text(
+                    text = "Category",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(Dimens.SpacingSmall))
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall)
+                ) {
+                    items(Category.all) { category -> // Use Category.all from your Category.kt
+                        val isSelected = selectedCategory == category
+                        val backgroundColor by animateColorAsState(
+                            if (isSelected) category.color.copy(alpha = 0.1f) else Color.Transparent, label = "categoryBackgroundColor"
+                        )
+                        val borderColor by animateColorAsState(
+                            if (isSelected) category.color else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f), label = "categoryBorderColor"
+                        )
+                        val textColor by animateColorAsState(
+                            if (isSelected) category.color else MaterialTheme.colorScheme.onSurface, label = "categoryTextColor"
+                        )
 
-                // 5. Media Bar (Updated to trigger the image picker)
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            border = BorderStroke(1.dp, borderColor),
+                            color = backgroundColor,
+                            modifier = Modifier.clickable { selectedCategory = category }
+                        ) {
+                            Text(
+                                text = category.label,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = textColor,
+                                modifier = Modifier.padding(horizontal = Dimens.SpacingMedium, vertical = Dimens.SpacingSmall)
+                            )
+                        }
+                    }
+                }
+
+                // 6. Media Bar (Updated to trigger the image picker)
                 Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -240,7 +282,7 @@ fun CreatePostSheet(
                     }
                 }
 
-                // 6. Geo / Map Placeholder (unchanged)
+                // 7. Geo / Map Placeholder (unchanged)
                 Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
                 Box(
                     modifier = Modifier
@@ -263,7 +305,7 @@ fun CreatePostSheet(
                     }
                 }
 
-                // 7. Post Button
+                // 8. Post Button
                 Spacer(modifier = Modifier.height(Dimens.SpacingXXLarge))
                 Button(
                     onClick = {
@@ -276,7 +318,7 @@ fun CreatePostSheet(
                         onPostListing(
                             title,
                             description,
-                            selectedCategory.label,
+                            selectedCategory.label, // This now correctly references the state variable
                             location,
                             price,
                             imageUri?.toString()

@@ -47,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import androidx.core.content.edit // Added this import
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
@@ -56,7 +57,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.util.UUID
 
 // --- (All data classes and mock data) ---
 data class Ad(val name: String, val user: String)
@@ -92,51 +92,6 @@ private val defaultAds = listOf(
 
 private val allSubleaseAds = mapOf(
     "Room" to listOf(
-<<<<<<< HEAD
-        Ad("Sublet: 1-Bed Room", "User A"),
-        Ad("Shared Room Downtown", "User B"),
-        Ad("Summer Sublet, 2BR", "User S1"),
-        Ad("Fall Semester Sublet", "User S2"),
-        Ad("Luxury Apartment Sublet", "User S3"),
-        Ad("Studio Near Campus", "User S4"),
-        Ad("Furnished Room for Rent", "User S5"),
-        Ad("Quiet Neighborhood Sublet", "User S6"),
-        Ad("Sublet with Parking", "User S7"),
-        Ad("Month-to-Month Sublet", "User S8"),
-        Ad("Sublet, Utilities Included", "User S9"),
-        Ad("Pet-Friendly Sublet", "User S10"),
-        Ad("Sublet with Gym Access", "User S11"),
-        Ad("Bright and Sunny Room", "User S12"),
-        Ad("Sublet close to transit", "User S13"),
-        Ad("4-Month Sublet available", "User S14"),
-        Ad("Renovated Apartment Sublet", "User S15"),
-        Ad("Spacious Room for Rent", "User S16"),
-        Ad("Sublet with Balcony", "User S17"),
-        Ad("Affordable Downtown Sublet", "User S18"),
-        Ad("Cozy Room in Shared House", "User S19"),
-        Ad("Sublet with Modern Kitchen", "User S20"),
-        Ad("Private Room and Bath", "User S21"),
-        Ad("Student Housing Sublet", "User S22"),
-        Ad("Short-Term Sublet", "User S23"),
-        Ad("Walk-in Closet Room", "User S24"),
-        Ad("All-Inclusive Sublet", "User S25"),
-        Ad("Rooftop Patio Access", "User S26"),
-        Ad("Sublet with a View", "User S27"),
-        Ad("Great for Commuters", "User S28"),
-        Ad("Clean and Tidy Sublet", "User S29"),
-        Ad("Secure Building Sublet", "User S30"),
-        Ad("Loft-Style Apartment", "User S31"),
-        Ad("Sublet in Historic Building", "User S32"),
-        Ad("Close to Parks and Trails", "User S33"),
-        Ad("Sublet with In-Suite Laundry", "User S34"),
-        Ad("Charming Sublet", "User S35"),
-        Ad("Large Window Room", "User S36"),
-        Ad("Student-Friendly Sublet", "User S37"),
-        Ad("Sublet with Bike Storage", "User S38")
-    ),
-    "Car" to listOf(Ad("Toyota Camry 2018", "User C"), Ad("Honda Civic Lease", "User D")),
-    "Retail Store" to listOf(Ad("Pop-up Shop Space", "User E"), Ad("Small Retail Front", "User F"))
-=======
         Ad("Sublet: 1-Bed Room Downtown", "User A"),
         Ad("Shared Room Near Campus (Summer)", "User B"),
         Ad("Furnished Master Bedroom w/ Private Bath", "SubletPro1"),
@@ -157,7 +112,6 @@ private val allSubleaseAds = mapOf(
         Ad("Covered Parking Spot for Rent", "Commuter12"),
         Ad("Driveway Parking Space (Monthly)", "Homeowner13")
     )
->>>>>>> 511cbab096e609a1a70866798b0e48decef5fe9d
 )
 
 private val allTextbookAds = listOf(
@@ -235,7 +189,6 @@ private val allMovingOutAds = listOf(
     Ad("LG Washer and Dryer Set", "ApplianceSeller9"),
     Ad("Patio Furniture Set (4 pieces)", "User 40"),
     Ad("Free Moving Boxes (Tons)", "User 41"),
-<<<<<<< HEAD
     Ad("Toolbox and Starter Tools", "User 42"),
     Ad("Brand New Curtains (Blackout)", "User 43"),
     Ad("Box of Kitchen Utensils", "User 44"),
@@ -277,67 +230,12 @@ private val allMovingOutAds = listOf(
     Ad("Outdoor Chairs", "User M35"),
     Ad("Grill", "User M36"),
     Ad("Lawn Mower", "User M37"),
-    Ad("Garden Tools", "User M38")
-=======
+    Ad("Garden Tools", "User M38"),
     Ad("Full Kitchenware Set (Pots, Pans, Utensils)", "GraduatingSenior10"),
     Ad("Floor Lamp with Adjustable Head", "LightingNeeds11")
->>>>>>> 511cbab096e609a1a70866798b0e48decef5fe9d
-)
-
-private val allGarageSaleAds = listOf(
-    Ad("Neighborhood Garage Sale", "User Q"),
-    Ad("Antique Sale", "User R"),
-    Ad("Box of Vinyl Records", "User S"),
-    Ad("Old Tools Bundle", "User T")
 )
 
 private val allAquaSwapAds = mapOf(
-<<<<<<< HEAD
-    "Equipment" to listOf(Ad("Used 50g Filter", "User K"), Ad("Heater", "User L")),
-    "Coral" to listOf(Ad("Zoanthid Frag", "User M"), Ad("Hammer Coral", "User N")),
-    "Tank" to listOf(Ad("40 Gallon Tank", "User O"), Ad("10g Betta Tank", "User P")),
-    "Rehome" to listOf(
-        Ad("Goldfish needs home", "User Q"),
-        Ad("Betta Fish (Free)", "User R"),
-        Ad("Guppies for Sale", "User A1"),
-        Ad("Pleco needs new tank", "User A2"),
-        Ad("Corydoras Catfish", "User A3"),
-        Ad("Angelfish Pair", "User A4"),
-        Ad("Discus Fish", "User A5"),
-        Ad("German Blue Rams", "User A6"),
-        Ad("Kribensis Cichlids", "User A7"),
-        Ad("Electric Blue Acara", "User A8"),
-        Ad("Red Cherry Shrimp", "User A9"),
-        Ad("Amano Shrimp", "User A10"),
-        Ad("Nerite Snails", "User A11"),
-        Ad("Mystery Snails", "User A12"),
-        Ad("Java Fern", "User A13"),
-        Ad("Anubias Nana", "User A14"),
-        Ad("Amazon Sword", "User A15"),
-        Ad("Cryptocoryne Wendtii", "User A16"),
-        Ad("Java Moss", "User A17"),
-        Ad("Duckweed", "User A18"),
-        Ad("Water Wisteria", "User A19"),
-        Ad("Hornwort", "User A20"),
-        Ad("Driftwood", "User A21"),
-        Ad("Lava Rock", "User A22"),
-        Ad("Seiryu Stone", "User A23"),
-        Ad("Dragon Stone", "User A24"),
-        Ad("Aquarium Gravel", "User A25"),
-        Ad("Aquarium Sand", "User A26"),
-        Ad("Fish Food", "User A27"),
-        Ad("Water Conditioner", "User A28"),
-        Ad("Fertilizer", "User A29"),
-        Ad("CO2 System", "User A30"),
-        Ad("LED Light", "User A31"),
-        Ad("Canister Filter", "User A32"),
-        Ad("Sponge Filter", "User A33"),
-        Ad("Air Pump", "User A34"),
-        Ad("Heater", "User A35"),
-        Ad("Thermometer", "User A36"),
-        Ad("Fish Net", "User A37"),
-        Ad("Gravel Vacuum", "User A38")
-=======
     "Equipment" to listOf(
         Ad("Used 50g Filter", "User K"),
         Ad("Heater", "User L"),
@@ -378,19 +276,7 @@ private val allAquaSwapAds = mapOf(
         Ad("Dragon Stone Aquascape Rocks (10lbs)", "IwagumiLife21"),
         Ad("Bag of CaribSea Sand", "SubstrateSwap22"),
         Ad("Bucephalandra Pack", "RarePlantGuy23")
->>>>>>> 511cbab096e609a1a70866798b0e48decef5fe9d
     )
-)
-
-private val allSneakerAds = listOf(
-    Ad("Jordan 1s", "User X"),
-    Ad("Yeezy 350", "User Y"),
-    Ad("New Balance 550", "User Z")
-)
-private val allElectronicsAds = listOf(
-    Ad("Sony Headphones", "User AA"),
-    Ad("Dell Monitor", "User BB"),
-    Ad("GoPro Hero 8", "User CC")
 )
 
 sealed class ProfileScreenState {
@@ -401,8 +287,8 @@ sealed class ProfileScreenState {
     object EditProfile : ProfileScreenState()
     object AdDetail : ProfileScreenState()
 }
-private const val PREFS_NAME = "yardly_settings"
-private const val KEY_DARK_MODE = "dark_mode_enabled"
+const val PREFS_NAME = "yardly_settings"
+const val KEY_DARK_MODE = "dark_mode_enabled"
 
 class MainActivity : ComponentActivity() {
     private val sharedPreferences: SharedPreferences by lazy {
@@ -427,9 +313,8 @@ class MainActivity : ComponentActivity() {
                 val insetsController = WindowCompat.getInsetsController(window, window.decorView)
                 insetsController.isAppearanceLightStatusBars = !enabled
 
-                with(sharedPreferences.edit()) {
+                sharedPreferences.edit { // Modified line
                     putBoolean(KEY_DARK_MODE, enabled)
-                    apply()
                 }
             }
 
@@ -592,12 +477,9 @@ fun YardlyApp(
             Category.Sublease.id -> allSubleaseAds.values.flatten()
             Category.Textbook.id -> allTextbookAds
             Category.MovingOut.id -> allMovingOutAds
-            Category.GarageSale.id -> allGarageSaleAds
-            Category.Sneaker.id -> allSneakerAds
-            Category.Electronics.id -> allElectronicsAds
             else -> defaultAds
         }
-    } ?: defaultAds
+    }
 
 
     Box(
@@ -622,7 +504,7 @@ fun YardlyApp(
                     ads = dynamicAdList,
                     gridState = gridState,
                     selectedIconSection = selectedIconSection,
-                    selectedNavSection = selectedNavSection,
+                    // selectedNavSection = selectedNavSection, // Removed this parameter
                     profileScreenState = profileScreenState,
                     isDarkMode = isDarkMode,
                     saveCounts = saveCounts,
@@ -1004,8 +886,7 @@ fun BottomIconNavigation(
                 MaterialTheme.colorScheme.background,
                 RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
-            .navigationBarsPadding()
-            .padding(vertical = Dimens.SpacingLarge, horizontal = Dimens.SpacingMedium),
+            .navigationBarsPadding()              .padding(vertical = Dimens.SpacingLarge, horizontal = Dimens.SpacingMedium),
         horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -1042,7 +923,7 @@ fun ContentArea(
     ads: List<Ad>,
     gridState: LazyGridState,
     selectedIconSection: String,
-    selectedNavSection: String,
+    // selectedNavSection: String, // Removed this parameter
     profileScreenState: ProfileScreenState,
     isDarkMode: Boolean,
     saveCounts: Map<String, Int>,
@@ -1100,7 +981,8 @@ fun ContentArea(
                     )
                 }
 
-                items(ads) { ad ->
+                items(ads) {
+ ad ->
                     val saveCount = saveCounts.getOrDefault(ad.name, 0)
                     val isSaved = savedItems.getOrDefault(ad.name, false)
                     AdCard(

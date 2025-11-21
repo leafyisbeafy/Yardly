@@ -21,12 +21,12 @@ val PriceDropRed1 = Color(0xFFEF4444)
 val PriceDropRed2 = Color(0xFFDC2626)
 
 // --- *** NEW: Custom Button Colors *** ---
-val BtnTerracotta = Color(0xFFE07A5F) // Clothing (Needs white text)
+val BtnTerracotta = Color(0xFF000000) // Clothing (Needs white text)
 val BtnElectricLime = Color(0xFFCCFF00) // Sneakers (Needs black text)
 val BtnNeonAzure = Color(0xFF00BFFF) // Electronics (Needs white text)
 val BtnMagentaShock = Color(0xFFD900FF) // Gaming (Needs white text)
-val BtnTealPulse = Color(0xFF3DCCC7) // Aquascape (Needs white text)
-val BtnForestGlow = Color(0xFF1A535C) // Yardly (Needs white text)
-val BtnSlateEmber = Color(0xFF485A6C) // Lease (Needs white text)
+val BtnTealPulse = Color(0xFF000000) // Aquascape (Needs white text)
+val BtnForestGlow = Color(0xFF000000) // Yardly (Needs white text)
+val BtnSlateEmber = Color(0xFF000000) // Lease (Needs white text)
 val BtnDarkOrange = Color(0xFFB85000) // Auction (Needs white text)
 // --- *** END OF NEW COLORS *** ---
