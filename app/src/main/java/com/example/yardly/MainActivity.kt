@@ -452,6 +452,12 @@ fun YardlyApp(
         }
     }
 
+    LaunchedEffect(selectedNavSection) {
+        if (selectedIconSection == "home") {
+            gridState.scrollToItem(0)
+        }
+    }
+
     // --- (navigation lambdas) ---
     val navigateToSettings = {
         showProfileSheet = false
