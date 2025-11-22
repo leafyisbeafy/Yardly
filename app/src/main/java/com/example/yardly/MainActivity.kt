@@ -677,6 +677,9 @@ fun YardlyApp(
                 SectionNavigation(
                     selectedSection = selectedNavSection,
                     onSectionSelected = { section ->
+                        if (!isBottomNavVisible) {
+                            suppressNavShow = true
+                        }
                         selectedNavSection = section
                     },
                     modifier = if (!isBottomNavVisible) Modifier.navigationBarsPadding() else Modifier
