@@ -415,6 +415,7 @@ fun YardlyApp(
 
     var userPosts by remember { mutableStateOf<List<UserPost>>(emptyList()) }
     val coroutineScope = rememberCoroutineScope()
+    var suppressNavShow by remember { mutableStateOf(false) }
 
     // --- PROFILE STATE ---
     var profileName by remember { mutableStateOf("Peyton Venzeee") }
@@ -455,6 +456,14 @@ fun YardlyApp(
     LaunchedEffect(selectedNavSection) {
         if (selectedIconSection == "home") {
             gridState.scrollToItem(0)
+        }
+    }
+
+    LaunchedEffect(isControlsVisible) {
+        if (isControlsVisible) {
+            if (isControlsVisible) {
+                suppressNavShow = false
+            }
         }
     }
 
@@ -661,7 +670,7 @@ fun YardlyApp(
             val isBottomNavVisible = if (selectedIconSection != "home") {
                 true
             } else {
-                isControlsVisible
+                isControlsVisible && !suppressNavShow
             }
 
             if (showHeaderAndNav) {
