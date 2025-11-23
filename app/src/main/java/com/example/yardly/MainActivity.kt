@@ -375,7 +375,7 @@ fun YardlyApp(
     var profileScreenState by remember { mutableStateOf<ProfileScreenState>(ProfileScreenState.Profile) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
 
-
+    val categoryScrollPositions = remember { mutableStateMapOf<String, Pair<Int, Int>>() }
     val cropImage = rememberLauncherForActivityResult(CropImageContract()) { result ->
         if (result.isSuccessful) {
             // For creating posts, we also want to persist the image
@@ -455,15 +455,14 @@ fun YardlyApp(
 
     LaunchedEffect(selectedNavSection) {
         if (selectedIconSection == "home") {
-            gridState.scrollToItem(0)
+            val (index, offset) = categoryScrollPositions[selectedNavSection] ?: (0 to 0)
+            gridState.scrollToItem(index, offset)
         }
     }
 
     LaunchedEffect(isControlsVisible) {
-        if (isControlsVisible) {
-            if (isControlsVisible) {
+        if (!isControlsVisible) {
                 suppressNavShow = false
-            }
         }
     }
 
@@ -677,6 +676,7 @@ fun YardlyApp(
                 SectionNavigation(
                     selectedSection = selectedNavSection,
                     onSectionSelected = { section ->
+                        categoryScrollPositions[selectedNavSection] = gridState.firstVisibleItemIndex to gridState.firstVisibleItemScrollOffset
                         if (!isBottomNavVisible) {
                             suppressNavShow = true
                         }
