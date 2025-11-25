@@ -12,6 +12,14 @@ sealed class Category(
     val color: Color,
     val onColor: Color // The text color to use when the button is filled
 ) {
+
+    data object Home : Category(
+        id = "home-default",
+        label = "Home",
+        color = AppBlack,
+        onColor = Color.White
+    )
+
     // 1. Rehome (Teal - White Text)
     data object Rehome : Category(
         id = "rehome",
@@ -47,7 +55,7 @@ sealed class Category(
     companion object {
         // The list used to generate UI buttons
         val all = listOf(
-            Rehome, Sublease, Textbook, MovingOut,
+            Home, Rehome, Sublease, Textbook, MovingOut,
         )
 
         // Helper to safely get a category label by ID

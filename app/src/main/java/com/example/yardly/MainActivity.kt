@@ -37,6 +37,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,7 +49,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
-import androidx.core.content.edit // Added this import
+import androidx.core.content.edit
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
@@ -58,36 +60,37 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-// --- (All data classes and mock data) ---
+// --- DATA: Helper Wrapper for legacy clicks ---
 data class Ad(val name: String, val user: String)
 
-private val defaultAds = listOf(
-    Ad("Air Force 1", "User 1"),
-    Ad("iPhone 13", "User 2"),
-    Ad("PlayStation 4", "User 3"),
-    Ad("Macbook Air 13", "User 4"),
-    Ad("Denim Jacket", "User 5"),
-    Ad("Razer Gaming Chair", "User 6"),
-    Ad("Calculus Textbook", "User 7"),
-    Ad("Mini Fridge (Black)", "User 8"),
-    Ad("IKEA Desk - White", "User 9"),
-    Ad("Microwave", "User 10"),
-    Ad("Study Lamp", "User 11"),
-    Ad("Futon Sofa Bed", "User 12"),
-    Ad("4K Monitor 27\"", "User 13"),
-    Ad("Bose Speakers", "User 14"),
-    Ad("Winter Boots (Size 10)", "User 15"),
-    Ad("TI-84 Calculator", "User 16"),
-    Ad("Keurig Coffee Maker", "User 17"),
-    Ad("Wooden Bookshelf", "User 18"),
-    Ad("Office Chair", "User 19"),
-    Ad("Dining Table Set", "User 20"),
-    Ad("Floor Lamp", "User 21"),
-    Ad("Area Rug 5x7", "User 22"),
-    Ad("Ninja Blender", "User 23"),
-    Ad("Toaster Oven", "User 24"),
-    Ad("Queen Bed Frame", "User 25"),
-    Ad("TV Stand", "User 26")
+// --- DATA: Master System List ---
+// This replaces 'defaultAds'. It contains posts for ALL categories.
+private val systemPosts = listOf(
+    // General / Home Defaults
+    UserPost(id = 1001, title = "Air Force 1", price = "291.28", category = "Moving Out", description = "Good condition", location = "Campus", userName = "User 1"),
+    UserPost(id = 1002, title = "iPhone 13", price = "299.99", category = "Moving Out", description = "Unlocked", location = "Dorm A", userName = "User 2"),
+    UserPost(id = 1003, title = "PlayStation 4", price = "300.00", category = "Moving Out", description = "Comes with 2 controllers", location = "Northside", userName = "User 3"),
+    UserPost(id = 1004, title = "Macbook Air 13", price = "500.00", category = "Moving Out", description = "M1 Chip", location = "Library", userName = "User 4"),
+
+    // Category: Textbook
+    UserPost(id = 2001, title = "Calculus Textbook", price = "45.00", category = "Textbook", description = "Calculus Early Transcendentals", location = "Library", userName = "User 7"),
+    UserPost(id = 2002, title = "Organic Chemistry", price = "60.00", category = "Textbook", description = "7th Edition", location = "Science Hall", userName = "User 12"),
+    UserPost(id = 2003, title = "Psych 101", price = "20.00", category = "Textbook", description = "Intro to Psychology", location = "East Hall", userName = "User 22"),
+
+    // Category: Rescue
+    UserPost(id = 3001, title = "Golden Retriever Puppy", price = "Free", category = "Rescue", description = "Needs a loving home", location = "Southside", userName = "User 99"),
+    UserPost(id = 3002, title = "Cat for Adoption", price = "20.00", category = "Rescue", description = "Very friendly orange tabby", location = "East", userName = "User 33"),
+    UserPost(id = 3003, title = "Hamster Cage + Hamster", price = "Free", category = "Rescue", description = "Moving out, can't keep him", location = "West", userName = "User 41"),
+
+    // Category: Sublease
+    UserPost(id = 4001, title = "Sublet: 1-Bed Room", price = "500.00", category = "Sublease", description = "Available for Summer", location = "Downtown", userName = "User 9"),
+    UserPost(id = 4002, title = "Luxury Apt Sublease", price = "800.00", category = "Sublease", description = "Aug-Dec", location = "The Lofts", userName = "User 44"),
+
+    // Category: Moving Out
+    UserPost(id = 5001, title = "Razer Gaming Chair", price = "222.00", category = "Moving Out", description = "Like new", location = "West", userName = "User 6"),
+    UserPost(id = 5002, title = "Mini Fridge (Black)", price = "50.00", category = "Moving Out", description = "Perfect for dorms", location = "Campus", userName = "User 8"),
+    UserPost(id = 5003, title = "IKEA Desk - White", price = "30.00", category = "Moving Out", description = "Sturdy desk", location = "Apts", userName = "User 9"),
+    UserPost(id = 5004, title = "Microwave", price = "25.00", category = "Moving Out", description = "Works great", location = "Dorm B", userName = "User 10")
 )
 
 sealed class ProfileScreenState {
@@ -98,6 +101,7 @@ sealed class ProfileScreenState {
     object EditProfile : ProfileScreenState()
     object AdDetail : ProfileScreenState()
 }
+
 const val PREFS_NAME = "yardly_settings"
 const val KEY_DARK_MODE = "dark_mode_enabled"
 
@@ -124,7 +128,7 @@ class MainActivity : ComponentActivity() {
                 val insetsController = WindowCompat.getInsetsController(window, window.decorView)
                 insetsController.isAppearanceLightStatusBars = !enabled
 
-                sharedPreferences.edit { // Modified line
+                sharedPreferences.edit {
                     putBoolean(KEY_DARK_MODE, enabled)
                 }
             }
@@ -137,17 +141,14 @@ class MainActivity : ComponentActivity() {
                     isDarkMode = isDarkMode,
                     onDarkModeToggle = onDarkModeToggle,
                     postStorage = postStorage,
-                    // *** NEW: Pass the image saving logic down ***
                     onSaveImagePermanently = ::saveImagePermanently
                 )
             }
         }
     }
 
-    // *** NEW HELPER: Persist image to internal storage to fix disappearance bug ***
     private fun saveImagePermanently(tempUri: Uri): Uri? {
         val contentResolver = applicationContext.contentResolver
-        // Create a unique file name
         val fileName = "profile_image_${System.currentTimeMillis()}.jpg"
         val destinationFile = File(applicationContext.filesDir, fileName)
 
@@ -171,7 +172,6 @@ fun YardlyApp(
     isDarkMode: Boolean,
     onDarkModeToggle: (Boolean) -> Unit,
     postStorage: PostStorage,
-    // *** NEW PARAMETER ***
     onSaveImagePermanently: (Uri) -> Uri?
 ) {
     var selectedIconSection by remember { mutableStateOf("home") }
@@ -189,8 +189,6 @@ fun YardlyApp(
     val categoryScrollPositions = remember { mutableStateMapOf<String, Pair<Int, Int>>() }
     val cropImage = rememberLauncherForActivityResult(CropImageContract()) { result ->
         if (result.isSuccessful) {
-            // For creating posts, we also want to persist the image
-            // We can reuse the same logic passed in
             val savedUri = onSaveImagePermanently(result.uriContent!!)
             imageUri = savedUri
         }
@@ -232,7 +230,6 @@ fun YardlyApp(
     var profileName by remember { mutableStateOf("Peyton Venzeee") }
     var profileUsername by remember { mutableStateOf("peyton") }
     var profileBio by remember { mutableStateOf("just another broke college student...") }
-    // *** NEW: Profile Image State ***
     var profileImageUri by remember { mutableStateOf<Uri?>(null) }
 
     // --- BACK HANDLER LOGIC ---
@@ -273,7 +270,7 @@ fun YardlyApp(
 
     LaunchedEffect(isControlsVisible) {
         if (!isControlsVisible) {
-                suppressNavShow = false
+            suppressNavShow = false
         }
     }
 
@@ -297,7 +294,6 @@ fun YardlyApp(
 
     val dynamicAdList = emptyList<Ad>()
 
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -320,7 +316,7 @@ fun YardlyApp(
                     ads = dynamicAdList,
                     gridState = gridState,
                     selectedIconSection = selectedIconSection,
-                    // selectedNavSection = selectedNavSection, // Removed this parameter
+                    selectedNavSection = selectedNavSection,
                     profileScreenState = profileScreenState,
                     isDarkMode = isDarkMode,
                     saveCounts = saveCounts,
@@ -330,20 +326,17 @@ fun YardlyApp(
                     profileName = profileName,
                     profileUsername = profileUsername,
                     profileBio = profileBio,
-                    // *** NEW: Pass profile image ***
                     profileImageUri = profileImageUri,
 
                     onSaveProfile = { newName, newUsername, newBio, newImageUri ->
                         profileName = newName
                         profileUsername = newUsername
                         profileBio = newBio
-                        // Update the image if a new one was selected (otherwise keep old)
                         if (newImageUri != null) {
                             profileImageUri = newImageUri
                         }
                         profileScreenState = ProfileScreenState.Profile
                     },
-                    // *** NEW: Pass persistence function ***
                     onSaveImagePermanently = onSaveImagePermanently,
 
                     onAdClick = { ad ->
@@ -524,7 +517,6 @@ fun YardlyApp(
             name = profileName,
             username = profileUsername,
             bio = profileBio,
-            // *** NEW: Pass Image ***
             imageUri = profileImageUri,
             userPosts = userPosts,
             saveCounts = saveCounts,
@@ -632,6 +624,7 @@ fun SectionNavigation(
     onSectionSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // This will now include the "Home" category if you updated Category.kt
     val categories = Category.all
 
     LazyRow(
@@ -645,8 +638,8 @@ fun SectionNavigation(
             val isSelected = selectedSection == category.id
 
             val containerColor by animateColorAsState(
-                targetValue = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent
-//                label = "containerColor"
+                targetValue = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                label = "containerColor"
             )
 
             val contentColor by animateColorAsState(
@@ -706,7 +699,8 @@ fun BottomIconNavigation(
                 MaterialTheme.colorScheme.background,
                 RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
             )
-            .navigationBarsPadding()              .padding(vertical = Dimens.SpacingLarge, horizontal = Dimens.SpacingMedium),
+            .navigationBarsPadding()
+            .padding(vertical = Dimens.SpacingLarge, horizontal = Dimens.SpacingMedium),
         horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -743,7 +737,7 @@ fun ContentArea(
     ads: List<Ad>,
     gridState: LazyGridState,
     selectedIconSection: String,
-    // selectedNavSection: String, // Removed this parameter
+    selectedNavSection: String,
     profileScreenState: ProfileScreenState,
     isDarkMode: Boolean,
     saveCounts: Map<String, Int>,
@@ -753,10 +747,9 @@ fun ContentArea(
     profileName: String,
     profileUsername: String,
     profileBio: String,
-    // *** NEW: Accept profile image ***
     profileImageUri: Uri?,
-    onSaveProfile: (String, String, String, Uri?) -> Unit, // Updated signature
-    onSaveImagePermanently: (Uri) -> Uri?, // New persistence func
+    onSaveProfile: (String, String, String, Uri?) -> Unit,
+    onSaveImagePermanently: (Uri) -> Uri?,
 
     onAdClick: (Ad) -> Unit = {},
     onBackClick: () -> Unit = {},
@@ -774,6 +767,25 @@ fun ContentArea(
     onSaveClick: (String) -> Unit,
     onPostClick: (UserPost) -> Unit
 ) {
+    // 1. COMBINE DATA Sources
+    // Combine the user-created posts (from storage) with the hardcoded system posts
+    val allPosts = remember(userPosts) { userPosts + systemPosts }
+
+    // 2. FILTERING LOGIC
+    // Get the category label associated with the selected tab ID
+    val currentCategoryLabel = Category.getLabelById(selectedNavSection)
+
+    // Filter logic:
+    // - If "home-default", show everything (no filtering)
+    // - Otherwise, show only items where category matches the tab label
+    val visiblePosts = remember(selectedNavSection, allPosts) {
+        if (selectedNavSection == "home-default") {
+            allPosts
+        } else {
+            allPosts.filter { it.category == currentCategoryLabel }
+        }
+    }
+
     when (selectedIconSection) {
         "home" -> {
             LazyVerticalGrid(
@@ -787,9 +799,11 @@ fun ContentArea(
                     vertical = Dimens.ScreenPaddingVertical
                 )
             ) {
-                items(userPosts, key = { it.id }) { post ->
+                // 3. RENDER THE FILTERED LIST
+                items(visiblePosts, key = { it.id }) { post ->
                     val saveCount = saveCounts.getOrDefault(post.title, 0)
                     val isSaved = savedItems.getOrDefault(post.title, false)
+
                     AdCard(
                         advertisementName = post.title,
                         userName = post.userName,
@@ -800,16 +814,19 @@ fun ContentArea(
                         onSaveClick = { onSaveClick(post.title) }
                     )
                 }
-
             }
         }
         "watchlist" -> {
+            // *** CRITICAL UPDATE ***
+            // Pass the COMBINED 'allPosts' list here.
+            // This ensures that when WatchlistScreen looks for a saved item by name/id,
+            // it finds it in this master list.
             WatchlistScreen(
                 onBackClick = onBackClick,
                 savedItems = savedItems,
                 saveCounts = saveCounts,
                 onSaveClick = onSaveClick,
-                userPosts = userPosts
+                allPosts = allPosts // <<--- FIX WAS APPLIED HERE
             )
         }
         "profile" -> {
@@ -876,10 +893,6 @@ fun ContentArea(
             )
         }
 
-        // ***********************************************
-        // *** INSERT THE NEW NOTIFICATION BLOCK BELOW ***
-        // ***********************************************
-
         "notification" -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -893,10 +906,6 @@ fun ContentArea(
                 )
             }
         }
-
-        // ***********************************************
-        // *** END OF INSERT               ***
-        // ***********************************************
 
         else -> Text(
             text = "Welcome",
