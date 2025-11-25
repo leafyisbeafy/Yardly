@@ -616,7 +616,7 @@ fun TopBar() {
                 contentPadding = PaddingValues(horizontal = Dimens.SpacingLarge)
             ) {
                 Text(
-                    text = "Notification",
+                    text = "Channel",
                     fontSize = 12.sp
                 )
             }
@@ -645,8 +645,8 @@ fun SectionNavigation(
             val isSelected = selectedSection == category.id
 
             val containerColor by animateColorAsState(
-                targetValue = if (isSelected) category.color else Color.Transparent,
-                label = "containerColor"
+                targetValue = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent
+//                label = "containerColor"
             )
 
             val contentColor by animateColorAsState(
@@ -693,8 +693,8 @@ fun BottomIconNavigation(
     onSectionSelected: (String) -> Unit
 ) {
     val sections = listOf(
-        "home" to "Home",
         "messenger" to "Messenger",
+        "notification" to "Notification",
         "watchlist" to "Watchlist",
         "profile" to "Profile"
     )
@@ -875,6 +875,29 @@ fun ContentArea(
                 onBackClick = onBackClick
             )
         }
+
+        // ***********************************************
+        // *** INSERT THE NEW NOTIFICATION BLOCK BELOW ***
+        // ***********************************************
+
+        "notification" -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Notifications",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        }
+
+        // ***********************************************
+        // *** END OF INSERT               ***
+        // ***********************************************
+
         else -> Text(
             text = "Welcome",
             color = MaterialTheme.colorScheme.onBackground,
