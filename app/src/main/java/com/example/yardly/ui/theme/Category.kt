@@ -15,7 +15,7 @@ sealed class Category(
     // 1. Rehome (Teal - White Text)
     data object Rehome : Category(
         id = "rehome",
-        label = "Rehome",
+        label = "Rescue",
         color = BtnTealPulse,
         onColor = Color.White
     )
