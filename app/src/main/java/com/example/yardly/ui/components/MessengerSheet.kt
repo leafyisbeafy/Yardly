@@ -42,7 +42,8 @@ import com.example.yardly.ui.theme.YardlyTheme
 fun MessengerScreen(
     onBackClick: () -> Unit
 ) {
-    val channels = listOf("Chats", "Channels", "Unread")
+    // --- FIX APPLIED HERE: "Channels" removed from the list ---
+    val channels = listOf("Chats", "Unread")
 
     Column(modifier = Modifier.fillMaxSize()) {
         // 1. Top Bar
