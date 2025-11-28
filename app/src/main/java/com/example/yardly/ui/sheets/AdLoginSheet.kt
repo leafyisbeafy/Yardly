@@ -1,14 +1,12 @@
-package com.example.yardly.ui.components
+package com.example.yardly.ui.sheets
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,11 +36,17 @@ import com.example.yardly.ui.theme.YardlyTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * Login step states for the authentication flow.
+ */
 enum class LoginStep {
     SELECTION,
     EMAIL_INPUT
 }
 
+/**
+ * Bottom sheet for user authentication with multiple login options.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdLoginSheet(
@@ -50,18 +54,15 @@ fun AdLoginSheet(
     onDismiss: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
-    // Internal state for the "Wizard of Oz" flow
     var currentStep by remember { mutableStateOf(LoginStep.SELECTION) }
     val scope = rememberCoroutineScope()
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    // Form State
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // Reset state when modal opens/closes
     LaunchedEffect(showModal) {
         if (showModal) {
             currentStep = LoginStep.SELECTION
@@ -84,11 +85,9 @@ fun AdLoginSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(Dimens.SpacingXXLarge)
-                    .navigationBarsPadding() // Safety for bottom nav
-                    .imePadding() // Push up for keyboard
+                    .navigationBarsPadding()
+                    .imePadding()
             ) {
-
-                // Header / Back Button Area
                 Box(modifier = Modifier.fillMaxWidth()) {
                     if (currentStep == LoginStep.EMAIL_INPUT) {
                         IconButton(
@@ -102,7 +101,6 @@ fun AdLoginSheet(
 
                 Spacer(modifier = Modifier.height(Dimens.SpacingMedium))
 
-                // Animated Content Switcher
                 AnimatedContent(
                     targetState = currentStep,
                     transitionSpec = {
@@ -120,14 +118,8 @@ fun AdLoginSheet(
                         LoginStep.SELECTION -> {
                             SelectionView(
                                 onEmailClick = { currentStep = LoginStep.EMAIL_INPUT },
-                                onAppleClick = {
-                                    // Mock instant success
-                                    onLoginSuccess()
-                                },
-                                onGoogleClick = {
-                                    // Mock instant success
-                                    onLoginSuccess()
-                                }
+                                onAppleClick = { onLoginSuccess() },
+                                onGoogleClick = { onLoginSuccess() }
                             )
                         }
                         LoginStep.EMAIL_INPUT -> {
@@ -143,7 +135,7 @@ fun AdLoginSheet(
                                     keyboardController?.hide()
                                     scope.launch {
                                         isLoading = true
-                                        delay(1000) // Fake network delay
+                                        delay(1000)
                                         isLoading = false
                                         onLoginSuccess()
                                     }
@@ -158,7 +150,7 @@ fun AdLoginSheet(
 }
 
 @Composable
-fun SelectionView(
+private fun SelectionView(
     onEmailClick: () -> Unit,
     onAppleClick: () -> Unit,
     onGoogleClick: () -> Unit
@@ -172,9 +164,7 @@ fun SelectionView(
                 .size(40.dp)
                 .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
         )
-
         Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
-
         Text(
             text = "Get Started",
             fontSize = 24.sp,
@@ -182,9 +172,7 @@ fun SelectionView(
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface
         )
-
         Spacer(modifier = Modifier.height(Dimens.SpacingXXXLarge))
-
         Button(
             onClick = onAppleClick,
             modifier = Modifier.fillMaxWidth().height(48.dp),
@@ -193,39 +181,22 @@ fun SelectionView(
                 contentColor = MaterialTheme.colorScheme.background
             ),
             shape = RoundedCornerShape(8.dp)
-        ) {
-            Text("Continue with Apple", fontSize = 16.sp)
-        }
-
+        ) { Text("Continue with Apple", fontSize = 16.sp) }
         Spacer(modifier = Modifier.height(Dimens.SpacingMedium))
-
         OutlinedButton(
             onClick = onGoogleClick,
             modifier = Modifier.fillMaxWidth().height(48.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface),
             shape = RoundedCornerShape(8.dp)
-        ) {
-            Text("Continue with Google", fontSize = 16.sp)
-        }
-
+        ) { Text("Continue with Google", fontSize = 16.sp) }
         Spacer(modifier = Modifier.height(Dimens.SpacingMedium))
-
         Button(
             onClick = onEmailClick,
             modifier = Modifier.fillMaxWidth().height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = MaterialTheme.colorScheme.onSurface),
             shape = RoundedCornerShape(8.dp)
-        ) {
-            Text("Continue with Email", fontSize = 16.sp)
-        }
-
+        ) { Text("Continue with Email", fontSize = 16.sp) }
         Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
-
         Text(
             text = "By continuing, you agree to Yardly's Terms of Use",
             fontSize = 12.sp,
@@ -237,7 +208,7 @@ fun SelectionView(
 }
 
 @Composable
-fun EmailInputView(
+private fun EmailInputView(
     email: String,
     onEmailChange: (String) -> Unit,
     password: String,
@@ -247,83 +218,50 @@ fun EmailInputView(
     isLoading: Boolean,
     onLoginClick: () -> Unit
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = "Log In",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+        Text("Log In", fontSize = 24.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurface)
         Spacer(modifier = Modifier.height(Dimens.SpacingXXLarge))
-
         OutlinedTextField(
-            value = email,
-            onValueChange = onEmailChange,
-            label = { Text("Email") },
+            value = email, onValueChange = onEmailChange, label = { Text("Email") },
             modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next
-            ),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
             singleLine = true
         )
-
         Spacer(modifier = Modifier.height(Dimens.SpacingMedium))
-
         OutlinedTextField(
-            value = password,
-            onValueChange = onPasswordChange,
-            label = { Text("Password") },
+            value = password, onValueChange = onPasswordChange, label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
-                val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                 IconButton(onClick = onVisibilityChange) {
-                    Icon(imageVector = image, contentDescription = "Toggle Password")
+                    Icon(if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff, "Toggle Password")
                 }
             },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
-            ),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { onLoginClick() }),
             singleLine = true
         )
-
         Spacer(modifier = Modifier.height(Dimens.SpacingXXXLarge))
-
         Button(
-            onClick = onLoginClick,
-            enabled = !isLoading,
+            onClick = onLoginClick, enabled = !isLoading,
             modifier = Modifier.fillMaxWidth().height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary),
             shape = RoundedCornerShape(8.dp)
         ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    strokeWidth = 2.dp
-                )
-            } else {
-                Text("Log In", fontSize = 16.sp)
-            }
+            if (isLoading) CircularProgressIndicator(Modifier.size(24.dp), MaterialTheme.colorScheme.onPrimary, 2.dp)
+            else Text("Log In", fontSize = 16.sp)
         }
     }
 }
 
-@Preview
+@Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun AdLoginSheetPreview() {
-    YardlyTheme(isDarkMode = false) {
-        AdLoginSheet(showModal = true, onDismiss = {}, onLoginSuccess = {})
-    }
+    YardlyTheme(isDarkMode = false) { AdLoginSheet(showModal = true, onDismiss = {}, onLoginSuccess = {}) }
+}
+
+@Preview(showBackground = true, name = "Dark Mode")
+@Composable
+fun AdLoginSheetDarkPreview() {
+    YardlyTheme(isDarkMode = true) { AdLoginSheet(showModal = true, onDismiss = {}, onLoginSuccess = {}) }
 }

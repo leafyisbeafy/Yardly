@@ -1,4 +1,4 @@
-package com.example.yardly.ui.components
+package com.example.yardly.ui.sheets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,13 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
+/**
+ * Bottom sheet for selecting a location/corner for marketplace listings.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChooseCornerSheet(
@@ -41,13 +43,12 @@ fun ChooseCornerSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(bottom = Dimens.SpacingXXXLarge) // *** FIXED PADDING ***
+                    .padding(bottom = Dimens.SpacingXXXLarge)
             ) {
-                // 1. Top Bar
+                // Top Bar
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        // *** FIXED PADDING ***
                         .padding(horizontal = Dimens.SpacingXLarge, vertical = Dimens.SpacingLarge),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -74,14 +75,14 @@ fun ChooseCornerSheet(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge)) // *** FIXED PADDING ***
+                Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
 
-                // 2. Map Placeholder
+                // Map Placeholder
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(250.dp)
-                        .padding(horizontal = Dimens.ScreenPaddingHorizontal) // *** FIXED PADDING ***
+                        .padding(horizontal = Dimens.ScreenPaddingHorizontal)
                         .background(
                             MaterialTheme.colorScheme.surfaceVariant,
                             RoundedCornerShape(12.dp)
@@ -96,11 +97,10 @@ fun ChooseCornerSheet(
                     )
                 }
 
-                // 3. Location Name
+                // Location Name
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        // *** FIXED PADDING ***
                         .padding(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingXLarge)
                 ) {
                     Text(
@@ -116,21 +116,20 @@ fun ChooseCornerSheet(
                     )
                 }
 
-                // 4. Section Title
+                // Section Title
                 Text(
                     text = "County",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(horizontal = Dimens.ScreenPaddingHorizontal) // *** FIXED PADDING ***
+                    modifier = Modifier.padding(horizontal = Dimens.ScreenPaddingHorizontal)
                 )
 
-                Spacer(modifier = Modifier.height(Dimens.SpacingLarge)) // *** FIXED PADDING ***
+                Spacer(modifier = Modifier.height(Dimens.SpacingLarge))
 
-                // 5. County Options
+                // County Options
                 val counties = listOf("Linn", "Johnson", "Benton", "Jones")
                 LazyRow(
-                    // *** FIXED PADDING ***
                     contentPadding = PaddingValues(horizontal = Dimens.ScreenPaddingHorizontal),
                     horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium)
                 ) {
@@ -153,9 +152,17 @@ fun ChooseCornerSheet(
     }
 }
 
-@Preview
+@Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun ChooseCornerSheetPreview() {
+    YardlyTheme(isDarkMode = false) {
+        ChooseCornerSheet(showModal = true, onDismiss = {})
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Mode")
+@Composable
+fun ChooseCornerSheetDarkPreview() {
     YardlyTheme(isDarkMode = true) {
         ChooseCornerSheet(showModal = true, onDismiss = {})
     }

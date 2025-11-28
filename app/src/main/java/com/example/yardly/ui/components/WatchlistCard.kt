@@ -170,3 +170,54 @@ fun WatchlistCard(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun WatchlistCardPreview() {
+    YardlyTheme(isDarkMode = false) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            WatchlistCard(
+                itemName = "Vintage Desk Lamp",
+                price = "$25.00",
+                imageUriString = null,
+                isSaved = true,
+                saveCount = 5,
+                onItemClick = {},
+                onSaveClick = {}
+            )
+            WatchlistCard(
+                itemName = "Calculus Textbook",
+                price = "$45.00",
+                imageUriString = null,
+                isSaved = false,
+                saveCount = 0,
+                onItemClick = {},
+                onSaveClick = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WatchlistCardDarkPreview() {
+    YardlyTheme(isDarkMode = true) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            WatchlistCard(
+                itemName = "Mini Fridge",
+                price = "$60.00",
+                imageUriString = null,
+                isSaved = true,
+                saveCount = 12,
+                onItemClick = {},
+                onSaveClick = {}
+            )
+        }
+    }
+}

@@ -155,7 +155,7 @@ fun AdCard(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun AdCardPreview() {
     YardlyTheme(isDarkMode = false) {
@@ -164,6 +164,20 @@ fun AdCardPreview() {
                 advertisementName = "Short Name",
                 saveCount = 1,
                 isSaved = true
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Mode")
+@Composable
+fun AdCardDarkPreview() {
+    YardlyTheme(isDarkMode = true) {
+        Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge)) {
+            AdCard(
+                advertisementName = "Vintage Desk Lamp",
+                saveCount = 5,
+                isSaved = false
             )
         }
     }

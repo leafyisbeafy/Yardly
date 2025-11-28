@@ -1,4 +1,4 @@
-package com.example.yardly.ui.components
+package com.example.yardly.ui.screens.messenger
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -39,17 +39,12 @@ import com.example.yardly.ui.theme.YardlyTheme
  * Full-screen composable for the Messenger/Channels feature.
  */
 @Composable
-fun MessengerScreen(
-    onBackClick: () -> Unit
-) {
-    // --- FIX APPLIED HERE: "Channels" removed from the list ---
+fun MessengerScreen(onBackClick: () -> Unit) {
     val channels = listOf("Chats", "Unread")
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // 1. Top Bar
         MessengerTopBar(onBackClick = onBackClick)
 
-        // 2. Channel Buttons
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingMedium),
@@ -59,100 +54,42 @@ fun MessengerScreen(
                 Button(
                     onClick = { /* TODO: Handle channel click */ },
                     shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant, contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
                     elevation = ButtonDefaults.buttonElevation(0.dp)
-                ) {
-                    Text(text = channelName)
-                }
+                ) { Text(channelName) }
             }
         }
 
-        // 3. Profile Avatar and Name
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Dimens.ScreenPaddingHorizontal),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.ScreenPaddingHorizontal),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge)
         ) {
-            // Placeholder Avatar
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            )
-
-            // Name
-            Text(
-                text = "Peyton Venzeee", // Mocked name
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
+            Box(modifier = Modifier.size(56.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant))
+            Text("Peyton Venzeee", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
         }
-
-        // TODO: Add the list of message threads here
     }
 }
 
-/**
- * Simple top bar for the Messenger screen with a back button and title.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MessengerTopBar(
-    onBackClick: () -> Unit
-) {
+private fun MessengerTopBar(onBackClick: () -> Unit) {
     TopAppBar(
-        title = {
-            Text(
-                text = "Messenger",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background
-        )
+        title = { Text("Messenger", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground) },
+        navigationIcon = { IconButton(onClick = onBackClick) { Icon(Icons.Filled.ArrowBack, "Back", Modifier.size(28.dp)) } },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
     )
 }
-
-// --- Previews ---
 
 @Preview(showBackground = true)
 @Composable
 private fun MessengerScreenPreviewLight() {
-    YardlyTheme(isDarkMode = false) {
-        MessengerScreen(onBackClick = {})
-    }
+    YardlyTheme(isDarkMode = false) { MessengerScreen(onBackClick = {}) }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun MessengerScreenPreviewDark() {
-    YardlyTheme(isDarkMode = true) {
-        MessengerScreen(onBackClick = {})
-    }
+    YardlyTheme(isDarkMode = true) { MessengerScreen(onBackClick = {}) }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun MessengerTopBarPreview() {
-    YardlyTheme(isDarkMode = false) {
-        MessengerTopBar(onBackClick = {})
-    }
-}

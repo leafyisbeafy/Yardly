@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.yardly.ui.theme.Dimens
+import com.example.yardly.ui.theme.YardlyTheme
 
 @Composable
 fun FindNear(
@@ -41,8 +42,18 @@ fun FindNear(
     }
 }
 
-@Preview
+@Preview(showBackground = true, name = "Visible")
 @Composable
 fun FindNearPreview() {
-    FindNear(isVisible = true, onClick = {})
+    YardlyTheme(isDarkMode = false) {
+        FindNear(isVisible = true, onClick = {})
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Mode")
+@Composable
+fun FindNearDarkPreview() {
+    YardlyTheme(isDarkMode = true) {
+        FindNear(isVisible = true, onClick = {})
+    }
 }

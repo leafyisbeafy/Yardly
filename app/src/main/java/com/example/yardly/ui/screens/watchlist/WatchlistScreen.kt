@@ -1,4 +1,4 @@
-package com.example.yardly.ui.components
+package com.example.yardly.ui.screens.watchlist
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,10 +25,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.yardly.UserPost
+import com.example.yardly.data.model.UserPost
+import com.example.yardly.ui.components.WatchlistCard
 import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
+/**
+ * Screen displaying user's saved/watchlist items in a grid layout.
+ */
 @Composable
 fun WatchlistScreen(
     onBackClick: () -> Unit,
@@ -36,14 +40,10 @@ fun WatchlistScreen(
     saveCounts: Map<String, Int>,
     onSaveClick: (String) -> Unit,
     allPosts: List<UserPost>,
-    // *** FIX: Parameter is now explicitly named onPostClick ***
     onPostClick: (UserPost) -> Unit
 ) {
-
     val dynamicallySavedItems = remember(allPosts, savedItems) {
-        allPosts.filter { post ->
-            savedItems.getOrDefault(post.title, false)
-        }
+        allPosts.filter { post -> savedItems.getOrDefault(post.title, false) }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -57,14 +57,12 @@ fun WatchlistScreen(
             horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge)
         ) {
             items(dynamicallySavedItems, key = { it.id }) { post ->
-                val saveCount = saveCounts.getOrDefault(post.title, 0)
                 WatchlistCard(
                     itemName = post.title,
                     price = "$${post.price}",
                     imageUriString = post.imageUriString,
                     isSaved = true,
-                    saveCount = saveCount,
-                    // *** FIX: Pass the click event correctly ***
+                    saveCount = saveCounts.getOrDefault(post.title, 0),
                     onItemClick = { onPostClick(post) },
                     onSaveClick = { onSaveClick(post.title) }
                 )
@@ -75,53 +73,36 @@ fun WatchlistScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WatchlistTopBar(
-    onBackClick: () -> Unit
-) {
+private fun WatchlistTopBar(onBackClick: () -> Unit) {
     TopAppBar(
-        title = {
-            Text(
-                text = "Saved",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-        },
-        actions = {
-            IconButton(onClick = { /* Add new item */ }) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add",
-                    tint = MaterialTheme.colorScheme.onBackground
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background
-        )
+        title = { Text("Saved", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground) },
+        navigationIcon = { IconButton(onClick = onBackClick) { Icon(Icons.Filled.ArrowBack, "Back", Modifier.size(28.dp)) } },
+        actions = { IconButton(onClick = { }) { Icon(Icons.Default.Add, "Add", tint = MaterialTheme.colorScheme.onBackground) } },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
     )
 }
 
-@Preview
+@Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun WatchlistScreenPreview() {
     YardlyTheme(isDarkMode = false) {
         WatchlistScreen(
-            onBackClick = {},
-            savedItems = mapOf("Jordan" to true),
-            saveCounts = mapOf("Jordan" to 8),
-            onSaveClick = {},
+            onBackClick = {}, savedItems = mapOf("Jordan" to true), saveCounts = mapOf("Jordan" to 8), onSaveClick = {},
+            allPosts = listOf(UserPost(title = "Jordan", price = "10.00", category = "Shoes", description = "Good", location = "Campus")),
+            onPostClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Mode")
+@Composable
+fun WatchlistScreenDarkPreview() {
+    YardlyTheme(isDarkMode = true) {
+        WatchlistScreen(
+            onBackClick = {}, savedItems = mapOf("Vintage Lamp" to true, "Textbook" to true), saveCounts = mapOf("Vintage Lamp" to 5, "Textbook" to 3), onSaveClick = {},
             allPosts = listOf(
-                UserPost(title = "Jordan", price = "10.00", category = "Shoes", description = "Good", location = "Campus", imageUriString = null)
+                UserPost(title = "Vintage Lamp", price = "25.00", category = "Moving Out", description = "Great condition", location = "Campus"),
+                UserPost(title = "Textbook", price = "45.00", category = "Textbook", description = "Calculus", location = "Library")
             ),
             onPostClick = {}
         )

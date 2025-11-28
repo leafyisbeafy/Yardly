@@ -1,4 +1,4 @@
-package com.example.yardly.ui.components
+package com.example.yardly.ui.screens.settings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -31,9 +31,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.components.ExitDialog
+import com.example.yardly.ui.components.SettingsRow
 import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
+/**
+ * Settings screen with expandable options for account, accessibility, etc.
+ */
 @Composable
 fun SettingsScreen(
     onBackClick: () -> Unit,
@@ -41,67 +46,35 @@ fun SettingsScreen(
     onDarkModeClick: () -> Unit,
     onLogOutClick: () -> Unit = {}
 ) {
-    val settingsOptions = listOf(
-        "Account",
-        "Notification",
-        "Security & Permission",
-        "Privacy",
-        "Accessibility",
-        "About",
-        "Log out"
-    )
-
-    // Non-expandable items that trigger navigation directly
-    // *** UPDATED: Removed "Accessibility" so it can expand ***
-    val directNavigationItems = emptySet<String>()
-
-    // Items that don't expand and are special (like Log out)
+    val settingsOptions = listOf("Account", "Notification", "Security & Permission", "Privacy", "Accessibility", "About", "Log out")
     val specialItems = setOf("Log out", "About")
-
     var expandedSetting by remember { mutableStateOf<String?>(null) }
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
-
         if (showLogoutDialog) {
-            ExitDialog(
-                onDismiss = { showLogoutDialog = false }
-            )
+            ExitDialog(onDismiss = { showLogoutDialog = false })
         }
 
-        // 1. Top Bar
         SettingsTopBar(onBackClick = onBackClick)
 
-        // 2. List of Options
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
             items(settingsOptions) { optionName ->
                 val isExpanded = expandedSetting == optionName
-                // Expandable if it's NOT in special items and NOT a direct navigation item
-                val isExpandable = optionName !in specialItems && optionName !in directNavigationItems
+                val isExpandable = optionName !in specialItems
 
                 SettingsRow(
                     name = optionName,
                     onClick = {
                         when (optionName) {
-                            // *** UPDATED: Removed "Accessibility" case here so it falls through to expansion logic ***
                             "Log out" -> showLogoutDialog = true
-                            else -> {
-                                if (isExpandable) {
-                                    // Toggle expansion
-                                    expandedSetting = if (isExpanded) null else optionName
-                                } else {
-                                    // Handle other direct navigations (About, etc)
-                                }
-                            }
+                            else -> if (isExpandable) expandedSetting = if (isExpanded) null else optionName
                         }
                     },
                     isExpanded = isExpanded,
                     showArrow = isExpandable
                 )
 
-                // Expansion Content (if any)
                 AnimatedVisibility(
                     visible = isExpanded,
                     enter = expandVertically(animationSpec = tween(durationMillis = 300)),
@@ -115,27 +88,11 @@ fun SettingsScreen(
                     ) {
                         when (optionName) {
                             "Account" -> {
-                                // 1. Change Password
-                                SettingsRow(
-                                    name = "Change password",
-                                    onClick = { /* TODO: Handle Change Password */ },
-                                    showArrow = false
-                                )
-
-                                // 2. Deactivate Account
-                                SettingsRow(
-                                    name = "Deactivate account",
-                                    onClick = { /* TODO: Handle Deactivate Account */ },
-                                    showArrow = false
-                                )
+                                SettingsRow(name = "Change password", onClick = { /* TODO */ }, showArrow = false)
+                                SettingsRow(name = "Deactivate account", onClick = { /* TODO */ }, showArrow = false)
                             }
-                            // *** NEW: Accessibility Section ***
                             "Accessibility" -> {
-                                SettingsRow(
-                                    name = "Dark Mode",
-                                    onClick = onDarkModeClick,
-                                    showArrow = false
-                                )
+                                SettingsRow(name = "Dark Mode", onClick = onDarkModeClick, showArrow = false)
                             }
                         }
                     }
@@ -147,41 +104,26 @@ fun SettingsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SettingsTopBar(
-    onBackClick: () -> Unit
-) {
+private fun SettingsTopBar(onBackClick: () -> Unit) {
     TopAppBar(
-        title = {
-            Text(
-                text = "Settings",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background
-        )
+        title = { Text("Settings", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground) },
+        navigationIcon = { IconButton(onClick = onBackClick) { Icon(Icons.Filled.ArrowBack, "Back", Modifier.size(28.dp)) } },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
     )
 }
 
-@Preview
+@Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun SettingsScreenPreview() {
     YardlyTheme(isDarkMode = false) {
-        SettingsScreen(
-            onBackClick = {},
-            onAccessibilityClick = {},
-            onDarkModeClick = {}
-        )
+        SettingsScreen(onBackClick = {}, onAccessibilityClick = {}, onDarkModeClick = {})
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Mode")
+@Composable
+fun SettingsScreenDarkPreview() {
+    YardlyTheme(isDarkMode = true) {
+        SettingsScreen(onBackClick = {}, onAccessibilityClick = {}, onDarkModeClick = {})
     }
 }

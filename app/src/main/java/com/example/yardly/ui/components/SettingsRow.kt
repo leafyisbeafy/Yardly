@@ -82,7 +82,7 @@ fun SettingsRow(
     }
 }
 
-@Preview
+@Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun SettingsRowPreview() {
     YardlyTheme(isDarkMode = false) {
@@ -101,6 +101,17 @@ fun SettingsRowPreview() {
                 isExpanded = true,
                 showArrow = true
             )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Mode")
+@Composable
+fun SettingsRowDarkPreview() {
+    YardlyTheme(isDarkMode = true) {
+        Column {
+            SettingsRow(name = "Dark Mode Setting", onClick = {})
+            SettingsRow(name = "Selected Setting", onClick = {}, isSelected = true)
         }
     }
 }

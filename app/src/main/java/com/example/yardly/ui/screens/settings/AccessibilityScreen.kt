@@ -1,4 +1,4 @@
-package com.example.yardly.ui.components
+package com.example.yardly.ui.screens.settings
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,77 +20,49 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.yardly.ui.components.SettingsRow
 import com.example.yardly.ui.theme.YardlyTheme
 
+/**
+ * Accessibility settings screen with options like dark mode.
+ */
 @Composable
 fun AccessibilityScreen(
     onBackClick: () -> Unit,
     onDarkModeClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        // 1. Top Bar
         AccessibilityTopBar(onBackClick = onBackClick)
-
-        // 2. List of Options
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
             item {
-                SettingsRow(
-                    name = "Dark Mode",
-                    onClick = onDarkModeClick
-                )
+                SettingsRow(name = "Dark Mode", onClick = onDarkModeClick)
             }
         }
     }
 }
 
-@Preview
-@Composable
-fun AccessibilityScreenPreview() {
-    YardlyTheme(isDarkMode = false) {
-        AccessibilityScreen(
-            onBackClick = {},
-            onDarkModeClick = {}
-        )
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AccessibilityTopBar(
-    onBackClick: () -> Unit
-) {
+private fun AccessibilityTopBar(onBackClick: () -> Unit) {
     TopAppBar(
-        title = {
-            Text(
-                text = "Accessibility",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background
-        )
+        title = { Text("Accessibility", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground) },
+        navigationIcon = { IconButton(onClick = onBackClick) { Icon(Icons.Filled.ArrowBack, "Back", Modifier.size(28.dp)) } },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
     )
 }
 
-@Preview
+@Preview(showBackground = true, name = "Light Mode")
 @Composable
-private fun AccessibilityTopBarPreview() {
+fun AccessibilityScreenPreview() {
     YardlyTheme(isDarkMode = false) {
-        AccessibilityTopBar(
-            onBackClick = {}
-        )
+        AccessibilityScreen(onBackClick = {}, onDarkModeClick = {})
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Mode")
+@Composable
+fun AccessibilityScreenDarkPreview() {
+    YardlyTheme(isDarkMode = true) {
+        AccessibilityScreen(onBackClick = {}, onDarkModeClick = {})
     }
 }

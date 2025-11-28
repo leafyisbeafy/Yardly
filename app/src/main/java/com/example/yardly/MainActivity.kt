@@ -51,44 +51,35 @@ import androidx.core.content.edit
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
-import com.example.yardly.ui.components.*
+// Data layer imports
+import com.example.yardly.data.model.Ad
+import com.example.yardly.data.model.UserPost
+import com.example.yardly.data.repository.PostStorage
+import com.example.yardly.data.SampleData
+// UI components imports
+import com.example.yardly.ui.components.AdCard
+// UI screens imports
+import com.example.yardly.ui.screens.messenger.MessengerScreen
+import com.example.yardly.ui.screens.settings.AccessibilityScreen
+import com.example.yardly.ui.screens.settings.DarkModeScreen
+import com.example.yardly.ui.screens.settings.SettingsScreen
+import com.example.yardly.ui.screens.watchlist.WatchlistScreen
+// UI sheets imports
+import com.example.yardly.ui.sheets.AdDetailSheet
+import com.example.yardly.ui.sheets.AdLoginSheet
+import com.example.yardly.ui.sheets.ChooseCornerSheet
+import com.example.yardly.ui.sheets.CreatePostSheet
+import com.example.yardly.ui.sheets.EditProfileScreen
+import com.example.yardly.ui.sheets.ProfileContent
+import com.example.yardly.ui.sheets.ProfilePopup
+// Navigation imports
+import com.example.yardly.ui.navigation.ProfileScreenState
+// Theme imports
 import com.example.yardly.ui.theme.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-
-// --- DATA: Helper Wrapper for legacy clicks ---
-data class Ad(val name: String, val user: String)
-
-// --- DATA: Master System List ---
-private val systemPosts = listOf(
-    UserPost(id = 1001L, title = "Air Force 1", price = "291.28", category = "Moving Out", description = "Good condition", location = "Campus", userName = "User 1"),
-    UserPost(id = 1002L, title = "iPhone 13", price = "299.99", category = "Moving Out", description = "Unlocked", location = "Dorm A", userName = "User 2"),
-    UserPost(id = 1003L, title = "PlayStation 4", price = "300.00", category = "Moving Out", description = "Comes with 2 controllers", location = "Northside", userName = "User 3"),
-    UserPost(id = 1004L, title = "Macbook Air 13", price = "500.00", category = "Moving Out", description = "M1 Chip", location = "Library", userName = "User 4"),
-    UserPost(id = 2001L, title = "Calculus Textbook", price = "45.00", category = "Textbook", description = "Calculus Early Transcendentals", location = "Library", userName = "User 7"),
-    UserPost(id = 2002L, title = "Organic Chemistry", price = "60.00", category = "Textbook", description = "7th Edition", location = "Science Hall", userName = "User 12"),
-    UserPost(id = 2003L, title = "Psych 101", price = "20.00", category = "Textbook", description = "Intro to Psychology", location = "East Hall", userName = "User 22"),
-    UserPost(id = 3001L, title = "Golden Retriever Puppy", price = "Free", category = "Rescue", description = "Needs a loving home", location = "Southside", userName = "User 99"),
-    UserPost(id = 3002L, title = "Cat for Adoption", price = "20.00", category = "Rescue", description = "Very friendly orange tabby", location = "East", userName = "User 33"),
-    UserPost(id = 3003L, title = "Hamster Cage + Hamster", price = "Free", category = "Rescue", description = "Moving out, can't keep him", location = "West", userName = "User 41"),
-    UserPost(id = 4001L, title = "Sublet: 1-Bed Room", price = "500.00", category = "Sublease", description = "Available for Summer", location = "Downtown", userName = "User 9"),
-    UserPost(id = 4002L, title = "Luxury Apt Sublease", price = "800.00", category = "Sublease", description = "Aug-Dec", location = "The Lofts", userName = "User 44"),
-    UserPost(id = 5001L, title = "Razer Gaming Chair", price = "222.00", category = "Moving Out", description = "Like new", location = "West", userName = "User 6"),
-    UserPost(id = 5002L, title = "Mini Fridge (Black)", price = "50.00", category = "Moving Out", description = "Perfect for dorms", location = "Campus", userName = "User 8"),
-    UserPost(id = 5003L, title = "IKEA Desk - White", price = "30.00", category = "Moving Out", description = "Sturdy desk", location = "Apts", userName = "User 9"),
-    UserPost(id = 5004L, title = "Microwave", price = "25.00", category = "Moving Out", description = "Works great", location = "Dorm B", userName = "User 10")
-)
-
-sealed class ProfileScreenState {
-    object Profile : ProfileScreenState()
-    object Settings : ProfileScreenState()
-    object Accessibility : ProfileScreenState()
-    object DarkMode : ProfileScreenState()
-    object EditProfile : ProfileScreenState()
-    object AdDetail : ProfileScreenState()
-}
 
 const val PREFS_NAME = "yardly_settings"
 const val KEY_DARK_MODE = "dark_mode_enabled"
@@ -785,7 +776,7 @@ fun ContentArea(
     onPostClick: (UserPost) -> Unit
 ) {
     // 1. COMBINE DATA Sources
-    val allPosts = remember(userPosts) { userPosts + systemPosts }
+    val allPosts = remember(userPosts) { userPosts + SampleData.systemPosts }
 
     // 2. FILTERING LOGIC
     val currentCategoryLabel = Category.getLabelById(selectedNavSection)

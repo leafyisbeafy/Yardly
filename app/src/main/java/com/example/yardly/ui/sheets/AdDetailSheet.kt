@@ -1,4 +1,4 @@
-package com.example.yardly.ui.components
+package com.example.yardly.ui.sheets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,10 +25,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.yardly.UserPost
+import com.example.yardly.data.model.UserPost
 import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
+/**
+ * Bottom sheet for displaying detailed information about a marketplace listing.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdDetailSheet(
@@ -225,7 +228,7 @@ fun AdDetailSheet(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun AdDetailSheetPreview() {
     val mockPost = UserPost(
@@ -244,6 +247,31 @@ fun AdDetailSheetPreview() {
             onDismiss = {},
             isSaved = false,
             saveCount = 12,
+            onSaveClick = {},
+            onUserClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Dark Mode")
+@Composable
+fun AdDetailSheetDarkPreview() {
+    val mockPost = UserPost(
+        title = "Calculus Textbook",
+        description = "Calculus: Early Transcendentals, 8th Edition. Great condition with some highlighting.",
+        price = "45.00",
+        category = "Textbook",
+        location = "Library",
+        userName = "StudyBuddy",
+        imageUriString = null
+    )
+    YardlyTheme(isDarkMode = true) {
+        AdDetailSheet(
+            post = mockPost,
+            showModal = true,
+            onDismiss = {},
+            isSaved = true,
+            saveCount = 8,
             onSaveClick = {},
             onUserClick = {}
         )
