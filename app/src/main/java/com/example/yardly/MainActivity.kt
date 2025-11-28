@@ -37,8 +37,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,33 +62,23 @@ import java.io.File
 data class Ad(val name: String, val user: String)
 
 // --- DATA: Master System List ---
-// This replaces 'defaultAds'. It contains posts for ALL categories.
 private val systemPosts = listOf(
-    // General / Home Defaults
-    UserPost(id = 1001, title = "Air Force 1", price = "291.28", category = "Moving Out", description = "Good condition", location = "Campus", userName = "User 1"),
-    UserPost(id = 1002, title = "iPhone 13", price = "299.99", category = "Moving Out", description = "Unlocked", location = "Dorm A", userName = "User 2"),
-    UserPost(id = 1003, title = "PlayStation 4", price = "300.00", category = "Moving Out", description = "Comes with 2 controllers", location = "Northside", userName = "User 3"),
-    UserPost(id = 1004, title = "Macbook Air 13", price = "500.00", category = "Moving Out", description = "M1 Chip", location = "Library", userName = "User 4"),
-
-    // Category: Textbook
-    UserPost(id = 2001, title = "Calculus Textbook", price = "45.00", category = "Textbook", description = "Calculus Early Transcendentals", location = "Library", userName = "User 7"),
-    UserPost(id = 2002, title = "Organic Chemistry", price = "60.00", category = "Textbook", description = "7th Edition", location = "Science Hall", userName = "User 12"),
-    UserPost(id = 2003, title = "Psych 101", price = "20.00", category = "Textbook", description = "Intro to Psychology", location = "East Hall", userName = "User 22"),
-
-    // Category: Rescue
-    UserPost(id = 3001, title = "Golden Retriever Puppy", price = "Free", category = "Rescue", description = "Needs a loving home", location = "Southside", userName = "User 99"),
-    UserPost(id = 3002, title = "Cat for Adoption", price = "20.00", category = "Rescue", description = "Very friendly orange tabby", location = "East", userName = "User 33"),
-    UserPost(id = 3003, title = "Hamster Cage + Hamster", price = "Free", category = "Rescue", description = "Moving out, can't keep him", location = "West", userName = "User 41"),
-
-    // Category: Sublease
-    UserPost(id = 4001, title = "Sublet: 1-Bed Room", price = "500.00", category = "Sublease", description = "Available for Summer", location = "Downtown", userName = "User 9"),
-    UserPost(id = 4002, title = "Luxury Apt Sublease", price = "800.00", category = "Sublease", description = "Aug-Dec", location = "The Lofts", userName = "User 44"),
-
-    // Category: Moving Out
-    UserPost(id = 5001, title = "Razer Gaming Chair", price = "222.00", category = "Moving Out", description = "Like new", location = "West", userName = "User 6"),
-    UserPost(id = 5002, title = "Mini Fridge (Black)", price = "50.00", category = "Moving Out", description = "Perfect for dorms", location = "Campus", userName = "User 8"),
-    UserPost(id = 5003, title = "IKEA Desk - White", price = "30.00", category = "Moving Out", description = "Sturdy desk", location = "Apts", userName = "User 9"),
-    UserPost(id = 5004, title = "Microwave", price = "25.00", category = "Moving Out", description = "Works great", location = "Dorm B", userName = "User 10")
+    UserPost(id = 1001L, title = "Air Force 1", price = "291.28", category = "Moving Out", description = "Good condition", location = "Campus", userName = "User 1"),
+    UserPost(id = 1002L, title = "iPhone 13", price = "299.99", category = "Moving Out", description = "Unlocked", location = "Dorm A", userName = "User 2"),
+    UserPost(id = 1003L, title = "PlayStation 4", price = "300.00", category = "Moving Out", description = "Comes with 2 controllers", location = "Northside", userName = "User 3"),
+    UserPost(id = 1004L, title = "Macbook Air 13", price = "500.00", category = "Moving Out", description = "M1 Chip", location = "Library", userName = "User 4"),
+    UserPost(id = 2001L, title = "Calculus Textbook", price = "45.00", category = "Textbook", description = "Calculus Early Transcendentals", location = "Library", userName = "User 7"),
+    UserPost(id = 2002L, title = "Organic Chemistry", price = "60.00", category = "Textbook", description = "7th Edition", location = "Science Hall", userName = "User 12"),
+    UserPost(id = 2003L, title = "Psych 101", price = "20.00", category = "Textbook", description = "Intro to Psychology", location = "East Hall", userName = "User 22"),
+    UserPost(id = 3001L, title = "Golden Retriever Puppy", price = "Free", category = "Rescue", description = "Needs a loving home", location = "Southside", userName = "User 99"),
+    UserPost(id = 3002L, title = "Cat for Adoption", price = "20.00", category = "Rescue", description = "Very friendly orange tabby", location = "East", userName = "User 33"),
+    UserPost(id = 3003L, title = "Hamster Cage + Hamster", price = "Free", category = "Rescue", description = "Moving out, can't keep him", location = "West", userName = "User 41"),
+    UserPost(id = 4001L, title = "Sublet: 1-Bed Room", price = "500.00", category = "Sublease", description = "Available for Summer", location = "Downtown", userName = "User 9"),
+    UserPost(id = 4002L, title = "Luxury Apt Sublease", price = "800.00", category = "Sublease", description = "Aug-Dec", location = "The Lofts", userName = "User 44"),
+    UserPost(id = 5001L, title = "Razer Gaming Chair", price = "222.00", category = "Moving Out", description = "Like new", location = "West", userName = "User 6"),
+    UserPost(id = 5002L, title = "Mini Fridge (Black)", price = "50.00", category = "Moving Out", description = "Perfect for dorms", location = "Campus", userName = "User 8"),
+    UserPost(id = 5003L, title = "IKEA Desk - White", price = "30.00", category = "Moving Out", description = "Sturdy desk", location = "Apts", userName = "User 9"),
+    UserPost(id = 5004L, title = "Microwave", price = "25.00", category = "Moving Out", description = "Works great", location = "Dorm B", userName = "User 10")
 )
 
 sealed class ProfileScreenState {
@@ -183,6 +171,10 @@ fun YardlyApp(
     var showProfileSheet by remember { mutableStateOf(false) }
     var showChooseCornerSheet by remember { mutableStateOf(false) }
     var showCreatePostSheet by remember { mutableStateOf(false) }
+
+    // *** NEW STATE: Ad Detail Sheet ***
+    var showAdDetailSheet by remember { mutableStateOf(false) }
+
     var profileScreenState by remember { mutableStateOf<ProfileScreenState>(ProfileScreenState.Profile) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -288,8 +280,14 @@ fun YardlyApp(
 
     val onSaveClick: (String) -> Unit = { adName ->
         val currentCount = saveCounts.getOrDefault(adName, 0)
-        saveCounts[adName] = currentCount + 1
-        savedItems[adName] = true
+        val isSaved = savedItems.getOrDefault(adName, false)
+        if (isSaved) {
+            if (currentCount > 0) saveCounts[adName] = currentCount - 1
+            savedItems[adName] = false
+        } else {
+            saveCounts[adName] = currentCount + 1
+            savedItems[adName] = true
+        }
     }
 
     val dynamicAdList = emptyList<Ad>()
@@ -351,8 +349,8 @@ fun YardlyApp(
                                 imageUriString = null
                             )
                             selectedPost = newPost
-                            selectedIconSection = "profile"
-                            profileScreenState = ProfileScreenState.AdDetail
+                            // *** UPDATED: Show sheet instead of changing screen state
+                            showAdDetailSheet = true
                         } else {
                             showAdLoginModal = true
                         }
@@ -376,7 +374,8 @@ fun YardlyApp(
 
                     onPostClick = { post ->
                         selectedPost = post
-                        profileScreenState = ProfileScreenState.AdDetail
+                        // *** UPDATED: Show sheet instead of changing screen state
+                        showAdDetailSheet = true
                     }
                 )
 
@@ -529,8 +528,8 @@ fun YardlyApp(
             onNavigateToAdDetail = { post ->
                 showProfileSheet = false
                 selectedPost = post
-                selectedIconSection = "profile"
-                profileScreenState = ProfileScreenState.AdDetail
+                // *** UPDATED: Show sheet instead of changing screen state
+                showAdDetailSheet = true
             },
             onSaveClick = onSaveClick
         )
@@ -567,6 +566,24 @@ fun YardlyApp(
                         cropImageOptions = CropImageOptions()
                     )
                 )
+            }
+        )
+
+        // *** NEW: Ad Detail Sheet ***
+        AdDetailSheet(
+            post = selectedPost,
+            showModal = showAdDetailSheet,
+            onDismiss = { showAdDetailSheet = false },
+            isSaved = if (selectedPost != null) savedItems.getOrDefault(selectedPost!!.title, false) else false,
+            saveCount = if (selectedPost != null) saveCounts.getOrDefault(selectedPost!!.title, 0) else 0,
+            onSaveClick = {
+                if (selectedPost != null) {
+                    onSaveClick(selectedPost!!.title)
+                }
+            },
+            onUserClick = {
+                showAdDetailSheet = false
+                showProfileSheet = true
             }
         )
     }
@@ -768,16 +785,11 @@ fun ContentArea(
     onPostClick: (UserPost) -> Unit
 ) {
     // 1. COMBINE DATA Sources
-    // Combine the user-created posts (from storage) with the hardcoded system posts
     val allPosts = remember(userPosts) { userPosts + systemPosts }
 
     // 2. FILTERING LOGIC
-    // Get the category label associated with the selected tab ID
     val currentCategoryLabel = Category.getLabelById(selectedNavSection)
 
-    // Filter logic:
-    // - If "home-default", show everything (no filtering)
-    // - Otherwise, show only items where category matches the tab label
     val visiblePosts = remember(selectedNavSection, allPosts) {
         if (selectedNavSection == "home-default") {
             allPosts
@@ -799,7 +811,6 @@ fun ContentArea(
                     vertical = Dimens.ScreenPaddingVertical
                 )
             ) {
-                // 3. RENDER THE FILTERED LIST
                 items(visiblePosts, key = { it.id }) { post ->
                     val saveCount = saveCounts.getOrDefault(post.title, 0)
                     val isSaved = savedItems.getOrDefault(post.title, false)
@@ -817,16 +828,14 @@ fun ContentArea(
             }
         }
         "watchlist" -> {
-            // *** CRITICAL UPDATE ***
-            // Pass the COMBINED 'allPosts' list here.
-            // This ensures that when WatchlistScreen looks for a saved item by name/id,
-            // it finds it in this master list.
             WatchlistScreen(
                 onBackClick = onBackClick,
                 savedItems = savedItems,
                 saveCounts = saveCounts,
                 onSaveClick = onSaveClick,
-                allPosts = allPosts // <<--- FIX WAS APPLIED HERE
+                allPosts = allPosts,
+                // *** FIX: Use onPostClick parameter name ***
+                onPostClick = onPostClick
             )
         }
         "profile" -> {
@@ -870,19 +879,12 @@ fun ContentArea(
                     onSaveImagePermanently = onSaveImagePermanently
                 )
                 ProfileScreenState.AdDetail -> {
-                    if (selectedPost != null) {
-                        AdDetailScreen(
-                            title = selectedPost.title,
-                            description = selectedPost.description + "\n\nPrice: " + selectedPost.price + "\nLocation: " + selectedPost.location,
-                            isSaved = savedItems.getOrDefault(selectedPost.title, false),
-                            saveCount = saveCounts.getOrDefault(selectedPost.title, 0),
-                            onBackClick = onAdDetailBackClick,
-                            onUserClick = { /* Stay on profile */ },
-                            onSaveClick = { onSaveClick(selectedPost.title) },
-                            onShareClick = { /* TODO */ }
-                        )
-                    } else {
-                        Text("No post selected")
+                    // Placeholder for AdDetail if accessed via legacy state
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Ad Detail is now a popup sheet.")
                     }
                 }
             }
@@ -913,21 +915,6 @@ fun ContentArea(
             fontSize = 18.sp,
             textAlign = TextAlign.Center,
             lineHeight = 24.sp
-        )
-    }
-}
-
-// --- (Previews) ---
-@Preview(showBackground = true)
-@Composable
-fun YardlyAppPreview() {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    YardlyTheme(isDarkMode = false) {
-        YardlyApp(
-            isDarkMode = false,
-            onDarkModeToggle = {},
-            postStorage = PostStorage(context),
-            onSaveImagePermanently = { it }
         )
     }
 }

@@ -11,6 +11,5 @@ data class UserPost(
     val category: String,
     val location: String,
     val userName: String = "Jordan Lee",
-    // CRITICAL FIX: Add field to store the image reference
-    val imageUriString: String? = null
+    val imageUriString: String? = null // Field for Coil image loading
 )

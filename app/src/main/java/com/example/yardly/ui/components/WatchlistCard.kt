@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -35,11 +36,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.PriceDropRed1
 import com.example.yardly.ui.theme.PriceDropRed2
@@ -50,8 +52,9 @@ import com.example.yardly.ui.theme.YardlyTheme
 fun WatchlistCard(
     itemName: String,
     price: String,
+    imageUriString: String?,
     isSaved: Boolean,
-    saveCount: Int, // <-- ADDED
+    saveCount: Int,
     onItemClick: () -> Unit = {},
     onSaveClick: () -> Unit = {}
 ) {
@@ -65,7 +68,7 @@ fun WatchlistCard(
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column {
-            // 1. Image Placeholder
+            // 1. Image Display Section
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -73,19 +76,27 @@ fun WatchlistCard(
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.ImageNotSupported,
-                    contentDescription = "Placeholder",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(48.dp)
-                )
+                if (imageUriString != null) {
+                    AsyncImage(
+                        model = imageUriString,
+                        contentDescription = itemName,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.ImageNotSupported,
+                        contentDescription = "Placeholder",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
             }
 
             // 2. Item Name and Save Button Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    // *** FIXED PADDING ***
                     .padding(horizontal = Dimens.SpacingMedium, vertical = Dimens.SpacingSmall),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -95,13 +106,11 @@ fun WatchlistCard(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.weight(1f, fill = false) // Let name take space, but not all
+                    modifier = Modifier.weight(1f, fill = false)
                 )
-
-                // *** NEW: Save Count and Button ***
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall) // *** FIXED PADDING ***
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall)
                 ) {
                     AnimatedVisibility(
                         visible = saveCount > 0,
@@ -117,7 +126,7 @@ fun WatchlistCard(
                     }
                     IconButton(
                         onClick = onSaveClick,
-                        modifier = Modifier.size(Dimens.SpacingXXXLarge) // *** FIXED PADDING ***
+                        modifier = Modifier.size(Dimens.SpacingXXXLarge)
                     ) {
                         Icon(
                             imageVector = if (isSaved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkAdd,
@@ -131,12 +140,10 @@ fun WatchlistCard(
 
             // 3. Price Row
             Row(
-                // *** FIXED PADDING ***
                 modifier = Modifier.padding(horizontal = Dimens.SpacingMedium, vertical = Dimens.SpacingSmall),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall) // *** FIXED PADDING ***
+                horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingSmall)
             ) {
-                // Pulsing Red Icon
                 val infiniteTransition = rememberInfiniteTransition(label = "pulse")
                 val pulseColor by infiniteTransition.animateColor(
                     initialValue = PriceDropRed1,
@@ -150,9 +157,8 @@ fun WatchlistCard(
                     imageVector = Icons.Default.ArrowDownward,
                     contentDescription = "Price Drop",
                     tint = pulseColor,
-                    modifier = Modifier.size(Dimens.SpacingXLarge) // *** FIXED PADDING ***
+                    modifier = Modifier.size(Dimens.SpacingXLarge)
                 )
-                // Price
                 Text(
                     text = price,
                     fontSize = 16.sp,
@@ -160,20 +166,7 @@ fun WatchlistCard(
                     color = MaterialTheme.colorScheme.onBackground
                 )
             }
-            Spacer(modifier = Modifier.height(Dimens.SpacingSmall)) // *** FIXED PADDING ***
+            Spacer(modifier = Modifier.height(Dimens.SpacingSmall))
         }
-    }
-}
-
-@Preview
-@Composable
-fun WatchlistCardPreview() {
-    YardlyTheme(isDarkMode = false) {
-        WatchlistCard(
-            itemName = "Mac Mini",
-            price = "$300.00",
-            isSaved = true,
-            saveCount = 3
-        )
     }
 }

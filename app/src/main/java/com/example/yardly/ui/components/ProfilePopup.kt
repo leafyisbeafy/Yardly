@@ -16,8 +16,6 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,14 +30,13 @@ import com.example.yardly.UserPost
 import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 
-// --- 1. The Modal Wrapper ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfilePopup(
     name: String,
     username: String,
     bio: String,
-    imageUri: Uri?, // Accepts the image URI
+    imageUri: Uri?,
     userPosts: List<UserPost>,
     saveCounts: Map<String, Int>,
     savedItems: Map<String, Boolean>,
@@ -80,7 +77,6 @@ fun ProfilePopup(
     }
 }
 
-// --- 2. The Main Content ---
 @Composable
 fun ProfileContent(
     name: String,
@@ -105,7 +101,6 @@ fun ProfileContent(
             .fillMaxWidth()
             .fillMaxHeight(0.95f)
     ) {
-        // Uses the TopProfileBar defined below
         TopProfileBar(
             onBackClick = onBackClick,
             onEditClick = onEditClick,
@@ -118,7 +113,6 @@ fun ProfileContent(
             contentPadding = PaddingValues(horizontal = Dimens.ScreenPaddingHorizontal, vertical = Dimens.SpacingXLarge),
             verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLarge)
         ) {
-            // --- HEADER SECTION ---
             item {
                 Column {
                     Row(
@@ -148,7 +142,6 @@ fun ProfileContent(
                                     .background(Color(0xFF0F1B3C)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                // Logic to toggle between Image and Initials
                                 if (imageUri != null) {
                                     AsyncImage(
                                         model = imageUri,
@@ -158,7 +151,7 @@ fun ProfileContent(
                                     )
                                 } else {
                                     Text(
-                                        text = name.take(1),
+                                        text = name.take(1).uppercase(),
                                         fontSize = 32.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.White
@@ -185,9 +178,7 @@ fun ProfileContent(
                         color = MaterialTheme.colorScheme.onBackground,
                         lineHeight = 20.sp
                     )
-
                     Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
-
                     Surface(
                         modifier = Modifier.border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(16.dp)),
                         shape = RoundedCornerShape(16.dp),
@@ -204,9 +195,7 @@ fun ProfileContent(
                             )
                         }
                     }
-
                     Spacer(modifier = Modifier.height(Dimens.SpacingXXLarge))
-
                     TabRow(
                         selectedTabIndex = tabs.indexOf(selectedTab),
                         containerColor = Color.Transparent,
@@ -238,38 +227,29 @@ fun ProfileContent(
                 }
             }
 
-            // --- CONTENT SECTION ---
             if (selectedTab == "Available") {
                 if (userPosts.isEmpty()) {
                     item {
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 40.dp),
+                            modifier = Modifier.fillMaxWidth().padding(top = 40.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = "No listings yet.",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            Text(text = "No listings yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 } else {
                     items(userPosts) { post ->
                         val saveCount = saveCounts.getOrDefault(post.title, 0)
                         val isSaved = savedItems.getOrDefault(post.title, false)
-
-                        // Assuming WatchlistCard is defined elsewhere in your project
-                        /*
                         WatchlistCard(
                             itemName = post.title,
                             price = "$${post.price}",
+                            imageUriString = post.imageUriString,
                             isSaved = isSaved,
                             saveCount = saveCount,
                             onItemClick = { onNavigateToAdDetail(post) },
                             onSaveClick = { onSaveClick(post.title) }
                         )
-                        */
                         Spacer(modifier = Modifier.height(Dimens.SpacingMedium))
                     }
                 }
@@ -287,7 +267,6 @@ fun ProfileContent(
     }
 }
 
-// --- 3. The Top Bar ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopProfileBar(
@@ -313,8 +292,7 @@ fun TopProfileBar(
                 Icon(
                     imageVector = Icons.Filled.Edit,
                     contentDescription = "Edit",
-                    tint = if (isEditMode) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onBackground,
+                    tint = if (isEditMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -327,9 +305,7 @@ fun TopProfileBar(
                 )
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background
-        )
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
     )
 }
 
@@ -340,7 +316,7 @@ fun ProfilePopupPreview() {
         ProfilePopup(
             name = "Preview Name",
             username = "preview_user",
-            bio = "This is a preview bio for the popup.",
+            bio = "This is a preview bio.",
             imageUri = null,
             userPosts = emptyList(),
             saveCounts = emptyMap(),
