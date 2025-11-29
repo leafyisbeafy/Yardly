@@ -58,7 +58,7 @@ dependencies {
 
     // Image Loading and Cropping Libraries
     implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("com.vanniktech:android-image-cropper:4.6.0")
+    implementation("com.vanniktech:android-image-cropper:4.7.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
