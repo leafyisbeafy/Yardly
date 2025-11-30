@@ -78,10 +78,7 @@ fun AdCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(12.dp)
-                    ),
+                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 if (imageUriString != null) {
@@ -118,10 +115,7 @@ fun AdCard(
                     Box(
                         modifier = Modifier
                             .size(Dimens.SpacingXXXLarge)
-                            .background(
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                shape = CircleShape
-                            )
+                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
                     )
                     Text(
                         text = userName,

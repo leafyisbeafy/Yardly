@@ -46,8 +46,9 @@ fun CreatePostSheet(
     showModal: Boolean,
     onDismiss: () -> Unit,
     onPostListing: (title: String, desc: String, category: String, location: String, price: String, imageUris: List<String>) -> Unit,
-    imageUri: Uri?,
-    onSelectImageClick: () -> Unit
+    imageUris: List<Uri>,
+    onSelectImageClick: () -> Unit,
+    onRemoveImage: (Uri) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -88,18 +89,93 @@ fun CreatePostSheet(
 
                 Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
 
-                // Image Display
-                if (imageUri != null) {
-                    Box(
+                // Image Display (Horizontal Scroll)
+                if (imageUris.isNotEmpty() || imageUris.size < 6) {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(Dimens.SpacingMedium),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp)
+                            .padding(bottom = Dimens.SpacingXLarge)
+                    ) {
+                        // Display Selected Images
+                        items(imageUris) { uri ->
+                            Box(
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                            ) {
+                                AsyncImage(
+                                    model = uri,
+                                    contentDescription = "Selected Post Image",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                                // Remove Button (X)
+                                IconButton(
+                                    onClick = { onRemoveImage(uri) },
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(4.dp)
+                                        .size(24.dp)
+                                        .background(Color.Black.copy(alpha = 0.6f), CircleShape)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Remove Image",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Add Image Button (if less than 6)
+                        if (imageUris.size < 6) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .size(120.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                        .clickable { onSelectImageClick() },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = "Add Image",
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                        Text(
+                                            text = "${imageUris.size}/6",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Initial State: Big "Add Photo" Box if no images
+                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(200.dp)
                             .padding(bottom = Dimens.SpacingXLarge)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable { onSelectImageClick() },
                         contentAlignment = Alignment.Center
                     ) {
-                        AsyncImage(model = imageUri, contentDescription = "Selected Post Image", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.AddPhotoAlternate, "Add Photo", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(48.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("Add Photos (Max 6)", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                 }
 
@@ -152,10 +228,10 @@ fun CreatePostSheet(
                     }
                 }
 
-                // Media Bar
+                // Media Bar (Simplified as we have the main image area)
                 Spacer(modifier = Modifier.height(Dimens.SpacingXLarge))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                    IconButton(onClick = onSelectImageClick) { Icon(Icons.Default.PhotoLibrary, "Photo Library", tint = if (imageUri != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant) }
+                    IconButton(onClick = onSelectImageClick) { Icon(Icons.Default.PhotoLibrary, "Photo Library", tint = if (imageUris.isNotEmpty()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant) }
                     IconButton(onClick = { Toast.makeText(context, "Video recording not yet implemented.", Toast.LENGTH_SHORT).show() }) { Icon(Icons.Default.PlayCircle, "Video") }
                     IconButton(onClick = { Toast.makeText(context, "Camera not yet implemented.", Toast.LENGTH_SHORT).show() }) { Icon(Icons.Default.CameraAlt, "Camera") }
                     IconButton(onClick = { Toast.makeText(context, "Location picker not yet implemented.", Toast.LENGTH_SHORT).show() }) { Icon(Icons.Default.LocationOn, "Location") }
@@ -182,7 +258,13 @@ fun CreatePostSheet(
                             Toast.makeText(context, "Title and Price are required!", Toast.LENGTH_SHORT).show()
                             return@Button
                         }
-                        onPostListing(title, description, selectedCategory.label, location, price, if (imageUri != null) listOf(imageUri.toString()) else emptyList())
+
+                        // Sort images: Square (1:1) images first
+                        val sortedUris = imageUris.sortedByDescending { uri ->
+                            isSquareImage(context, uri)
+                        }
+
+                        onPostListing(title, description, selectedCategory.label, location, price, sortedUris.map { it.toString() })
                         title = ""; description = ""; price = ""
                         onDismiss()
                     },
@@ -195,10 +277,39 @@ fun CreatePostSheet(
     }
 }
 
+private fun isSquareImage(context: android.content.Context, uri: Uri): Boolean {
+    return try {
+        val options = android.graphics.BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            android.graphics.BitmapFactory.decodeStream(inputStream, null, options)
+        }
+        val width = options.outWidth
+        val height = options.outHeight
+        if (width > 0 && height > 0) {
+            val ratio = width.toFloat() / height.toFloat()
+            ratio in 0.95f..1.05f // Tolerance for "square"
+        } else {
+            false
+        }
+    } catch (e: Exception) {
+        false
+    }
+}
+
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun CreatePostSheetPreview() {
     YardlyTheme(isDarkMode = false) {
-        CreatePostSheet(userName = "Preview User", showModal = true, onDismiss = {}, onPostListing = { _, _, _, _, _, _ -> }, imageUri = null, onSelectImageClick = {})
+        CreatePostSheet(
+            userName = "Preview User",
+            showModal = true,
+            onDismiss = {},
+            onPostListing = { _, _, _, _, _, _ -> },
+            imageUris = listOf(Uri.parse("http://example.com/1"), Uri.parse("http://example.com/2")),
+            onSelectImageClick = {},
+            onRemoveImage = {}
+        )
     }
 }

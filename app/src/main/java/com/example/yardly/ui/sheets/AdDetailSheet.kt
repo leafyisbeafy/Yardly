@@ -17,6 +17,10 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -96,29 +100,44 @@ fun AdDetailSheet(
 
                     if (images.isNotEmpty()) {
                         val pagerState = rememberPagerState(pageCount = { images.size })
+                        val aspectRatios = remember { mutableStateMapOf<Int, Float>() }
+                        // Default to 1:1, but animate to the actual aspect ratio of the current image
+                        val targetAspectRatio = aspectRatios[pagerState.currentPage] ?: 1f
+                        val animatedAspectRatio by androidx.compose.animation.core.animateFloatAsState(
+                            targetValue = targetAspectRatio,
+                            label = "aspectRatio"
+                        )
+
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .aspectRatio(1f) // 1:1 Square Aspect Ratio (Threads style)
-                                // .aspectRatio(16f / 9f) // Uncomment for 16:9
+                                .aspectRatio(animatedAspectRatio)
                         ) {
                             HorizontalPager(
                                 state = pagerState,
                                 modifier = Modifier.fillMaxSize(),
-                                pageSpacing = 12.dp, // Gap between images
-                                contentPadding = PaddingValues(horizontal = 32.dp) // Show next/prev cards
+                                pageSpacing = 12.dp,
+                                contentPadding = PaddingValues(horizontal = 32.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) { page ->
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .clip(RoundedCornerShape(16.dp)) // Individual rounded corners
+                                        .clip(RoundedCornerShape(16.dp))
                                         .background(MaterialTheme.colorScheme.surfaceVariant)
                                 ) {
                                     AsyncImage(
                                         model = images[page],
                                         contentDescription = post?.title,
                                         modifier = Modifier.fillMaxSize(),
-                                        contentScale = ContentScale.Crop
+                                        contentScale = ContentScale.Crop,
+                                        onSuccess = { state ->
+                                            val width = state.result.drawable.intrinsicWidth
+                                            val height = state.result.drawable.intrinsicHeight
+                                            if (height > 0 && width > 0) {
+                                                aspectRatios[page] = width.toFloat() / height.toFloat()
+                                            }
+                                        }
                                     )
                                 }
                             }
@@ -192,7 +211,16 @@ fun AdDetailSheet(
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.surfaceVariant)
                                 .clickable { onUserClick() }
-                        )
+                        ) {
+                            if (post.userProfileImageUri != null) {
+                                AsyncImage(
+                                    model = post.userProfileImageUri,
+                                    contentDescription = "Profile Picture",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
 
                         // RIGHT SIDE: Action Buttons
                         Row(
@@ -220,8 +248,17 @@ fun AdDetailSheet(
                             }
 
                             // 2. Share Button (Icon Only, Pill/Circle)
+                            val context = androidx.compose.ui.platform.LocalContext.current
                             FilledTonalButton(
-                                onClick = { /* TODO Share */ },
+                                onClick = {
+                                    val sendIntent: android.content.Intent = android.content.Intent().apply {
+                                        action = android.content.Intent.ACTION_SEND
+                                        putExtra(android.content.Intent.EXTRA_TEXT, "Check out this item on Yardly: ${post.title} - $${post.price}")
+                                        type = "text/plain"
+                                    }
+                                    val shareIntent = android.content.Intent.createChooser(sendIntent, null)
+                                    context.startActivity(shareIntent)
+                                },
                                 shape = CircleShape,
                                 contentPadding = PaddingValues(0.dp),
                                 modifier = Modifier.size(40.dp)
@@ -268,7 +305,8 @@ fun AdDetailSheetPreview() {
         price = "25.00",
         category = "Clothing",
         location = "Downtown",
-        userName = "CoolSeller123"
+        userName = "CoolSeller123",
+        imageUris = emptyList()
     )
     YardlyTheme(isDarkMode = false) {
         AdDetailSheet(

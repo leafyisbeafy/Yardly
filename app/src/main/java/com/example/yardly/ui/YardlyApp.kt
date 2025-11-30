@@ -37,13 +37,17 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.activity.result.contract.ActivityResultContracts
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
+import com.canhub.cropper.CropImageView
 import com.example.yardly.data.model.Ad
 import com.example.yardly.data.model.UserPost
 import com.example.yardly.data.repository.PostStorage
@@ -81,13 +85,16 @@ fun YardlyApp(
     var showAdDetailSheet by remember { mutableStateOf(false) }
 
     var profileScreenState by remember { mutableStateOf<ProfileScreenState>(ProfileScreenState.Profile) }
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val selectedImageUris: SnapshotStateList<Uri> = remember { emptyList<Uri>().toMutableStateList() }
 
     val categoryScrollPositions = remember { mutableStateMapOf<String, Pair<Int, Int>>() }
+    val context = androidx.compose.ui.platform.LocalContext.current
     val cropImage = rememberLauncherForActivityResult(CropImageContract()) { result ->
         if (result.isSuccessful) {
             val savedUri = onSaveImagePermanently(result.uriContent!!)
-            imageUri = savedUri
+            if (savedUri != null) {
+                selectedImageUris.add(savedUri)
+            }
         }
     }
 
@@ -386,23 +393,30 @@ fun YardlyApp(
                     category = category,
                     location = location,
                     price = price,
-                    imageUris = imageUris
+                    imageUris = imageUris,
+                    userName = profileName
                 )
                 userPosts = listOf(newPost) + userPosts
                 Log.d("CreatePostSheet", "New Post Saved: $newPost")
                 coroutineScope.launch(Dispatchers.IO) {
                     postStorage.savePosts(userPosts)
                 }
-                imageUri = null
+                selectedImageUris.clear()
             },
-            imageUri = imageUri,
+            imageUris = selectedImageUris,
             onSelectImageClick = {
-                cropImage.launch(
-                    CropImageContractOptions(
+                if (selectedImageUris.size < 6) {
+                    val options = CropImageContractOptions(
                         uri = null,
-                        cropImageOptions = CropImageOptions()
+                        cropImageOptions = CropImageOptions().apply {
+                            cropShape = CropImageView.CropShape.RECTANGLE
+                        }
                     )
-                )
+                    cropImage.launch(options)
+                }
+            },
+            onRemoveImage = { uri ->
+                selectedImageUris.remove(uri)
             }
         )
 

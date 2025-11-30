@@ -50,6 +50,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.appcompat)
     implementation("androidx.compose.material:material-icons-extended-android:1.6.7")
     implementation("androidx.navigation:navigation-compose:2.9.4")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
@@ -57,8 +58,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     // Image Loading and Cropping Libraries
-    implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("com.vanniktech:android-image-cropper:4.7.0")
+    implementation(libs.coil.compose)
+    implementation(libs.image.cropper)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

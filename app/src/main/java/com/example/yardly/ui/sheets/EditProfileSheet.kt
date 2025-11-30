@@ -65,7 +65,7 @@ fun EditProfileScreen(
     var bio by remember { mutableStateOf(currentBio) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(currentImageUri) }
 
-    val imageCropLauncher = rememberLauncherForActivityResult(CropImageContract()) { result ->
+    val imageCropLauncher = rememberLauncherForActivityResult(CropImageContract()) { result: CropImageView.CropResult ->
         if (result.isSuccessful) {
             result.uriContent?.let { tempUri ->
                 selectedImageUri = onSaveImagePermanently(tempUri)

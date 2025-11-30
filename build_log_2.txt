@@ -1,0 +1,74 @@
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+
+> Task :app:compileDebugKotlin
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/YardlyApp.kt:47:8 'class CropImageContract : ActivityResultContract<CropImageContractOptions, CropImageView.CropResult>' is deprecated. This ActivityResultContract is deprecated.
+  Please either roll your own ActivityResultContract with the desired behavior or copy paste this.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/YardlyApp.kt:48:8 'data class CropImageContractOptions : Any' is deprecated. This ActivityResultContract is deprecated.
+  Please either roll your own ActivityResultContract with the desired behavior or copy paste this.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/YardlyApp.kt:92:55 'constructor(): CropImageContract' is deprecated. This ActivityResultContract is deprecated.
+  Please either roll your own ActivityResultContract with the desired behavior or copy paste this.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/YardlyApp.kt:409:35 'constructor(uri: Uri?, cropImageOptions: CropImageOptions): CropImageContractOptions' is deprecated. This ActivityResultContract is deprecated.
+  Please either roll your own ActivityResultContract with the desired behavior or copy paste this.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/components/SettingsRow.kt:73:49 'val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/screens/messenger/MessengerScreen.kt:79:82 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/screens/settings/AccessibilityScreen.kt:49:82 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/screens/settings/DarkModeScreen.kt:51:82 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/screens/settings/SettingsScreen.kt:110:82 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/screens/watchlist/WatchlistScreen.kt:79:82 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/sheets/AdLoginSheet.kt:97:48 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/sheets/EditProfileSheet.kt:43:8 'class CropImageContract : ActivityResultContract<CropImageContractOptions, CropImageView.CropResult>' is deprecated. This ActivityResultContract is deprecated.
+  Please either roll your own ActivityResultContract with the desired behavior or copy paste this.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/sheets/EditProfileSheet.kt:44:8 'data class CropImageContractOptions : Any' is deprecated. This ActivityResultContract is deprecated.
+  Please either roll your own ActivityResultContract with the desired behavior or copy paste this.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/sheets/EditProfileSheet.kt:68:63 'constructor(): CropImageContract' is deprecated. This ActivityResultContract is deprecated.
+  Please either roll your own ActivityResultContract with the desired behavior or copy paste this.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/sheets/EditProfileSheet.kt:78:38 'constructor(uri: Uri?, cropImageOptions: CropImageOptions): CropImageContractOptions' is deprecated. This ActivityResultContract is deprecated.
+  Please either roll your own ActivityResultContract with the desired behavior or copy paste this.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/sheets/EditProfileSheet.kt:122:64 'val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///C:/Users/oshonik/Documents/Projects/Yardly/app/src/main/java/com/example/yardly/ui/sheets/ProfilePopup.kt:160:82 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:processDebugJavaRes
+> Task :app:dexBuilderDebug
+> Task :app:mergeProjectDexDebug
+> Task :app:mergeDebugJavaResource
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+
+BUILD SUCCESSFUL in 20s
+36 actionable tasks: 7 executed, 29 up-to-date
