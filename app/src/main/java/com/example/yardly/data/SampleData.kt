@@ -11,7 +11,7 @@ object SampleData {
 
     val systemPosts = listOf(
         UserPost(id = 1001L, title = "Air Force 1", price = "291.28", category = "Moving Out", description = "Good condition", location = "Campus", userName = "User 1"),
-        UserPost(id = 1002L, title = "iPhone 13", price = "299.99", category = "Moving Out", description = "Unlocked", location = "Dorm A", userName = "User 2"),
+        UserPost(id = 1002L, title = "iPhone 13", price = "299.99", category = "Moving Out", description = "Unlocked", location = "Dorm A", userName = "User 2", imageUris = listOf("https://picsum.photos/seed/iphone1/400/400", "https://picsum.photos/seed/iphone2/400/400", "https://picsum.photos/seed/iphone3/400/400")),
         UserPost(id = 1003L, title = "PlayStation 4", price = "300.00", category = "Moving Out", description = "Comes with 2 controllers", location = "Northside", userName = "User 3"),
         UserPost(id = 1004L, title = "Macbook Air 13", price = "500.00", category = "Moving Out", description = "M1 Chip", location = "Library", userName = "User 4"),
         UserPost(id = 2001L, title = "Calculus Textbook", price = "45.00", category = "Textbook", description = "Calculus Early Transcendentals", location = "Library", userName = "User 7"),

@@ -3,9 +3,11 @@ package com.example.yardly.ui.sheets
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape // This is the correct, single import
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
@@ -28,9 +30,6 @@ import coil.compose.AsyncImage
 import com.example.yardly.data.model.UserPost
 import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.BookmarkAdd
 
 
 /**
@@ -92,23 +91,60 @@ fun AdDetailSheet(
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = Dimens.ScreenPaddingHorizontal)
                 ) {
-                    // Image
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(300.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (post.imageUriString != null) {
-                            AsyncImage(
-                                model = post.imageUriString,
-                                contentDescription = post.title,
+                    // Image Carousel (Horizontal Pager)
+                    val images = post?.imageUris ?: emptyList()
+
+                    if (images.isNotEmpty()) {
+                        val pagerState = rememberPagerState(pageCount = { images.size })
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f) // 1:1 Square Aspect Ratio (Threads style)
+                                // .aspectRatio(16f / 9f) // Uncomment for 16:9
+                        ) {
+                            HorizontalPager(
+                                state = pagerState,
                                 modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
+                                pageSpacing = 12.dp, // Gap between images
+                                contentPadding = PaddingValues(horizontal = 32.dp) // Show next/prev cards
+                            ) { page ->
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(16.dp)) // Individual rounded corners
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                ) {
+                                    AsyncImage(
+                                        model = images[page],
+                                        contentDescription = post?.title,
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                            }
+                            
+                            // Page Indicator
+                            Text(
+                                text = "${pagerState.currentPage + 1}/${images.size}",
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(12.dp)
+                                    .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                                    .padding(horizontal = 10.dp, vertical = 5.dp),
+                                color = Color.White,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
                             )
-                        } else {
+                        }
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.ImageNotSupported,
                                 contentDescription = "No Image",
@@ -232,8 +268,7 @@ fun AdDetailSheetPreview() {
         price = "25.00",
         category = "Clothing",
         location = "Downtown",
-        userName = "CoolSeller123",
-        imageUriString = null
+        userName = "CoolSeller123"
     )
     YardlyTheme(isDarkMode = false) {
         AdDetailSheet(

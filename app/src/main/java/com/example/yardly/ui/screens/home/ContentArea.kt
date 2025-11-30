@@ -103,6 +103,7 @@ fun ContentArea(
                     AdCard(
                         advertisementName = post.title,
                         userName = post.userName,
+                        imageUriString = post.imageUris.firstOrNull(),
                         saveCount = saveCount,
                         isSaved = isSaved,
                         onAdClick = { onAdClick(Ad(post.title, post.userName)) },

@@ -18,15 +18,17 @@ class PostStorage(context: Context) {
     
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
+    private val jsonParser = Json { ignoreUnknownKeys = true }
+
     fun savePosts(posts: List<UserPost>) {
-        val json = Json.encodeToString(posts)
+        val json = jsonParser.encodeToString(posts)
         prefs.edit().putString(KEY_POSTS, json).apply()
     }
 
     fun loadPosts(): List<UserPost> {
         val json = prefs.getString(KEY_POSTS, null) ?: return emptyList()
         return try {
-            Json.decodeFromString(json)
+            jsonParser.decodeFromString(json)
         } catch (e: Exception) {
             emptyList()
         }

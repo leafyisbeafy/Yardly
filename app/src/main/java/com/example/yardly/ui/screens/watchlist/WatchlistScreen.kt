@@ -60,7 +60,7 @@ fun WatchlistScreen(
                 WatchlistCard(
                     itemName = post.title,
                     price = "$${post.price}",
-                    imageUriString = post.imageUriString,
+                    imageUriString = post.imageUris.firstOrNull(),
                     isSaved = true,
                     saveCount = saveCounts.getOrDefault(post.title, 0),
                     onItemClick = { onPostClick(post) },

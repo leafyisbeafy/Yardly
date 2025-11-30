@@ -15,6 +15,6 @@ data class UserPost(
     val category: String,
     val location: String,
     val userName: String = "Jordan Lee",
-    val imageUriString: String? = null
+    val imageUris: List<String> = emptyList()
 )
 

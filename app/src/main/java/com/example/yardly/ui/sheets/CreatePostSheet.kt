@@ -45,7 +45,7 @@ fun CreatePostSheet(
     userName: String,
     showModal: Boolean,
     onDismiss: () -> Unit,
-    onPostListing: (title: String, desc: String, category: String, location: String, price: String, imageUri: String?) -> Unit,
+    onPostListing: (title: String, desc: String, category: String, location: String, price: String, imageUris: List<String>) -> Unit,
     imageUri: Uri?,
     onSelectImageClick: () -> Unit
 ) {
@@ -182,7 +182,7 @@ fun CreatePostSheet(
                             Toast.makeText(context, "Title and Price are required!", Toast.LENGTH_SHORT).show()
                             return@Button
                         }
-                        onPostListing(title, description, selectedCategory.label, location, price, imageUri?.toString())
+                        onPostListing(title, description, selectedCategory.label, location, price, if (imageUri != null) listOf(imageUri.toString()) else emptyList())
                         title = ""; description = ""; price = ""
                         onDismiss()
                     },

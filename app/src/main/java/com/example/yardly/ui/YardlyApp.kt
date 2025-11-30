@@ -247,8 +247,7 @@ fun YardlyApp(
                                 category = "General",
                                 location = "Campus",
                                 price = "Contact for Price",
-                                userName = ad.user,
-                                imageUriString = null
+                                userName = ad.user
                             )
                             selectedPost = newPost
                             showAdDetailSheet = true
@@ -380,14 +379,14 @@ fun YardlyApp(
             userName = profileName,
             showModal = showCreatePostSheet,
             onDismiss = { showCreatePostSheet = false },
-            onPostListing = { title, desc, category, location, price, imageUriString ->
+            onPostListing = { title, desc, category, location, price, imageUris ->
                 val newPost = UserPost(
                     title = title,
                     description = desc,
                     category = category,
                     location = location,
                     price = price,
-                    imageUriString = imageUriString
+                    imageUris = imageUris
                 )
                 userPosts = listOf(newPost) + userPosts
                 Log.d("CreatePostSheet", "New Post Saved: $newPost")

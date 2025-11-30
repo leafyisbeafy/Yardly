@@ -138,7 +138,7 @@ fun ProfileContent(
                 } else {
                     items(userPosts) { post ->
                         WatchlistCard(
-                            itemName = post.title, price = "$${post.price}", imageUriString = post.imageUriString,
+                            itemName = post.title, price = "$${post.price}", imageUriString = post.imageUris.firstOrNull(),
                             isSaved = savedItems.getOrDefault(post.title, false), saveCount = saveCounts.getOrDefault(post.title, 0),
                             onItemClick = { onNavigateToAdDetail(post) }, onSaveClick = { onSaveClick(post.title) }
                         )

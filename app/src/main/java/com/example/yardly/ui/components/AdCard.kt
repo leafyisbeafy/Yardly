@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.sp
 import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 
 /**
  * AdCard component for displaying marketplace items in grid layout
@@ -32,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 fun AdCard(
     advertisementName: String = "Name of the advertisement",
     userName: String = "First Last",
+    imageUriString: String? = null,
     saveCount: Int,
     isSaved: Boolean,
     onSaveClick: () -> Unit = {},
@@ -81,12 +84,21 @@ fun AdCard(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Filled.ImageNotSupported,
-                    contentDescription = "Image coming soon!",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(48.dp)
-                )
+                if (imageUriString != null) {
+                    AsyncImage(
+                        model = imageUriString,
+                        contentDescription = advertisementName,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.ImageNotSupported,
+                        contentDescription = "Image coming soon!",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(48.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(Dimens.SpacingMedium))
