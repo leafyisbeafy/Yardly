@@ -5,14 +5,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape // This is the correct, single import
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ImageNotSupported
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,9 +35,6 @@ fun AdDetailSheet(
     post: UserPost?,
     showModal: Boolean,
     onDismiss: () -> Unit,
-    isSaved: Boolean,
-    saveCount: Int,
-    onSaveClick: () -> Unit,
     onUserClick: () -> Unit
 ) {
     if (showModal && post != null) {
@@ -168,48 +162,7 @@ fun AdDetailSheet(
                     Spacer(modifier = Modifier.height(Dimens.SpacingXXXLarge))
                 }
 
-                // Bottom Action Bar
-                Surface(
-                    shadowElevation = 8.dp,
-                    tonalElevation = 2.dp,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .navigationBarsPadding()
-                            .padding(Dimens.SpacingLarge),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Button(
-                            onClick = onSaveClick,
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isSaved) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.primary,
-                                contentColor = if (isSaved) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
-                            )
-                        ) {
-                            Icon(
-                                imageVector = if (isSaved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkAdd,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(if (isSaved) "Saved ($saveCount)" else "Save ($saveCount)")
-                        }
-                        Spacer(modifier = Modifier.width(Dimens.SpacingMedium))
-                        OutlinedButton(
-                            onClick = { /* TODO Share */ },
-                            modifier = Modifier.size(50.dp),
-                            contentPadding = PaddingValues(0.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Share,
-                                contentDescription = "Share"
-                            )
-                        }
-                    }
-                }
+                // Bottom Action Bar removed
             }
         }
     }
@@ -232,9 +185,6 @@ fun AdDetailSheetPreview() {
             post = mockPost,
             showModal = true,
             onDismiss = {},
-            isSaved = false,
-            saveCount = 12,
-            onSaveClick = {},
             onUserClick = {}
         )
     }

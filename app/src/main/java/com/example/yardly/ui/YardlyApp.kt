@@ -411,13 +411,6 @@ fun YardlyApp(
             post = selectedPost,
             showModal = showAdDetailSheet,
             onDismiss = { showAdDetailSheet = false },
-            isSaved = if (selectedPost != null) savedItems.getOrDefault(selectedPost!!.title, false) else false,
-            saveCount = if (selectedPost != null) saveCounts.getOrDefault(selectedPost!!.title, 0) else 0,
-            onSaveClick = {
-                if (selectedPost != null) {
-                    onSaveClick(selectedPost!!.title)
-                }
-            },
             onUserClick = {
                 showAdDetailSheet = false
                 showProfileSheet = true
