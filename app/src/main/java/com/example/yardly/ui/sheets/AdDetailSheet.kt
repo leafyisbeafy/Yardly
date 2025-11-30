@@ -8,8 +8,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape // This is the correct, single import
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ImageNotSupported
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,6 +28,10 @@ import coil.compose.AsyncImage
 import com.example.yardly.data.model.UserPost
 import com.example.yardly.ui.theme.Dimens
 import com.example.yardly.ui.theme.YardlyTheme
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.BookmarkAdd
+
 
 /**
  * Bottom sheet for displaying detailed information about a marketplace listing.
@@ -35,6 +42,9 @@ fun AdDetailSheet(
     post: UserPost?,
     showModal: Boolean,
     onDismiss: () -> Unit,
+    isSaved: Boolean,
+    saveCount: Int,
+    onSaveClick: () -> Unit,
     onUserClick: () -> Unit
 ) {
     if (showModal && post != null) {
@@ -131,10 +141,15 @@ fun AdDetailSheet(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                            .background(
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                                RoundedCornerShape(12.dp)
+                            )
                             .padding(Dimens.SpacingMedium),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        // LEFT SIDE: Profile Picture Placeholder
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
@@ -142,6 +157,46 @@ fun AdDetailSheet(
                                 .background(MaterialTheme.colorScheme.surfaceVariant)
                                 .clickable { onUserClick() }
                         )
+
+                        // RIGHT SIDE: Action Buttons
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // 1. Save Button (Pill Shaped)
+                            Button(
+                                onClick = onSaveClick,
+                                shape = CircleShape,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (isSaved) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.primary,
+                                    contentColor = if (isSaved) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimary
+                                ),
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                                modifier = Modifier.height(40.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (isSaved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkAdd,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(text = if (isSaved) "Saved" else "Save")
+                            }
+
+                            // 2. Share Button (Icon Only, Pill/Circle)
+                            FilledTonalButton(
+                                onClick = { /* TODO Share */ },
+                                shape = CircleShape,
+                                contentPadding = PaddingValues(0.dp),
+                                modifier = Modifier.size(40.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Share,
+                                    contentDescription = "Share",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(Dimens.SpacingLarge))
@@ -185,6 +240,9 @@ fun AdDetailSheetPreview() {
             post = mockPost,
             showModal = true,
             onDismiss = {},
+            isSaved = false,
+            saveCount = 12,
+            onSaveClick = {},
             onUserClick = {}
         )
     }
