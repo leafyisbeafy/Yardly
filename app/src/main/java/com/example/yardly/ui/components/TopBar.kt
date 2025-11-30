@@ -74,11 +74,3 @@ fun TopBarPreview() {
     }
 }
 
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun TopBarDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        TopBar()
-    }
-}
-

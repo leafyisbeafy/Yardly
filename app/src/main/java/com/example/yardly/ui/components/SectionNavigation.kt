@@ -103,14 +103,3 @@ fun SectionNavigationPreview() {
     }
 }
 
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun SectionNavigationDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        SectionNavigation(
-            selectedSection = "textbook",
-            onSectionSelected = {}
-        )
-    }
-}
-

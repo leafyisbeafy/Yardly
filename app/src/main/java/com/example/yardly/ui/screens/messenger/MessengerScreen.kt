@@ -87,9 +87,3 @@ private fun MessengerScreenPreviewLight() {
     YardlyTheme(isDarkMode = false) { MessengerScreen(onBackClick = {}) }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun MessengerScreenPreviewDark() {
-    YardlyTheme(isDarkMode = true) { MessengerScreen(onBackClick = {}) }
-}
-

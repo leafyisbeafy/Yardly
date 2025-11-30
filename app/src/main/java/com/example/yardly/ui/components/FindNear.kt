@@ -49,11 +49,3 @@ fun FindNearPreview() {
         FindNear(isVisible = true, onClick = {})
     }
 }
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun FindNearDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        FindNear(isVisible = true, onClick = {})
-    }
-}

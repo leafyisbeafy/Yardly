@@ -132,11 +132,3 @@ fun EditProfileScreenPreview() {
         EditProfileScreen(currentName = "Osh", currentUsername = "oshonik.xd", currentBio = "This is a bio.", currentImageUri = null, onBackClick = {}, onSaveClick = { _, _, _, _ -> }, onSaveImagePermanently = { it })
     }
 }
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun EditProfileScreenDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        EditProfileScreen(currentName = "Dark User", currentUsername = "dark_mode", currentBio = "Testing dark mode.", currentImageUri = null, onBackClick = {}, onSaveClick = { _, _, _, _ -> }, onSaveImagePermanently = { it })
-    }
-}

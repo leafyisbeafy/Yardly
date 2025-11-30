@@ -97,14 +97,5 @@ fun BottomIconNavigationProfilePreview() {
     }
 }
 
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun BottomIconNavigationDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        BottomIconNavigation(
-            selectedSection = "watchlist",
-            onSectionSelected = {}
-        )
-    }
-}
+
 

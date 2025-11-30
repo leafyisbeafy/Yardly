@@ -202,11 +202,3 @@ fun CreatePostSheetPreview() {
         CreatePostSheet(userName = "Preview User", showModal = true, onDismiss = {}, onPostListing = { _, _, _, _, _, _ -> }, imageUri = null, onSelectImageClick = {})
     }
 }
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun CreatePostSheetDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        CreatePostSheet(userName = "Dark Mode User", showModal = true, onDismiss = {}, onPostListing = { _, _, _, _, _, _ -> }, imageUri = null, onSelectImageClick = {})
-    }
-}

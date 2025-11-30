@@ -148,19 +148,6 @@ fun AdDetailSheet(
                                 .background(MaterialTheme.colorScheme.surfaceVariant)
                                 .clickable { onUserClick() }
                         )
-                        Spacer(modifier = Modifier.width(Dimens.SpacingMedium))
-                        Column {
-                            Text(
-                                text = post.userName,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            )
-                            Text(
-                                text = post.location,
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
                     }
 
                     Spacer(modifier = Modifier.height(Dimens.SpacingLarge))
@@ -247,31 +234,6 @@ fun AdDetailSheetPreview() {
             onDismiss = {},
             isSaved = false,
             saveCount = 12,
-            onSaveClick = {},
-            onUserClick = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun AdDetailSheetDarkPreview() {
-    val mockPost = UserPost(
-        title = "Calculus Textbook",
-        description = "Calculus: Early Transcendentals, 8th Edition. Great condition with some highlighting.",
-        price = "45.00",
-        category = "Textbook",
-        location = "Library",
-        userName = "StudyBuddy",
-        imageUriString = null
-    )
-    YardlyTheme(isDarkMode = true) {
-        AdDetailSheet(
-            post = mockPost,
-            showModal = true,
-            onDismiss = {},
-            isSaved = true,
-            saveCount = 8,
             onSaveClick = {},
             onUserClick = {}
         )

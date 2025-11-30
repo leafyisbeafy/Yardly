@@ -79,10 +79,3 @@ fun ExitDialogPreview() {
     }
 }
 
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun ExitDialogDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        ExitDialog(onDismiss = {})
-    }
-}

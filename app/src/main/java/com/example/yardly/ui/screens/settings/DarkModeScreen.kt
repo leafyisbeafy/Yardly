@@ -60,11 +60,3 @@ fun DarkModeScreenPreview() {
         DarkModeScreen(isDarkMode = true, onToggle = {}, onBackClick = {})
     }
 }
-
-@Preview(showBackground = true, name = "Dark Mode - Toggle On")
-@Composable
-fun DarkModeScreenDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        DarkModeScreen(isDarkMode = true, onToggle = {}, onBackClick = {})
-    }
-}

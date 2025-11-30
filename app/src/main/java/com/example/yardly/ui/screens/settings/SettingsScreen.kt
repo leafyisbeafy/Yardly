@@ -119,11 +119,3 @@ fun SettingsScreenPreview() {
         SettingsScreen(onBackClick = {}, onAccessibilityClick = {}, onDarkModeClick = {})
     }
 }
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun SettingsScreenDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        SettingsScreen(onBackClick = {}, onAccessibilityClick = {}, onDarkModeClick = {})
-    }
-}

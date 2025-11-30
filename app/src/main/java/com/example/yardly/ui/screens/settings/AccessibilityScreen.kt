@@ -58,11 +58,3 @@ fun AccessibilityScreenPreview() {
         AccessibilityScreen(onBackClick = {}, onDarkModeClick = {})
     }
 }
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun AccessibilityScreenDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        AccessibilityScreen(onBackClick = {}, onDarkModeClick = {})
-    }
-}

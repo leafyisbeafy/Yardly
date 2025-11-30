@@ -259,9 +259,3 @@ private fun EmailInputView(
 fun AdLoginSheetPreview() {
     YardlyTheme(isDarkMode = false) { AdLoginSheet(showModal = true, onDismiss = {}, onLoginSuccess = {}) }
 }
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun AdLoginSheetDarkPreview() {
-    YardlyTheme(isDarkMode = true) { AdLoginSheet(showModal = true, onDismiss = {}, onLoginSuccess = {}) }
-}

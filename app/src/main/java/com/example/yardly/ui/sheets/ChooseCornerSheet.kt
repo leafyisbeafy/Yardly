@@ -159,11 +159,3 @@ fun ChooseCornerSheetPreview() {
         ChooseCornerSheet(showModal = true, onDismiss = {})
     }
 }
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun ChooseCornerSheetDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        ChooseCornerSheet(showModal = true, onDismiss = {})
-    }
-}

@@ -201,23 +201,3 @@ fun WatchlistCardPreview() {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun WatchlistCardDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            WatchlistCard(
-                itemName = "Mini Fridge",
-                price = "$60.00",
-                imageUriString = null,
-                isSaved = true,
-                saveCount = 12,
-                onItemClick = {},
-                onSaveClick = {}
-            )
-        }
-    }
-}

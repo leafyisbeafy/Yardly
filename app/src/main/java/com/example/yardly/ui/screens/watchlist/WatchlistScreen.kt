@@ -93,18 +93,3 @@ fun WatchlistScreenPreview() {
         )
     }
 }
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun WatchlistScreenDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        WatchlistScreen(
-            onBackClick = {}, savedItems = mapOf("Vintage Lamp" to true, "Textbook" to true), saveCounts = mapOf("Vintage Lamp" to 5, "Textbook" to 3), onSaveClick = {},
-            allPosts = listOf(
-                UserPost(title = "Vintage Lamp", price = "25.00", category = "Moving Out", description = "Great condition", location = "Campus"),
-                UserPost(title = "Textbook", price = "45.00", category = "Textbook", description = "Calculus", location = "Library")
-            ),
-            onPostClick = {}
-        )
-    }
-}

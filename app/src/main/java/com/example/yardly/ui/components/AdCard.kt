@@ -168,17 +168,3 @@ fun AdCardPreview() {
         }
     }
 }
-
-@Preview(showBackground = true, name = "Dark Mode")
-@Composable
-fun AdCardDarkPreview() {
-    YardlyTheme(isDarkMode = true) {
-        Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXLarge)) {
-            AdCard(
-                advertisementName = "Vintage Desk Lamp",
-                saveCount = 5,
-                isSaved = false
-            )
-        }
-    }
-}
